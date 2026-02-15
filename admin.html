@@ -297,7 +297,7 @@
                     <tr>
                         <td class="designer-name">${designerName}</td>
                         <td class="project-name">${p.project_name || 'Untitled'}</td>
-                        <td>${p.client_name || '—'}</td>
+                        <td>${p.client_name || '&mdash;'}</td>
                         <td><span class="status-badge status-${status}">${status.replace('_', ' ')}</span></td>
                         <td>${date}</td>
                         <td><a href="workflow.html?project_id=${p.id}&readonly=true" class="btn-view">View Only</a></td>
@@ -308,7 +308,7 @@
 
         logoutBtn.addEventListener('click', async () => {
             await _supabase.auth.signOut();
-            window.location.href = 'login.html';
+            window.location.href = 'index.html';
         });
 
         init();
