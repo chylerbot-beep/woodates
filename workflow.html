@@ -775,6 +775,7 @@
     let isReadonly = new URLSearchParams(window.location.search).get('readonly') === 'true';
     let saveTimer = null;
     let currentUser = null;
+    let currentUserIsAdmin = false;
 
     function getKey(pIdx, tIdx) { return `p${pIdx}_t${tIdx}`; }
     function getNoteKey(pIdx) { return `note_p${pIdx}`; }
@@ -823,6 +824,7 @@
         .single();
 
       const isAdmin = profile && profile.role === 'admin';
+      currentUserIsAdmin = isAdmin;
       const isOwner = project.user_id === currentUser.id;
 
       if (!isOwner && !isAdmin) {
@@ -870,7 +872,7 @@
       });
       const status = checkedTasks === totalTasks ? 'completed' : 'in_progress';
 
-      const { error } = await _supabase
+      let query = _supabase
         .from('projects')
         .update({
           project_name: pName,
@@ -882,13 +884,21 @@
         })
         .eq('id', projectId);
 
+      // For non-admin users, add user_id filter to satisfy RLS policy
+      if (!currentUserIsAdmin) {
+        query = query.eq('user_id', currentUser.id);
+      }
+
+      const { error } = await query;
+
       const statusEl = document.getElementById('saveStatus');
       if (error) {
+        console.error('Save error:', error.message, error.details, error.hint);
         statusEl.textContent = 'Save failed ✗';
-        statusEl.style.color = '#B85C5C'; // Red
+        statusEl.style.color = '#B85C5C';
       } else {
         statusEl.textContent = 'Saved ✓';
-        statusEl.style.color = '#C4956A'; // Amber
+        statusEl.style.color = '#C4956A';
       }
     }
 
