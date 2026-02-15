@@ -388,8 +388,75 @@
             width: 24px;
             height: 24px;
         }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 20px;
+            }
+
+            main {
+                padding: 24px 16px;
+            }
+
+            .project-row.project-header {
+                display: none;
+            }
+
+            .project-row {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                padding: 16px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .project-row > div:nth-child(1) {
+                font-size: 1rem;
+                font-weight: 600;
+            }
+
+            .project-row > div:nth-child(2)::before {
+                content: "Client: ";
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: #9E9590;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .project-row > div:nth-child(4)::before {
+                content: "Updated: ";
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: #9E9590;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .project-row > div:nth-child(5)::before {
+                content: "Designer: ";
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: #9E9590;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .project-row > div:nth-child(6) {
+                display: flex;
+                gap: 16px;
+                margin-top: 4px;
+            }
+
+            .btn-open, .btn-delete {
+                font-size: 0.9rem;
+            }
+
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
-</head>
 
 <body>
 
