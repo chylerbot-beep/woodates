@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Woodates Design & Build — Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --dark: #1A1A18;
+    --warm-mid: #6B5B4E;
+    --accent: #C4956A;
+    --accent-light: #E8D5BF;
+    --border: #D6CEC4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: var(--dark);
+    padding: 36px 40px 32px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .logo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .logo-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .logo-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: #F5F0E8;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+
+  .logo-tagline {
+    font-size: 0.75rem;
+    font-weight: 300;
+    color: rgba(245,240,232,0.5);
+    letter-spacing: 0.06em;
+    margin-top: 6px;
+  }
+
+  main {
+    flex: 1;
+    padding: 56px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .section-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--warm-mid);
+    margin-bottom: 24px;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .tool-card {
+    background: white;
+    border-radius: 14px;
+    padding: 32px 28px;
+    text-decoration: none;
+    color: inherit;
+    border: 1.5px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 12px rgba(26,26,24,0.06);
+  }
+
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.3s ease;
+  }
+
+  .tool-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 32px rgba(26,26,24,0.13);
+    border-color: var(--accent-light);
+  }
+
+  .tool-card:hover::before {
+    transform: scaleY(1);
+  }
+
+  .tool-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--cream);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .tool-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.25rem;
+    color: var(--dark);
+    line-height: 1.2;
+  }
+
+  .tool-desc {
+    font-size: 0.82rem;
+    color: var(--warm-mid);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .tool-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    margin-top: 4px;
+  }
+
+  .tool-cta .arrow {
+    transition: transform 0.2s;
+  }
+
+  .tool-card:hover .arrow {
+    transform: translateX(4px);
+  }
+
+  footer {
+    padding: 24px 40px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--border);
+    letter-spacing: 0.06em;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 24px 20px; }
+    main { padding: 36px 20px; }
+    .logo-name { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-eyebrow">Interior Design</span>
+    <span class="logo-name">Woodates</span>
+    <span class="logo-tagline">Design & Build — Internal Tools</span>
+  </div>
+</header>
+
+<main>
+  <p class="section-label">Select a tool to get started</p>
+
+  <div class="tools-grid">
+
+    <a class="tool-card" href="workflow.html">
+      <div class="tool-icon">📋</div>
+      <div class="tool-name">ID Project Workflow</div>
+      <div class="tool-desc">
+        10-phase project checklist for on-site use. Track tasks, log site visit evidence with photos, capture ID sign-offs, and export a full PDF report.
+      </div>
+      <span class="tool-cta">Open Workflow <span class="arrow">→</span></span>
+    </a>
+
+    <a class="tool-card" href="quote-tool.html">
+      <div class="tool-icon">💰</div>
+      <div class="tool-name">Web Quote Tool</div>
+      <div class="tool-desc">
+        Generate professional client quotations quickly. Configure line items, apply markups, and produce a branded PDF quote ready to send.
+      </div>
+      <span class="tool-cta">Open Quote Tool <span class="arrow">→</span></span>
+    </a>
+
+  </div>
+</main>
+
+<footer>
+  WOODATES DESIGN & BUILD &nbsp;·&nbsp; INTERNAL USE ONLY
+</footer>
+
+</body>
+</html>

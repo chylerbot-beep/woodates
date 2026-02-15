@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ID Project Workflow</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --dark: #1A1A18;
+    --warm-mid: #6B5B4E;
+    --accent: #C4956A;
+    --accent-light: #E8D5BF;
+    --green-check: #4A7C59;
+    --border: #D6CEC4;
+    --phase-bg: #FDFBF8;
+    --shadow: 0 2px 12px rgba(26,26,24,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--dark);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: var(--dark);
+    color: var(--cream);
+    padding: 28px 32px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+
+  .app-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.01em;
+    line-height: 1.1;
+  }
+
+  .app-header h1 span {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #b37d50; }
+
+  .btn-ghost {
+    background: rgba(255,255,255,0.1);
+    color: var(--cream);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.18); }
+
+  /* ── PROJECT INFO CARD ── */
+  .project-card {
+    margin: 20px 24px;
+    background: white;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    border-left: 4px solid var(--accent);
+  }
+
+  .project-field label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--warm-mid);
+    margin-bottom: 4px;
+  }
+
+  .project-field input {
+    width: 100%;
+    border: none;
+    border-bottom: 1.5px solid var(--border);
+    padding: 6px 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--dark);
+    background: transparent;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .project-field input:focus { border-color: var(--accent); }
+  .project-field input::placeholder { color: #BDB5AD; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    margin: 0 24px 8px;
+    background: white;
+    border-radius: 10px;
+    padding: 14px 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .progress-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--warm-mid);
+    white-space: nowrap;
+  }
+
+  .progress-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--green-check) 100%);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .progress-pct {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--dark);
+    min-width: 42px;
+    text-align: right;
+  }
+
+  /* ── PHASES ── */
+  .phases {
+    padding: 0 24px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .phase {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s;
+  }
+  .phase:hover { box-shadow: 0 4px 20px rgba(26,26,24,0.12); }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    background: var(--phase-bg);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phase-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--dark);
+    color: var(--cream);
+    font-family: 'DM Serif Display', serif;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+
+  .phase.completed .phase-number {
+    background: var(--green-check);
+  }
+
+  .phase-title-wrap { flex: 1; min-width: 0; }
+
+  .phase-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1rem;
+    color: var(--dark);
+    line-height: 1.2;
+  }
+
+  .phase-objective {
+    font-size: 0.75rem;
+    color: var(--warm-mid);
+    margin-top: 2px;
+    font-style: italic;
+  }
+
+  .phase-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .phase-count {
+    font-size: 0.72rem;
+    color: var(--warm-mid);
+    font-weight: 500;
+    background: var(--accent-light);
+    padding: 3px 9px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+
+  .phase.completed .phase-count {
+    background: #D4EDDA;
+    color: var(--green-check);
+  }
+
+  .chevron {
+    font-size: 0.7rem;
+    color: var(--warm-mid);
+    transition: transform 0.3s;
+  }
+  .phase.open .chevron { transform: rotate(180deg); }
+
+  /* ── TASK TABLE ── */
+  .phase-body {
+    display: none;
+  }
+  .phase.open .phase-body {
+    display: block;
+  }
+
+  .task-row {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    align-items: start;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    transition: background 0.15s;
+  }
+  .task-row:last-child { border-bottom: none; }
+  .task-row:hover { background: #FDFAF6; }
+  .task-row.checked { background: #F6FBF7; }
+
+  .task-checkbox-wrap {
+    display: flex;
+    justify-content: center;
+    padding-top: 2px;
+  }
+
+  .task-checkbox {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    background: white;
+  }
+
+  .task-checkbox:hover {
+    border-color: var(--accent);
+  }
+
+  .task-row.checked .task-checkbox {
+    background: var(--green-check);
+    border-color: var(--green-check);
+  }
+
+  .task-checkbox::after {
+    content: '';
+    width: 5px;
+    height: 9px;
+    border: 2.5px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .task-row.checked .task-checkbox::after { opacity: 1; }
+
+  .task-content {}
+
+  .task-action {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--dark);
+    line-height: 1.35;
+    margin-bottom: 4px;
+  }
+
+  .task-row.checked .task-action {
+    text-decoration: line-through;
+    color: #9E9590;
+  }
+
+  .task-notes {
+    font-size: 0.77rem;
+    color: var(--warm-mid);
+    line-height: 1.5;
+  }
+
+  .task-sign {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .sign-input {
+    width: 80px;
+    border: none;
+    border-bottom: 1.5px solid var(--border);
+    padding: 3px 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    color: var(--warm-mid);
+    background: transparent;
+    outline: none;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+  .sign-input:focus { border-color: var(--accent); }
+  .sign-input::placeholder { font-size: 0.65rem; color: #C5BDB5; }
+
+  .sign-label {
+    display: block;
+    font-size: 0.6rem;
+    color: #BDB5AD;
+    text-align: center;
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ── PHASE NOTES ── */
+  .phase-notes-area {
+    padding: 12px 20px 16px;
+    background: #FDFBF8;
+    border-top: 1px dashed var(--border);
+  }
+
+  .phase-notes-area label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--warm-mid);
+    margin-bottom: 6px;
+  }
+
+  .phase-notes-area textarea {
+    width: 100%;
+    min-height: 60px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    color: var(--dark);
+    background: white;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .phase-notes-area textarea:focus { border-color: var(--accent); }
+  .phase-notes-area textarea::placeholder { color: #C5BDB5; }
+
+  /* ── EXPORT / RESET FOOTER ── */
+  .app-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0; right: 0;
+    background: white;
+    border-top: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 99;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+  }
+
+  .footer-info {
+    font-size: 0.75rem;
+    color: var(--warm-mid);
+  }
+
+  .footer-info strong {
+    color: var(--dark);
+    font-size: 0.85rem;
+  }
+
+  .footer-actions { display: flex; gap: 10px; }
+
+  .btn-danger {
+    background: transparent;
+    color: #B85C5C;
+    border: 1px solid #E0BEBE;
+    font-size: 0.78rem;
+  }
+  .btn-danger:hover { background: #FDF0F0; }
+
+  /* ── PDF PRINT ── */
+  @media print {
+    .app-header, .app-footer, .progress-wrap { display: none !important; }
+    .phase { break-inside: avoid; box-shadow: none !important; }
+    .phase-body { display: block !important; }
+    body { background: white; }
+    .phases { padding: 0 0 20px; }
+    .project-card { margin: 10px 0; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>
+    <span>Interior Design</span>
+    Project Workflow
+  </h1>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="resetAll()">↺ Reset</button>
+    <button class="btn btn-primary" onclick="exportPDF()">⬇ Export PDF</button>
+  </div>
+</header>
+
+<div class="project-card" id="projectCard">
+  <div class="project-field">
+    <label>Project Name</label>
+    <input type="text" id="proj_name" placeholder="e.g. 3-Room BTO – Tampines St 11" />
+  </div>
+  <div class="project-field">
+    <label>ID In-Charge</label>
+    <input type="text" id="proj_id" placeholder="Designer name" />
+  </div>
+  <div class="project-field">
+    <label>Date of Signing</label>
+    <input type="date" id="proj_date" />
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <span class="progress-label">Overall Progress</span>
+  <div class="progress-bar-bg">
+    <div class="progress-bar-fill" id="progressFill"></div>
+  </div>
+  <span class="progress-pct" id="progressPct">0%</span>
+</div>
+
+<div class="phases" id="phasesContainer"></div>
+
+<footer class="app-footer">
+  <div class="footer-info">
+    <strong id="footerChecked">0</strong> / <span id="footerTotal">0</span> tasks completed
+  </div>
+  <div class="footer-actions">
+    <button class="btn btn-danger" onclick="resetAll()">Reset All</button>
+    <button class="btn btn-primary" onclick="exportPDF()">⬇ Export PDF</button>
+  </div>
+</footer>
+
+<script>
+const PHASES = [
+  {
+    num: 1,
+    title: "Onboarding & Setup",
+    sub: "Week 1",
+    objective: 'Establish communication and manage "The Waiting Period."',
+    tasks: [
+      { action: "Create Project Group Chat", notes: "Include: ID, Project Manager, Admin (Booking), 3D Designer, & Owners." },
+      { action: "Upload Project Files", notes: "Upload Original Layout, Furniture Plan, and Signed Quotation to chat." },
+      { action: "Request Mood Board", notes: "Ask owner for reference photos for 3D rendering." },
+      { action: "Conduct Onboarding Brief", notes: 'Explain timeline (2 weeks for 3D). Manage expectations on "waiting time."' },
+      { action: "Book Material Selections", notes: "Task Admin to book: Vinyl, Tiles, Laminate, Sintered Stone, Glass." }
+    ]
+  },
+  {
+    num: 2,
+    title: "Design & Owner Purchasing",
+    sub: null,
+    objective: "Finalize visuals and ensure owner buys critical built-in items.",
+    tasks: [
+      { action: "3D Rendering", notes: "Send renders to owner (approx. 2 weeks post-signing). Note: If 3D colors are totally wrong, re-render. If slight shade difference, explain to owner." },
+      { action: "Owner Shopping List (Priority 1)", notes: "Ensure owner selects: Lights, Fans, Kitchen Appliances (Hob/Hood/Oven), Fridge dimensions." },
+      { action: "Owner Shopping List (Priority 2)", notes: "Bathroom Accessories. (Loose furniture like sofas can wait)." }
+    ]
+  },
+  {
+    num: 3,
+    title: "The First Site Visit",
+    sub: "Key Collection",
+    objective: "The critical technical run-through. Must be done with Aircon Contractor.",
+    tasks: [
+      { action: "Aircon Trunking Check", notes: "Decision: Trunking vs. L-Box? Price: Contractor to quote box-up price on the spot." },
+      { action: "Carpentry Placement", notes: "Action: Tape furniture layout on floor for owner visualization." },
+      { action: "Initial Site Measurement", notes: "Carpenter or ID to take fabrication measurements." },
+      { action: "Electrical Walkthrough", notes: "Confirm positions for: Switches, Sockets, Data points, Ceiling lighting points." },
+      { action: "Review: Shower Area", notes: "Confirm Shower Screen position & Kerb position." },
+      { action: "Review: Wet Works", notes: "Cement Base: Fridge/Washing Machine base needed? Entrance: Slope or Drop? (For tiling/vinyl)." },
+      { action: "Review: False Ceiling", notes: "Confirm height, curtain pelmet gap size, and cove light distance." },
+      { action: "Review: Hacking", notes: "(If applicable) Mark exactly which wall and extent of hacking." }
+    ]
+  },
+  {
+    num: 4,
+    title: "Documentation Protocols",
+    sub: null,
+    objective: "Rule: Do not rely on memory. Document immediately.",
+    tasks: [
+      { action: 'The "Photo Proof"', notes: "During Site Visit: Take a photo of every decision made on-site (e.g., marked socket position) and send to Group Chat immediately." },
+      { action: "Same-Day Summary", notes: "Post Site Visit: Send a text summary of all discussed points and TBC items to Group Chat on the same day." }
+    ]
+  },
+  {
+    num: 5,
+    title: "Commencement & Pre-Work",
+    sub: null,
+    objective: 'Finalize costs, collect payment, and prepare for "Dirty Work."',
+    tasks: [
+      { action: "Finalize Electrical Plan", notes: "Update Electrical/Lighting plan based on site visit. Zoom call to confirm." },
+      { action: "Generate Electrical VO", notes: "Create Quotation/VO for Electrical work + any site visit add-ons (e.g., Aircon box-up)." },
+      { action: "Billing", notes: "Issue Invoice: 35% Progress Payment + Electrical VO." },
+      { action: "Collect Payment", notes: "CRITICAL: Do not start work until payment is received." },
+      { action: "Start Work Schedule", notes: 'Confirm start date. Put date in "Set More" (booking system) early so Boss can arrange workers.' }
+    ]
+  },
+  {
+    num: 6,
+    title: "Execution – Wet Works & Ceiling",
+    sub: null,
+    objective: "Structural works and forward planning.",
+    tasks: [
+      { action: "Day 1: Hacking & Electrical Briefing", notes: "ID must go down. Brief workers on what to hack. Confirm positions with Owner." },
+      { action: "Site Protection", notes: "Priority 1: Instruct workers to protect house/flooring before any work starts." },
+      { action: "Forward Planning (Critical)", notes: "Do not wait for electrical to finish to plan next step.\n1. Book False Ceiling Guy.\n2. Book Tiler (Note: Tiler does not haul tiles; book in-house labor for haulage).\n3. Order and Deliver Tiles." },
+      { action: "Electrical Inspection", notes: "Confirm all wiring/points correct before False Ceiling guy comes in." },
+      { action: "False Ceiling Inspection", notes: "ID must check false ceiling work (leveling/structure) before Tiler comes in." }
+    ]
+  },
+  {
+    num: 7,
+    title: 'Carpentry Prep',
+    sub: 'The "Fabrication Gap" – approx. 2–3 weeks',
+    objective: "Detailed planning while carpentry is being made.",
+    tasks: [
+      { action: "Re-Measure Site", notes: "Once tiling/ceiling is done, heights change. Do site measurement again for accuracy." },
+      { action: "Carpentry Drawings", notes: "Send measurements to drafter (Nancy). Produce drawings (3–5 days). Send to Owner." },
+      { action: "On-Site Carpentry Discussion", notes: "Meet owner on-site.\nMust Confirm:\n1. Depth of carpentry.\n2. Exact switch/socket positions inside carpentry (Left/Right/Top/Bottom)." },
+      { action: "Laminate Confirmation", notes: "Confirm Laminate codes using 3D renders as a guide." },
+      { action: "Fabrication Handover", notes: "Pass confirmed drawings to Carpenter (Daniel/Boss/Self) to start fabrication." },
+      { action: "Mid-Reno Coordination", notes: "While waiting for carpentry (2–3 weeks):\n1. Suppliers measure Windows/Shower Screens.\n2. Painter: Sealer & Matex (1st Coat).\n3. Plumber: Run pipings, install storage heater.\n4. Electrician." },
+      { action: "Owner Delivery Reminder", notes: "Remind owner to deliver Hob/Hood/Oven/Sinks now so they are ready for carpentry installation." }
+    ]
+  },
+  {
+    num: 8,
+    title: "Carpentry Installation",
+    sub: null,
+    objective: "Installation and supervision.",
+    tasks: [
+      { action: "Installation Day 1", notes: 'ID must be present. Act as "Kepala" (Supervisor) to direct placement and workflow.' },
+      { action: "Routine Checks", notes: "Visit site every 2–3 days during installation to catch issues early." },
+      { action: "Electrical 2nd Fix", notes: "Once carpentry is up, Electrician returns to install switches/sockets onto the carpentry." }
+    ]
+  },
+  {
+    num: 9,
+    title: "Countertops & Finishing",
+    sub: null,
+    objective: "The final push.",
+    tasks: [
+      { action: "Table Top Measurement", notes: "Arrange stone supplier to measure. Confirm Stone color with owner." },
+      { action: "Touch-Up & Painting", notes: "While waiting for stone:\n1. Touch-up Man (Joint lines/carpentry).\n2. Painter (Final Coat)." },
+      { action: "Plumbing Finals", notes: "After stone installed: Plumber installs Sink, Tap, Bathroom Accessories, Dishwasher/Washing machine." }
+    ]
+  },
+  {
+    num: 10,
+    title: "Handover",
+    sub: null,
+    objective: "Client Inspection and completion.",
+    tasks: [
+      { action: "Owner Walkthrough", notes: "Invite owner to site. Walk around to identify any final touch-ups needed." },
+      { action: "Final Rectification", notes: "Execute touch-ups based on walkthrough." },
+      { action: "General Cleaning", notes: "Perform one last round of general cleaning." },
+      { action: "Handover", notes: "Official handover of keys and project completion." }
+    ]
+  }
+];
+
+// State
+let state = {};
+
+function getKey(pIdx, tIdx) { return `p${pIdx}_t${tIdx}`; }
+function getNoteKey(pIdx) { return `note_p${pIdx}`; }
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('id_workflow_state');
+    if (saved) state = JSON.parse(saved);
+  } catch(e) { state = {}; }
+}
+
+function saveState() {
+  try { localStorage.setItem('id_workflow_state', JSON.stringify(state)); } catch(e) {}
+}
+
+function saveProjectInfo() {
+  try {
+    state._project = {
+      name: document.getElementById('proj_name').value,
+      id: document.getElementById('proj_id').value,
+      date: document.getElementById('proj_date').value
+    };
+    saveState();
+  } catch(e) {}
+}
+
+function loadProjectInfo() {
+  if (state._project) {
+    document.getElementById('proj_name').value = state._project.name || '';
+    document.getElementById('proj_id').value = state._project.id || '';
+    document.getElementById('proj_date').value = state._project.date || '';
+  }
+}
+
+function saveSign(pIdx, tIdx, val) {
+  state[`sign_p${pIdx}_t${tIdx}`] = val;
+  saveState();
+}
+
+function saveNote(pIdx, val) {
+  state[getNoteKey(pIdx)] = val;
+  saveState();
+}
+
+function updateProgress() {
+  let total = 0, done = 0;
+  PHASES.forEach((phase, pIdx) => {
+    phase.tasks.forEach((_, tIdx) => {
+      total++;
+      if (state[getKey(pIdx, tIdx)]) done++;
+    });
+  });
+
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('footerChecked').textContent = done;
+  document.getElementById('footerTotal').textContent = total;
+
+  // Update phase completed states
+  PHASES.forEach((phase, pIdx) => {
+    const el = document.getElementById(`phase_${pIdx}`);
+    if (!el) return;
+    const allDone = phase.tasks.every((_, tIdx) => state[getKey(pIdx, tIdx)]);
+    el.classList.toggle('completed', allDone);
+    const cnt = phase.tasks.filter((_, tIdx) => state[getKey(pIdx, tIdx)]).length;
+    const countEl = el.querySelector('.phase-count');
+    if (countEl) countEl.textContent = `${cnt} / ${phase.tasks.length}`;
+  });
+}
+
+function toggleTask(pIdx, tIdx) {
+  const key = getKey(pIdx, tIdx);
+  state[key] = !state[key];
+  saveState();
+
+  const row = document.getElementById(`row_${pIdx}_${tIdx}`);
+  row.classList.toggle('checked', state[key]);
+  updateProgress();
+}
+
+function togglePhase(pIdx) {
+  const el = document.getElementById(`phase_${pIdx}`);
+  el.classList.toggle('open');
+}
+
+function buildUI() {
+  const container = document.getElementById('phasesContainer');
+  container.innerHTML = '';
+
+  PHASES.forEach((phase, pIdx) => {
+    const el = document.createElement('div');
+    el.className = 'phase';
+    el.id = `phase_${pIdx}`;
+
+    // Auto-open first incomplete phase
+    const anyDone = phase.tasks.some((_, tIdx) => state[getKey(pIdx, tIdx)]);
+    const allDone = phase.tasks.every((_, tIdx) => state[getKey(pIdx, tIdx)]);
+    if (!allDone && pIdx === 0) el.classList.add('open');
+
+    const cnt = phase.tasks.filter((_, tIdx) => state[getKey(pIdx, tIdx)]).length;
+
+    el.innerHTML = `
+      <div class="phase-header" onclick="togglePhase(${pIdx})">
+        <div class="phase-number">${phase.num}</div>
+        <div class="phase-title-wrap">
+          <div class="phase-title">${phase.title}${phase.sub ? ` <small style="font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:400;color:var(--warm-mid);">&mdash; ${phase.sub}</small>` : ''}</div>
+          <div class="phase-objective">${phase.objective}</div>
+        </div>
+        <div class="phase-meta">
+          <span class="phase-count">${cnt} / ${phase.tasks.length}</span>
+          <span class="chevron">▼</span>
+        </div>
+      </div>
+      <div class="phase-body" id="phasebody_${pIdx}">
+        ${phase.tasks.map((task, tIdx) => {
+          const checked = state[getKey(pIdx, tIdx)] ? 'checked' : '';
+          const signVal = state[`sign_p${pIdx}_t${tIdx}`] || '';
+          return `
+          <div class="task-row ${checked}" id="row_${pIdx}_${tIdx}">
+            <div class="task-checkbox-wrap">
+              <div class="task-checkbox" onclick="toggleTask(${pIdx}, ${tIdx})"></div>
+            </div>
+            <div class="task-content">
+              <div class="task-action">${task.action}</div>
+              <div class="task-notes">${task.notes.replace(/\n/g, '<br>')}</div>
+            </div>
+            <div class="task-sign">
+              <input class="sign-input" type="text" placeholder="Sign" value="${signVal}" 
+                onchange="saveSign(${pIdx}, ${tIdx}, this.value)" 
+                onclick="event.stopPropagation()" />
+              <span class="sign-label">ID Sign</span>
+            </div>
+          </div>`;
+        }).join('')}
+        <div class="phase-notes-area">
+          <label>Phase Notes</label>
+          <textarea placeholder="Add site notes, decisions, or follow-ups for this phase…" 
+            onclick="event.stopPropagation()"
+            onchange="saveNote(${pIdx}, this.value)">${state[getNoteKey(pIdx)] || ''}</textarea>
+        </div>
+      </div>
+    `;
+
+    if (allDone) el.classList.add('completed');
+    container.appendChild(el);
+  });
+
+  updateProgress();
+}
+
+function exportPDF() {
+  // Expand all phases for PDF
+  const phases = document.querySelectorAll('.phase');
+  phases.forEach(p => p.classList.add('open'));
+
+  const el = document.getElementById('phasesContainer');
+  const projectCard = document.getElementById('projectCard');
+
+  const projName = document.getElementById('proj_name').value || 'ID Project';
+  const filename = projName.replace(/[^a-z0-9]/gi, '_') + '_Workflow.pdf';
+
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'padding: 24px; font-family: DM Sans, sans-serif; background: white;';
+
+  const title = document.createElement('h1');
+  title.style.cssText = 'font-family: DM Serif Display, serif; font-size: 1.8rem; margin-bottom: 6px; color: #1A1A18;';
+  title.textContent = 'ID Project Workflow';
+
+  const sub = document.createElement('p');
+  sub.style.cssText = 'font-size: 0.8rem; color: #6B5B4E; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px;';
+  sub.textContent = projName + (document.getElementById('proj_id').value ? ' · ' + document.getElementById('proj_id').value : '');
+
+  wrapper.appendChild(title);
+  wrapper.appendChild(sub);
+  wrapper.appendChild(projectCard.cloneNode(true));
+  wrapper.appendChild(el.cloneNode(true));
+
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename: filename,
+    image: { type: 'jpeg', quality: 0.92 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all', 'css'] }
+  };
+
+  html2pdf().set(opt).from(wrapper).save();
+}
+
+function resetAll() {
+  if (!confirm('Reset all checkboxes and notes? Project info will be kept.')) return;
+  const proj = state._project;
+  state = {};
+  if (proj) state._project = proj;
+  saveState();
+  buildUI();
+  loadProjectInfo();
+}
+
+// Init
+loadState();
+buildUI();
+loadProjectInfo();
+
+// Project info persistence
+document.getElementById('proj_name').addEventListener('input', saveProjectInfo);
+document.getElementById('proj_id').addEventListener('input', saveProjectInfo);
+document.getElementById('proj_date').addEventListener('change', saveProjectInfo);
+</script>
+</body>
+</html>

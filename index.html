@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Woodates Designer Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --cream: #F5F0E8;
+            --dark: #1A1A18;
+            --accent: #C4956A;
+            --accent-light: #E8D5BF;
+            --border: #D6CEC4;
+            --glass: rgba(255, 255, 255, 0.4);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            display: none;
+            /* Hidden until session check */
+        }
+
+        header {
+            padding: 30px 40px;
+            background: white;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.8rem;
+            color: var(--dark);
+        }
+
+        .brand p {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: var(--dark);
+            color: white;
+            border-color: var(--dark);
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+        }
+
+        section {
+            margin-bottom: 60px;
+        }
+
+        section h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent);
+        }
+
+        .card-icon {
+            width: 54px;
+            height: 54px;
+            background: var(--cream);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .card h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: #6B5B4E;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* My Projects Table-ish List */
+        .projects-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .project-row {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1fr 100px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .project-row:last-child {
+            border-bottom: none;
+        }
+
+        .project-row:hover {
+            background: #FAF8F5;
+        }
+
+        .project-header {
+            background: #F9F7F4;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6B5B4E;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-in_progress {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .status-completed {
+            background: #DFF0D8;
+            color: #3C763D;
+        }
+
+        .btn-new {
+            background: var(--dark);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s;
+        }
+
+        .btn-new:hover {
+            opacity: 0.9;
+        }
+
+        .btn-open {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .btn-open:hover {
+            text-decoration: underline;
+        }
+
+        .no-projects {
+            padding: 40px;
+            text-align: center;
+            color: #BDB5AD;
+            font-style: italic;
+        }
+
+        footer {
+            padding: 40px 20px;
+            text-align: center;
+            color: #9E9590;
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+        }
+
+        svg {
+            width: 24px;
+            height: 24px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="brand">
+            <p>Woodates</p>
+            <h1>Designer Portal</h1>
+        </div>
+        <div class="user-nav">
+            <div class="user-info">
+                <p class="user-name" id="userName">...</p>
+                <p style="font-size: 0.7rem; color: #9E9590;" id="userRole">Designer</p>
+            </div>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+        </div>
+    </header>
+
+    <main>
+        <section>
+            <h2>Available Tools</h2>
+            <div class="tool-grid">
+                <!-- Workflow Tool -->
+                <a href="workflow.html" class="card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 11 12 14 22 4"></polyline>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                    </div>
+                    <h3>ID Project Workflow</h3>
+                    <p>Track project progress from onboarding to handover. Manage technical site visits and
+                        documentation protocols.</p>
+                </a>
+
+                <!-- Quote Tool -->
+                <a href="quote-tool.html" class="card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <h3>Web Quote Tool</h3>
+                    <p>Generate professional BTO and resale renovation quotations with real-time pricing and Excel
+                        export.</p>
+                </a>
+
+                <!-- Admin Tool (Hidden by default) -->
+                <a href="admin.html" id="adminCard" class="card" style="display: none;">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <h3>Admin Dashboard</h3>
+                    <p>Overview of all designer projects, status tracking, and global management controls.</p>
+                </a>
+            </div>
+        </section>
+
+        <section>
+            <h2>
+                My Projects
+                <button class="btn-new" id="newProjectBtn">+ New Project</button>
+            </h2>
+            <div class="projects-container">
+                <div class="project-row project-header">
+                    <div>Project Name</div>
+                    <div>Client</div>
+                    <div>Status</div>
+                    <div>Updated</div>
+                    <div>Action</div>
+                </div>
+                <div id="projectsList">
+                    <!-- Dynamic Content -->
+                    <div class="no-projects">Loading projects...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2024 Woodates Design Build Pte Ltd. All rights reserved.
+    </footer>
+
+    <script>
+        const { createClient } = supabase;
+        const _supabase = createClient(
+            'https://ilytehukqrkwpupdpkgo.supabase.co',
+            'sb_publishable_tNMpLdZaqm0e-El_LP4kKg_fhfj-ARF'
+        );
+
+        const userNameEl = document.getElementById('userName');
+        const userRoleEl = document.getElementById('userRole');
+        const projectsListEl = document.getElementById('projectsList');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const newProjectBtn = document.getElementById('newProjectBtn');
+        const adminCard = document.getElementById('adminCard');
+
+        async function init() {
+            const { data: { session }, error } = await _supabase.auth.getSession();
+
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Show body now that session is verified
+            document.body.style.display = 'flex';
+
+            const user = session.user;
+
+            // Fetch profile
+            const { data: profile } = await _supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (profile) {
+                userNameEl.textContent = profile.full_name;
+                userRoleEl.textContent = profile.role === 'admin' ? 'Administrator' : 'Designer';
+                if (profile.role === 'admin') adminCard.style.display = 'flex';
+            }
+
+            fetchProjects(user.id);
+        }
+
+        async function fetchProjects(userId) {
+            const { data: projects, error } = await _supabase
+                .from('projects')
+                .select('*')
+                .eq('user_id', userId)
+                .order('updated_at', { ascending: false });
+
+            if (error) {
+                projectsListEl.innerHTML = '<div class="no-projects">Error loading projects.</div>';
+                return;
+            }
+
+            if (!projects || projects.length === 0) {
+                projectsListEl.innerHTML = '<div class="no-projects">No projects found. Create your first one!</div>';
+                return;
+            }
+
+            projectsListEl.innerHTML = projects.map(p => {
+                const date = new Date(p.updated_at).toLocaleDateString('en-SG', {
+                    day: '2-digit',
+                    month: 'short'
+                });
+                const status = p.status || 'in_progress';
+                return `
+                    <div class="project-row">
+                        <div style="font-weight: 500;">${p.project_name || 'Untitled Project'}</div>
+                        <div>${p.client_name || '—'}</div>
+                        <div><span class="status-badge status-${status}">${status.replace('_', ' ')}</span></div>
+                        <div style="font-size: 0.8rem; color: #9E9590;">${date}</div>
+                        <div><a href="workflow.html?project_id=${p.id}" class="btn-open">Open</a></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        newProjectBtn.addEventListener('click', async () => {
+            const { data: { user } } = await _supabase.auth.getUser();
+            const { data, error } = await _supabase
+                .from('projects')
+                .insert([
+                    {
+                        user_id: user.id,
+                        project_name: 'New Project',
+                        status: 'in_progress',
+                        phase_data: {}
+                    }
+                ])
+                .select()
+                .single();
+
+            if (data) {
+                window.location.href = `workflow.html?project_id=${data.id}`;
+            } else {
+                alert('Error creating project');
+            }
+        });
+
+        logoutBtn.addEventListener('click', async () => {
+            await _supabase.auth.signOut();
+            window.location.href = 'login.html';
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

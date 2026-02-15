@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Woodates</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --cream: #F5F0E8;
+            --dark: #1A1A18;
+            --accent: #C4956A;
+            --accent-light: #E8D5BF;
+            --border: #D6CEC4;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            display: none;
+            /* Hidden until role check */
+        }
+
+        header {
+            padding: 30px 40px;
+            background: white;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.8rem;
+            color: var(--dark);
+        }
+
+        .brand p {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--dark);
+            color: white;
+            border-color: var(--dark);
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+        }
+
+        h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2rem;
+            margin-bottom: 32px;
+        }
+
+        .admin-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .project-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .project-table th {
+            background: #F9F7F4;
+            padding: 16px 24px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6B5B4E;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .project-table td {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .project-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .project-table tr:hover {
+            background: #FAF8F5;
+        }
+
+        .designer-name {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .project-name {
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-in_progress {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .status-completed {
+            background: #DFF0D8;
+            color: #3C763D;
+        }
+
+        .btn-view {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 2px;
+        }
+
+        .btn-view:hover {
+            color: var(--accent);
+        }
+
+        .loading,
+        .no-data {
+            padding: 60px;
+            text-align: center;
+            color: #9E9590;
+            font-style: italic;
+        }
+
+        footer {
+            padding: 40px 20px;
+            text-align: center;
+            color: #9E9590;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="brand">
+            <p>Woodates</p>
+            <h1>Admin Panel</h1>
+        </div>
+        <div class="nav-actions">
+            <a href="index.html" class="btn">Designer Portal</a>
+            <button class="btn" id="logoutBtn">Logout</button>
+        </div>
+    </header>
+
+    <main>
+        <h2>Global Project Oversight</h2>
+
+        <div class="admin-container">
+            <table class="project-table">
+                <thead>
+                    <tr>
+                        <th>Designer</th>
+                        <th>Project Name</th>
+                        <th>Client</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="projectsBody">
+                    <tr>
+                        <td colspan="6" class="loading">Fetching project data...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2024 Woodates Design Build Pte Ltd. All rights reserved.
+    </footer>
+
+    <script>
+        const { createClient } = supabase;
+        const _supabase = createClient(
+            'https://ilytehukqrkwpupdpkgo.supabase.co',
+            'sb_publishable_tNMpLdZaqm0e-El_LP4kKg_fhfj-ARF'
+        );
+
+        const projectsBody = document.getElementById('projectsBody');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        async function init() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Check admin role
+            const { data: profile } = await _supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', session.user.id)
+                .single();
+
+            if (!profile || profile.role !== 'admin') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.body.style.display = 'flex';
+            fetchAllProjects();
+        }
+
+        async function fetchAllProjects() {
+            const { data: projects, error } = await _supabase
+                .from('projects')
+                .select('*, profiles(full_name)')
+                .order('updated_at', { ascending: false });
+
+            if (error) {
+                projectsBody.innerHTML = '<tr><td colspan="6" class="no-data">Error loading projects.</td></tr>';
+                return;
+            }
+
+            if (!projects || projects.length === 0) {
+                projectsBody.innerHTML = '<tr><td colspan="6" class="no-data">No projects found in the system.</td></tr>';
+                return;
+            }
+
+            projectsBody.innerHTML = projects.map(p => {
+                const date = new Date(p.updated_at).toLocaleDateString('en-SG', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+                const status = p.status || 'in_progress';
+                const designerName = p.profiles ? p.profiles.full_name : 'Unknown';
+
+                return `
+                    <tr>
+                        <td class="designer-name">${designerName}</td>
+                        <td class="project-name">${p.project_name || 'Untitled'}</td>
+                        <td>${p.client_name || '—'}</td>
+                        <td><span class="status-badge status-${status}">${status.replace('_', ' ')}</span></td>
+                        <td>${date}</td>
+                        <td><a href="workflow.html?project_id=${p.id}&readonly=true" class="btn-view">View Only</a></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        logoutBtn.addEventListener('click', async () => {
+            await _supabase.auth.signOut();
+            window.location.href = 'login.html';
+        });
+
+        init();
+    </script>
+</body>
+
+</html>
