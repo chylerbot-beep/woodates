@@ -419,7 +419,7 @@
             <section>
                 <h2>Available Tools</h2>
                 <div class="tool-grid">
-                    <a href="workflow.html" class="card">
+                    <a href="#" class="card" id="workflowCard" onclick="createAndOpenProject(event)">
                         <div class="card-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
@@ -638,6 +638,22 @@
                 alert('Error creating project');
             }
         });
+
+        async function createAndOpenProject(e) {
+            e.preventDefault();
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) { showLogin(); return; }
+            const { data, error } = await _supabase
+                .from('projects')
+                .insert([{ user_id: user.id, project_name: 'New Project', status: 'in_progress', phase_data: {} }])
+                .select()
+                .single();
+            if (data) {
+                window.location.href = `workflow.html?project_id=${data.id}`;
+            } else {
+                alert('Error creating project');
+            }
+        }
 
         logoutBtn.addEventListener('click', async () => {
             await _supabase.auth.signOut();

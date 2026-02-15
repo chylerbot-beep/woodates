@@ -764,6 +764,7 @@
     let projectId = new URLSearchParams(window.location.search).get('project_id');
     let isReadonly = new URLSearchParams(window.location.search).get('readonly') === 'true';
     let saveTimer = null;
+    let currentUser = null;
 
     function getKey(pIdx, tIdx) { return `p${pIdx}_t${tIdx}`; }
     function getNoteKey(pIdx) { return `note_p${pIdx}`; }
@@ -779,6 +780,7 @@
         window.location.href = 'index.html';
         return;
       }
+      currentUser = session.user;
       document.body.style.display = 'block';
       if (isReadonly) document.body.classList.add('readonly');
 
@@ -797,13 +799,33 @@
         .eq('id', projectId)
         .single();
 
-      if (project) {
-        state = project.phase_data || {};
-        document.getElementById('proj_name').value = project.project_name || '';
-        document.getElementById('proj_client').value = project.client_name || '';
-        document.getElementById('proj_date').value = project.date_of_signing || '';
-        buildUI();
+      if (!project || error) {
+        alert('Project not found.');
+        window.location.href = 'index.html';
+        return;
       }
+
+      // Ownership check: fetch current user's profile to check role/name
+      const { data: profile } = await _supabase
+        .from('profiles')
+        .select('role, full_name')
+        .eq('id', currentUser.id)
+        .single();
+
+      const isAdmin = profile && profile.role === 'admin';
+      const isOwner = project.user_id === currentUser.id;
+
+      if (!isOwner && !isAdmin) {
+        alert('You do not have permission to view this project');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      state = project.phase_data || {};
+      document.getElementById('proj_name').value = project.project_name || '';
+      document.getElementById('proj_client').value = project.client_name || '';
+      document.getElementById('proj_date').value = project.date_of_signing || '';
+      buildUI();
     }
 
     function triggerSave() {
