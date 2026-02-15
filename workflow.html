@@ -27,6 +27,11 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      overflow-x: hidden;
+    }
+
+    html {
+      overflow-x: hidden;
     }
 
     body {
@@ -578,6 +583,72 @@
         box-shadow: none;
       }
     }
+
+    @media (max-width: 768px) {
+      .app-header {
+        padding: 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .app-header h1 {
+        font-size: 1.2rem;
+      }
+
+      .header-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .save-status {
+        margin-right: 0;
+        margin-bottom: 4px;
+        text-align: left;
+      }
+
+      .header-actions .btn-group {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .btn {
+        flex: 1;
+        justify-content: center;
+        padding: 10px 8px;
+        font-size: 0.75rem;
+      }
+
+      .project-card {
+        margin: 12px;
+        padding: 16px;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .progress-wrap {
+        margin: 0 12px 8px;
+        padding: 10px 14px;
+      }
+
+      .phases {
+        padding: 0 12px 80px;
+        gap: 12px;
+      }
+
+      .phase-header {
+        padding: 12px 14px;
+      }
+
+      .task-row {
+        padding: 10px 14px;
+        grid-template-columns: 32px 1fr auto;
+        gap: 10px;
+      }
+    }
   </style>
 </head>
 
@@ -592,11 +663,13 @@
     </div>
     <div class="header-actions">
       <span class="save-status" id="saveStatus"></span>
-      <button class="btn btn-save" id="saveBtn" onclick="manualSave()">💾 Save</button>
-      <button class="btn btn-ghost" onclick="resetAll()">↺ Reset</button>
-      <button class="btn btn-primary" id="exportBtn" onclick="exportPDF()">⬇ Export PDF</button>
-      <button class="btn btn-ghost" onclick="logout()"
-        style="margin-left: 8px; border-color: rgba(255,255,255,0.2); color: #BDB5AD;">Logout</button>
+      <div class="btn-group">
+        <button class="btn btn-save" id="saveBtn" onclick="manualSave()">💾 Save</button>
+        <button class="btn btn-ghost" onclick="resetAll()">↺ Reset</button>
+        <button class="btn btn-primary" id="exportBtn" onclick="exportPDF()">⬇ Export PDF</button>
+        <button class="btn btn-ghost" onclick="logout()"
+          style="border-color: rgba(255,255,255,0.2); color: #BDB5AD;">Logout</button>
+      </div>
     </div>
   </header>
 
