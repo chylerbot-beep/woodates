@@ -282,7 +282,7 @@
 
         .project-row {
             display: grid;
-            grid-template-columns: 2fr 1.5fr 1fr 1fr 100px;
+            grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 140px;
             padding: 20px 24px;
             border-bottom: 1px solid var(--border);
             align-items: center;
@@ -350,6 +350,22 @@
         }
 
         .btn-open:hover {
+            text-decoration: underline;
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #B85C5C;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            padding: 0;
+            margin-left: 12px;
+        }
+
+        .btn-delete:hover {
             text-decoration: underline;
         }
 
@@ -475,6 +491,7 @@
                         <div>Client</div>
                         <div>Status</div>
                         <div>Updated</div>
+                        <div>Designer</div>
                         <div>Action</div>
                     </div>
                     <div id="projectsList">
@@ -552,13 +569,13 @@
                 if (profile.role === 'admin') adminCard.style.display = 'flex';
             }
 
-            fetchProjects(user.id);
+            fetchProjects(user.id, profile);
         }
 
-        async function fetchProjects(userId) {
+        async function fetchProjects(userId, profile) {
             const { data: projects, error } = await _supabase
                 .from('projects')
-                .select('*')
+                .select('*, profiles(full_name)')
                 .eq('user_id', userId)
                 .order('updated_at', { ascending: false });
 
@@ -578,16 +595,38 @@
                     month: 'short'
                 });
                 const status = p.status || 'in_progress';
+                const designerName = p.profiles ? p.profiles.full_name : (profile ? profile.full_name : '—');
                 return `
-                    <div class="project-row">
+                    <div class="project-row" id="project-row-${p.id}">
                         <div style="font-weight: 500;">${p.project_name || 'Untitled Project'}</div>
                         <div>${p.client_name || '—'}</div>
                         <div><span class="status-badge status-${status}">${status.replace('_', ' ')}</span></div>
                         <div style="font-size: 0.8rem; color: #9E9590;">${date}</div>
-                        <div><a href="workflow.html?project_id=${p.id}" class="btn-open">Open</a></div>
+                        <div style="font-size: 0.85rem; color: var(--accent); font-weight: 600;">${designerName}</div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <a href="workflow.html?project_id=${p.id}" class="btn-open">Open</a>
+                            <button class="btn-delete" onclick="deleteProject('${p.id}')">Delete</button>
+                        </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        async function deleteProject(projectId) {
+            if (!confirm('Are you sure you want to delete this project? This cannot be undone.')) return;
+            const { error } = await _supabase
+                .from('projects')
+                .delete()
+                .eq('id', projectId);
+            if (error) {
+                alert('Error deleting project.');
+            } else {
+                document.getElementById(`project-row-${projectId}`).remove();
+                const remaining = document.querySelectorAll('#projectsList .project-row');
+                if (remaining.length === 0) {
+                    projectsListEl.innerHTML = '<div class="no-projects">No projects found. Create your first one!</div>';
+                }
+            }
         }
 
         loginForm.addEventListener('submit', async (e) => {

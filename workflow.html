@@ -773,7 +773,6 @@
     let state = {};
     let projectId = new URLSearchParams(window.location.search).get('project_id');
     let isReadonly = new URLSearchParams(window.location.search).get('readonly') === 'true';
-    let saveTimer = null;
     let currentUser = null;
     let currentUserIsAdmin = false;
 
@@ -844,16 +843,11 @@
       if (isReadonly) return;
       const statusEl = document.getElementById('saveStatus');
       statusEl.textContent = 'Unsaved changes…';
-      statusEl.style.color = '#BDB5AD'; // Grey
-      statusEl.style.opacity = '1';
-
-      if (saveTimer) clearTimeout(saveTimer);
-      saveTimer = setTimeout(saveProjectData, 3000);
+      statusEl.style.color = '#BDB5AD';
     }
 
     async function manualSave() {
       if (isReadonly) return;
-      if (saveTimer) clearTimeout(saveTimer);
       await saveProjectData();
     }
 
