@@ -83,7 +83,6 @@
       color: var(--accent);
       margin-right: 12px;
       font-weight: 600;
-      opacity: 0;
       transition: opacity 0.3s;
     }
 
@@ -109,6 +108,16 @@
 
     .btn-primary:hover {
       background: #b37d50;
+    }
+
+    .btn-save {
+      background: #fff;
+      color: var(--dark);
+      font-weight: 600;
+    }
+
+    .btn-save:hover {
+      background: #e8e8e8;
     }
 
     .btn-ghost {
@@ -582,7 +591,8 @@
       </h1>
     </div>
     <div class="header-actions">
-      <span class="save-status" id="saveStatus">Saved ✓</span>
+      <span class="save-status" id="saveStatus"></span>
+      <button class="btn btn-save" id="saveBtn" onclick="manualSave()">💾 Save</button>
       <button class="btn btn-ghost" onclick="resetAll()">↺ Reset</button>
       <button class="btn btn-primary" id="exportBtn" onclick="exportPDF()">⬇ Export PDF</button>
       <button class="btn btn-ghost" onclick="logout()"
@@ -831,11 +841,18 @@
     function triggerSave() {
       if (isReadonly) return;
       const statusEl = document.getElementById('saveStatus');
-      statusEl.textContent = 'Saving...';
+      statusEl.textContent = 'Unsaved changes…';
+      statusEl.style.color = '#BDB5AD'; // Grey
       statusEl.style.opacity = '1';
 
       if (saveTimer) clearTimeout(saveTimer);
       saveTimer = setTimeout(saveProjectData, 3000);
+    }
+
+    async function manualSave() {
+      if (isReadonly) return;
+      if (saveTimer) clearTimeout(saveTimer);
+      await saveProjectData();
     }
 
     async function saveProjectData() {
@@ -867,10 +884,11 @@
 
       const statusEl = document.getElementById('saveStatus');
       if (error) {
-        statusEl.textContent = 'Save Error ✗';
+        statusEl.textContent = 'Save failed ✗';
+        statusEl.style.color = '#B85C5C'; // Red
       } else {
         statusEl.textContent = 'Saved ✓';
-        setTimeout(() => { statusEl.style.opacity = '0'; }, 2000);
+        statusEl.style.color = '#C4956A'; // Amber
       }
     }
 
