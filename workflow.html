@@ -585,6 +585,8 @@
       <span class="save-status" id="saveStatus">Saved ✓</span>
       <button class="btn btn-ghost" onclick="resetAll()">↺ Reset</button>
       <button class="btn btn-primary" id="exportBtn" onclick="exportPDF()">⬇ Export PDF</button>
+      <button class="btn btn-ghost" onclick="logout()"
+        style="margin-left: 8px; border-color: rgba(255,255,255,0.2); color: #BDB5AD;">Logout</button>
     </div>
   </header>
 
@@ -765,6 +767,11 @@
 
     function getKey(pIdx, tIdx) { return `p${pIdx}_t${tIdx}`; }
     function getNoteKey(pIdx) { return `note_p${pIdx}`; }
+
+    async function logout() {
+      await _supabase.auth.signOut();
+      window.location.href = 'index.html';
+    }
 
     async function init() {
       const { data: { session } } = await _supabase.auth.getSession();
