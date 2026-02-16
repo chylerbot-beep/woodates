@@ -370,6 +370,7 @@
       min-width: 110px;
       text-align: right;
       flex-shrink: 0;
+      word-break: break-word;
     }
 
     .timestamp-who {
@@ -628,7 +629,6 @@
       color: var(--green-check);
       font-weight: 600;
       line-height: 1.3;
-      white-space: nowrap;
     }
 
     .timestamp-empty {
@@ -636,6 +636,63 @@
       font-size: 0.65rem;
       color: #C5BDB5;
       font-style: italic;
+    }
+
+    /* ── SUB-TICK (Photo confirmation) ── */
+    .sub-tick-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 6px 10px;
+      background: #F9F7F4;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .sub-checkbox {
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      background: white;
+    }
+
+    .sub-checkbox:hover {
+      border-color: var(--accent);
+    }
+
+    .sub-checkbox.sub-checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .sub-checkbox.sub-checked::after {
+      content: '';
+      width: 4px;
+      height: 7px;
+      border: 2px solid white;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) translateY(-1px);
+      display: block;
+    }
+
+    .sub-tick-label {
+      font-size: 0.75rem;
+      color: var(--warm-mid);
+      font-style: italic;
+    }
+
+    .sub-tick-row.sub-checked-row .sub-tick-label {
+      text-decoration: line-through;
+      color: #BDB5AD;
     }
 
     /* ── PHASE NOTES ── */
@@ -833,6 +890,53 @@
         grid-template-columns: 32px 1fr auto;
         gap: 10px;
       }
+
+      /* Timestamp col: shrink on mobile, allow wrapping */
+      .task-timestamp {
+        min-width: 70px;
+        max-width: 90px;
+      }
+
+      .timestamp-who {
+        font-size: 0.65rem;
+      }
+
+      .timestamp-value {
+        font-size: 0.62rem;
+      }
+
+      /* Header: wrap buttons into 2 rows on very small screens */
+      .header-actions .btn-group {
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        min-width: 60px;
+      }
+
+      /* Designer select: stack vertically */
+      .designers-add-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .designer-select-wrap {
+        width: 100%;
+      }
+
+      .btn-add-designer {
+        width: 100%;
+        text-align: center;
+      }
+
+      /* Sub-tick: ensure it fits on narrow screens */
+      .sub-tick-row {
+        flex-wrap: wrap;
+      }
+
+      .sub-tick-label {
+        font-size: 0.7rem;
+      }
     }
   </style>
 </head>
@@ -948,28 +1052,19 @@
         sub: "Key Collection",
         objective: "The critical technical run-through. Must be done with Aircon Contractor.",
         tasks: [
-          { action: "Aircon Trunking Check", notes: "Decision: Trunking vs. L-Box? Price: Contractor to quote box-up price on the spot." },
-          { action: "Carpentry Placement", notes: "Action: Tape furniture layout on floor for owner visualization." },
-          { action: "Initial Site Measurement", notes: "Carpenter or ID to take fabrication measurements." },
-          { action: "Electrical Walkthrough", notes: "Confirm positions for: Switches, Sockets, Data points, Ceiling lighting points." },
-          { action: "Review: Shower Area", notes: "Confirm Shower Screen position & Kerb position." },
-          { action: "Review: Wet Works", notes: "Cement Base: Fridge/Washing Machine base needed? Entrance: Slope or Drop? (For tiling/vinyl)." },
-          { action: "Review: False Ceiling", notes: "Confirm height, curtain pelmet gap size, and cove light distance." },
-          { action: "Review: Hacking", notes: "(If applicable) Mark exactly which wall and extent of hacking." }
-        ]
-      },
-      {
-        num: 4,
-        title: "Documentation Protocols",
-        sub: null,
-        objective: "Rule: Do not rely on memory. Document immediately.",
-        tasks: [
-          { action: 'The "Photo Proof"', notes: "During Site Visit: Take a photo of every decision made on-site (e.g., marked socket position) and send to Group Chat immediately." },
+          { action: "Aircon Trunking Check", notes: "Decision: Trunking vs. L-Box? Price: Contractor to quote box-up price on the spot.", photoSent: true },
+          { action: "Carpentry Placement", notes: "Action: Tape furniture layout on floor for owner visualization.", photoSent: true },
+          { action: "Initial Site Measurement", notes: "Carpenter or ID to take fabrication measurements.", photoSent: true },
+          { action: "Electrical Walkthrough", notes: "Confirm positions for: Switches, Sockets, Data points, Ceiling lighting points.", photoSent: true },
+          { action: "Review: Shower Area", notes: "Confirm Shower Screen position & Kerb position.", photoSent: true },
+          { action: "Review: Wet Works", notes: "Cement Base: Fridge/Washing Machine base needed? Entrance: Slope or Drop? (For tiling/vinyl).", photoSent: true },
+          { action: "Review: False Ceiling", notes: "Confirm height, curtain pelmet gap size, and cove light distance.", photoSent: true },
+          { action: "Review: Hacking", notes: "(If applicable) Mark exactly which wall and extent of hacking.", photoSent: true },
           { action: "Same-Day Summary", notes: "Post Site Visit: Send a text summary of all discussed points and TBC items to Group Chat on the same day." }
         ]
       },
       {
-        num: 5,
+        num: 4,
         title: "Commencement & Pre-Work",
         sub: null,
         objective: 'Finalize costs, collect payment, and prepare for "Dirty Work."',
@@ -982,7 +1077,7 @@
         ]
       },
       {
-        num: 6,
+        num: 5,
         title: "Execution – Wet Works & Ceiling",
         sub: null,
         objective: "Structural works and forward planning.",
@@ -995,7 +1090,7 @@
         ]
       },
       {
-        num: 7,
+        num: 6,
         title: 'Carpentry Prep',
         sub: 'The "Fabrication Gap" – approx. 2–3 weeks',
         objective: "Detailed planning while carpentry is being made.",
@@ -1010,7 +1105,7 @@
         ]
       },
       {
-        num: 8,
+        num: 7,
         title: "Carpentry Installation",
         sub: null,
         objective: "Installation and supervision.",
@@ -1021,7 +1116,7 @@
         ]
       },
       {
-        num: 9,
+        num: 8,
         title: "Countertops & Finishing",
         sub: null,
         objective: "The final push.",
@@ -1032,7 +1127,7 @@
         ]
       },
       {
-        num: 10,
+        num: 9,
         title: "Handover",
         sub: null,
         objective: "Client Inspection and completion.",
@@ -1261,6 +1356,21 @@
       triggerSave();
     }
 
+    function getSubKey(pIdx, tIdx) { return `sub_p${pIdx}_t${tIdx}`; }
+
+    function toggleSubTick(pIdx, tIdx) {
+      if (isReadonly) return;
+      const key = getSubKey(pIdx, tIdx);
+      state[key] = !state[key];
+
+      const subRow = document.getElementById(`subrow_${pIdx}_${tIdx}`);
+      const subBox = document.getElementById(`subcb_${pIdx}_${tIdx}`);
+      if (subRow) subRow.classList.toggle('sub-checked-row', state[key]);
+      if (subBox) subBox.classList.toggle('sub-checked', state[key]);
+
+      triggerSave();
+    }
+
     function togglePhase(pIdx) {
       const el = document.getElementById(`phase_${pIdx}`);
       el.classList.toggle('open');
@@ -1303,6 +1413,13 @@
           const checked = state[getKey(pIdx, tIdx)] ? 'checked' : '';
           const tsVal  = state[`sign_p${pIdx}_t${tIdx}`] || '';
           const whoVal = state[`who_p${pIdx}_t${tIdx}`]  || '';
+          const subChecked = task.photoSent ? !!state[`sub_p${pIdx}_t${tIdx}`] : false;
+          const subTick = task.photoSent ? `
+            <div class="sub-tick-row${subChecked ? ' sub-checked-row' : ''}" id="subrow_${pIdx}_${tIdx}">
+              <div class="sub-checkbox${subChecked ? ' sub-checked' : ''}" id="subcb_${pIdx}_${tIdx}"
+                onclick="event.stopPropagation(); toggleSubTick(${pIdx}, ${tIdx})"></div>
+              <span class="sub-tick-label">📸 Photo sent to WhatsApp group</span>
+            </div>` : '';
           return `
           <div class="task-row ${checked}" id="row_${pIdx}_${tIdx}">
             <div class="task-checkbox-wrap">
@@ -1311,6 +1428,7 @@
             <div class="task-content">
               <div class="task-action">${task.action}</div>
               <div class="task-notes">${task.notes.replace(/\n/g, '<br>')}</div>
+              ${subTick}
             </div>
             <div class="task-timestamp" onclick="event.stopPropagation()">
               ${renderTickMeta(tsVal, whoVal)}
