@@ -202,7 +202,7 @@
             <h1>Admin Panel</h1>
         </div>
         <div class="nav-actions">
-            <a href="index.html" class="btn">Designer Portal</a>
+            <a href="index.html" class="btn">← Home</a>
             <button class="btn" id="logoutBtn">Logout</button>
         </div>
     </header>
@@ -232,7 +232,7 @@
     </main>
 
     <footer>
-        &copy; 2025 Woodates Design Build Pte Ltd. All rights reserved.
+        &copy; 2024 Woodates Design Build Pte Ltd. All rights reserved.
     </footer>
 
     <script>
@@ -271,7 +271,7 @@
         async function fetchAllProjects() {
             const { data: projects, error } = await _supabase
                 .from('projects')
-                .select('id, project_name, client_name, status, updated_at, designers')
+                .select('*, profiles(full_name)')
                 .order('updated_at', { ascending: false });
 
             if (error) {
@@ -291,13 +291,11 @@
                     year: 'numeric'
                 });
                 const status = p.status || 'in_progress';
-                const designersList = Array.isArray(p.designers) && p.designers.length > 0
-                    ? p.designers.map(d => typeof d === 'object' ? d.name : d).join(', ')
-                    : '—';
+                const designerName = p.profiles ? p.profiles.full_name : 'Unknown';
 
                 return `
                     <tr>
-                        <td class="designer-name">${designersList}</td>
+                        <td class="designer-name">${designerName}</td>
                         <td class="project-name">${p.project_name || 'Untitled'}</td>
                         <td>${p.client_name || '&mdash;'}</td>
                         <td><span class="status-badge status-${status}">${status.replace('_', ' ')}</span></td>
