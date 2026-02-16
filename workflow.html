@@ -26,10 +26,10 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      overflow-x: hidden;
     }
 
-    html {
+    html,
+    body {
       overflow-x: hidden;
     }
 
@@ -55,6 +55,7 @@
       justify-content: space-between;
       gap: 16px;
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
     }
 
     .app-header h1 {
@@ -62,6 +63,7 @@
       font-size: 1.5rem;
       letter-spacing: 0.01em;
       line-height: 1.1;
+      overflow: visible;
     }
 
     .app-header h1 span {
@@ -176,6 +178,20 @@
 
     .project-field input::placeholder {
       color: #BDB5AD;
+    }
+
+    /* Hide native spin/calendar controls on date input */
+    input[type="date"]::-webkit-inner-spin-button,
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="date"]::-webkit-clear-button {
+      display: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input[type="date"] {
+      -moz-appearance: textfield;
+      appearance: textfield;
     }
 
     /* ── PROGRESS BAR ── */
@@ -1100,7 +1116,6 @@
     document.getElementById('proj_name').addEventListener('input', triggerSave);
     document.getElementById('proj_client').addEventListener('input', triggerSave);
     document.getElementById('proj_date').addEventListener('change', triggerSave);
-
     init();
   </script>
 </body>
