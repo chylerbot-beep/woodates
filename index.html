@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- v1.2.0-supabase-modal -->
 <html lang="en">
 
 <head>
@@ -18,7 +17,7 @@
             --accent: #C4956A;
             --accent-light: #E8D5BF;
             --border: #D6CEC4;
-            --glass: rgba(255, 255, 255, 0.4);
+            --warm-mid: #6B5B4E;
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         }
 
@@ -457,6 +456,7 @@
             }
         }
     </style>
+</head>
 
 <body>
 
@@ -569,7 +569,7 @@
         </main>
 
         <footer>
-            &copy; 2024 Woodates Design Build Pte Ltd. All rights reserved.
+            &copy; 2025 Woodates Design Build Pte Ltd. All rights reserved.
         </footer>
     </div>
 
@@ -636,10 +636,10 @@
                 if (profile.role === 'admin') adminCard.style.display = 'flex';
             }
 
-            fetchProjects(user.id, profile);
+            fetchProjects(user.id);
         }
 
-        async function fetchProjects(userId, profile) {
+        async function fetchProjects(userId) {
             const { data: projects, error } = await _supabase
                 .from('projects')
                 .select('*, profiles(full_name)')
@@ -662,7 +662,7 @@
                     month: 'short'
                 });
                 const status = p.status || 'in_progress';
-                const designerName = p.profiles ? p.profiles.full_name : (profile ? profile.full_name : '—');
+                const designerName = p.profiles?.full_name ?? '—';
                 return `
                     <div class="project-row" id="project-row-${p.id}">
                         <div style="font-weight: 500;">${p.project_name || 'Untitled Project'}</div>
@@ -723,30 +723,8 @@
             }
         });
 
-        newProjectBtn.addEventListener('click', async () => {
-            const { data: { user } } = await _supabase.auth.getUser();
-            const { data, error } = await _supabase
-                .from('projects')
-                .insert([
-                    {
-                        user_id: user.id,
-                        project_name: 'New Project',
-                        status: 'in_progress',
-                        phase_data: {}
-                    }
-                ])
-                .select()
-                .single();
-
-            if (data) {
-                window.location.href = `workflow.html?project_id=${data.id}`;
-            } else {
-                alert('Error creating project');
-            }
-        });
-
         async function createAndOpenProject(e) {
-            e.preventDefault();
+            if (e) e.preventDefault();
             const { data: { user } } = await _supabase.auth.getUser();
             if (!user) { showLogin(); return; }
             const { data, error } = await _supabase
@@ -757,9 +735,11 @@
             if (data) {
                 window.location.href = `workflow.html?project_id=${data.id}`;
             } else {
-                alert('Error creating project');
+                alert('Error creating project: ' + (error?.message || 'Unknown error'));
             }
         }
+
+        newProjectBtn.addEventListener('click', createAndOpenProject);
 
         logoutBtn.addEventListener('click', async () => {
             await _supabase.auth.signOut();

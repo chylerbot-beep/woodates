@@ -232,7 +232,7 @@
     </main>
 
     <footer>
-        &copy; 2024 Woodates Design Build Pte Ltd. All rights reserved.
+        &copy; 2025 Woodates Design Build Pte Ltd. All rights reserved.
     </footer>
 
     <script>
@@ -271,7 +271,7 @@
         async function fetchAllProjects() {
             const { data: projects, error } = await _supabase
                 .from('projects')
-                .select('*, profiles(full_name)')
+                .select('id, project_name, client_name, status, updated_at, designers')
                 .order('updated_at', { ascending: false });
 
             if (error) {
@@ -291,11 +291,13 @@
                     year: 'numeric'
                 });
                 const status = p.status || 'in_progress';
-                const designerName = p.profiles ? p.profiles.full_name : 'Unknown';
+                const designersList = Array.isArray(p.designers) && p.designers.length > 0
+                    ? p.designers.map(d => typeof d === 'object' ? d.name : d).join(', ')
+                    : '—';
 
                 return `
                     <tr>
-                        <td class="designer-name">${designerName}</td>
+                        <td class="designer-name">${designersList}</td>
                         <td class="project-name">${p.project_name || 'Untitled'}</td>
                         <td>${p.client_name || '&mdash;'}</td>
                         <td><span class="status-badge status-${status}">${status.replace('_', ' ')}</span></td>
