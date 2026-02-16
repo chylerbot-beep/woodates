@@ -219,27 +219,44 @@
       display: flex;
       gap: 8px;
       align-items: center;
+      flex-wrap: wrap;
     }
 
-    .designers-add-row input {
+    .designer-select-wrap {
+      position: relative;
       flex: 1;
+      min-width: 180px;
+    }
+
+    .designer-select {
+      width: 100%;
       border: none;
       border-bottom: 1.5px solid var(--border);
-      padding: 6px 0;
+      padding: 6px 28px 6px 0;
       font-family: 'DM Sans', sans-serif;
       font-size: 0.88rem;
       color: var(--dark);
       background: transparent;
       outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
       transition: border-color 0.2s;
     }
 
-    .designers-add-row input:focus {
+    .designer-select:focus {
       border-color: var(--accent);
     }
 
-    .designers-add-row input::placeholder {
-      color: #BDB5AD;
+    .designer-select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.75rem;
+      color: var(--warm-mid);
+      pointer-events: none;
     }
 
     .btn-add-designer {
@@ -254,10 +271,17 @@
       cursor: pointer;
       white-space: nowrap;
       transition: background 0.2s;
+      flex-shrink: 0;
     }
 
     .btn-add-designer:hover {
       background: #b37d50;
+    }
+
+    .btn-add-designer:disabled {
+      background: var(--border);
+      color: #9E9590;
+      cursor: not-allowed;
     }
 
     .designer-tags {
@@ -275,14 +299,18 @@
       background: var(--accent-light);
       color: var(--dark);
       border-radius: 99px;
-      padding: 4px 12px 4px 10px;
+      padding: 4px 10px 4px 6px;
       font-size: 0.78rem;
       font-weight: 500;
     }
 
+    .designer-tag.is-self {
+      background: #DFF0D8;
+    }
+
     .designer-tag .tag-avatar {
-      width: 18px;
-      height: 18px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       background: var(--accent);
       color: white;
@@ -295,23 +323,38 @@
       text-transform: uppercase;
     }
 
+    .designer-tag.is-self .tag-avatar {
+      background: var(--green-check);
+    }
+
+    .designer-tag .tag-name {
+      line-height: 1.2;
+    }
+
+    .designer-tag .tag-you {
+      font-size: 0.62rem;
+      color: var(--green-check);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
     .designer-tag .tag-remove {
       cursor: pointer;
       color: var(--warm-mid);
-      font-size: 0.85rem;
+      font-size: 1rem;
       line-height: 1;
       margin-left: 2px;
       transition: color 0.15s;
+      display: flex;
+      align-items: center;
     }
 
     .designer-tag .tag-remove:hover {
       color: #B85C5C;
     }
 
-    body.readonly .designer-tag .tag-remove {
-      display: none;
-    }
-
+    body.readonly .designer-tag .tag-remove,
     body.readonly .designers-add-row {
       display: none;
     }
@@ -836,9 +879,12 @@
       <label>Assigned Designers</label>
     </div>
     <div class="designers-add-row" id="designerAddRow">
-      <input type="text" id="designerInput" placeholder="Designer name" maxlength="40"
-        onkeydown="if(event.key==='Enter'){addDesigner();}" />
-      <button class="btn-add-designer" onclick="addDesigner()">+ Add</button>
+      <div class="designer-select-wrap">
+        <select class="designer-select" id="designerSelect">
+          <option value="">— Select a designer to add —</option>
+        </select>
+      </div>
+      <button class="btn-add-designer" id="btnAddDesigner" onclick="addDesignerFromSelect()" disabled>+ Add</button>
     </div>
     <div class="designer-tags" id="designerTags">
       <span class="designers-empty" id="designersEmpty">No designers assigned yet.</span>
@@ -1006,7 +1052,9 @@
     let currentUser = null;
     let currentUserIsAdmin = false;
     let currentUserName = '';
-    let designers = []; // array of name strings
+    let currentUserId = '';
+    let designers = []; // array of {id, name} objects
+    let allDesignerProfiles = []; // all profiles with role=designer fetched from DB
 
     function getKey(pIdx, tIdx) { return `p${pIdx}_t${tIdx}`; }
     function getNoteKey(pIdx) { return `note_p${pIdx}`; }
@@ -1057,6 +1105,7 @@
       const isAdmin = profile && profile.role === 'admin';
       currentUserIsAdmin = isAdmin;
       currentUserName = profile ? (profile.full_name || currentUser.email) : currentUser.email;
+      currentUserId   = currentUser.id;
       const isOwner = project.user_id === currentUser.id;
 
       if (!isOwner && !isAdmin) {
@@ -1066,7 +1115,20 @@
       }
 
       state = project.phase_data || {};
-      designers = project.designers || [];
+      // Migrate: if designers are plain strings, convert to objects
+      const rawDesigners = project.designers || [];
+      designers = rawDesigners.map(d =>
+        typeof d === 'string' ? { id: d, name: d } : d
+      );
+
+      // Auto-add current user if not already in the list
+      if (!isReadonly && !designers.find(d => d.id === currentUser.id)) {
+        designers.unshift({ id: currentUser.id, name: currentUserName });
+      }
+
+      // Fetch all users with designer or admin role for the dropdown
+      await loadDesignerProfiles();
+
       document.getElementById('proj_name').value = project.project_name || '';
       document.getElementById('proj_client').value = project.client_name || '';
       document.getElementById('proj_date').value = project.date_of_signing || '';
@@ -1274,7 +1336,43 @@
 
     // ── DESIGNER MANAGEMENT ──
     function getInitials(name) {
-      return name.trim().split(/\s+/).map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      return (name || '?').trim().split(/\s+/).map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    }
+
+    async function loadDesignerProfiles() {
+      // Fetch all profiles with role 'designer' or 'admin'
+      const { data, error } = await _supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('role', ['designer', 'admin'])
+        .order('full_name');
+
+      if (!error && data) {
+        allDesignerProfiles = data;
+      }
+      populateDesignerDropdown();
+    }
+
+    function populateDesignerDropdown() {
+      const sel = document.getElementById('designerSelect');
+      if (!sel) return;
+      // Clear existing options except placeholder
+      sel.innerHTML = '<option value="">— Select a designer to add —</option>';
+
+      const assignedIds = designers.map(d => d.id);
+      allDesignerProfiles.forEach(p => {
+        // Skip already-assigned designers
+        if (assignedIds.includes(p.id)) return;
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.full_name || p.id;
+        sel.appendChild(opt);
+      });
+
+      // Enable/disable Add button based on selection
+      sel.onchange = () => {
+        document.getElementById('btnAddDesigner').disabled = !sel.value;
+      };
     }
 
     function renderDesigners() {
@@ -1282,35 +1380,44 @@
       const emptyEl   = document.getElementById('designersEmpty');
       if (!container) return;
 
-      // Remove all existing tags (keep empty span)
       Array.from(container.querySelectorAll('.designer-tag')).forEach(el => el.remove());
 
       if (designers.length === 0) {
         if (emptyEl) emptyEl.style.display = '';
       } else {
         if (emptyEl) emptyEl.style.display = 'none';
-        designers.forEach((name, idx) => {
+        designers.forEach((d, idx) => {
+          const isSelf = d.id === currentUserId;
           const tag = document.createElement('span');
-          tag.className = 'designer-tag';
+          tag.className = 'designer-tag' + (isSelf ? ' is-self' : '');
           tag.innerHTML = `
-            <span class="tag-avatar">${getInitials(name)}</span>
-            ${name}
-            <span class="tag-remove" onclick="removeDesigner(${idx})" title="Remove">×</span>
+            <span class="tag-avatar">${getInitials(d.name)}</span>
+            <span class="tag-name">
+              ${d.name}
+              ${isSelf ? '<span class="tag-you">You</span>' : ''}
+            </span>
+            ${!isReadonly ? `<span class="tag-remove" onclick="removeDesigner(${idx})" title="Remove">×</span>` : ''}
           `;
           container.appendChild(tag);
         });
       }
+
+      // Refresh dropdown to exclude newly-added names
+      populateDesignerDropdown();
     }
 
-    function addDesigner() {
+    function addDesignerFromSelect() {
       if (isReadonly) return;
-      const input = document.getElementById('designerInput');
-      const name  = input.value.trim();
-      if (!name) return;
-      if (designers.includes(name)) { input.value = ''; return; }
-      designers.push(name);
+      const sel = document.getElementById('designerSelect');
+      const id  = sel.value;
+      if (!id) return;
+      const profile = allDesignerProfiles.find(p => p.id === id);
+      if (!profile) return;
+      if (designers.find(d => d.id === id)) return;
+      designers.push({ id: profile.id, name: profile.full_name || profile.id });
+      sel.value = '';
+      document.getElementById('btnAddDesigner').disabled = true;
       renderDesigners();
-      input.value = '';
       triggerSave();
     }
 
