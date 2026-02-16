@@ -28,8 +28,7 @@
       padding: 0;
     }
 
-    html,
-    body {
+    html, body {
       overflow-x: hidden;
     }
 
@@ -138,7 +137,7 @@
 
     /* ── PROJECT INFO CARD ── */
     .project-card {
-      margin: 20px 24px;
+      margin: 20px 24px 12px;
       background: white;
       border-radius: 12px;
       padding: 20px 24px;
@@ -186,17 +185,162 @@
     input[type="date"]::-webkit-clear-button {
       display: none;
       -webkit-appearance: none;
-      appearance: none;
     }
-
     input[type="date"] {
       -moz-appearance: textfield;
-      appearance: textfield;
+    }
+
+    /* ── DESIGNERS PANEL ── */
+    .designers-card {
+      margin: 0 24px 0;
+      background: white;
+      border-radius: 12px;
+      padding: 18px 24px;
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--accent);
+    }
+
+    .designers-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .designers-card-header label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--warm-mid);
+    }
+
+    .designers-add-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .designers-add-row input {
+      flex: 1;
+      border: none;
+      border-bottom: 1.5px solid var(--border);
+      padding: 6px 0;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      color: var(--dark);
+      background: transparent;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .designers-add-row input:focus {
+      border-color: var(--accent);
+    }
+
+    .designers-add-row input::placeholder {
+      color: #BDB5AD;
+    }
+
+    .btn-add-designer {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+
+    .btn-add-designer:hover {
+      background: #b37d50;
+    }
+
+    .designer-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+      min-height: 28px;
+    }
+
+    .designer-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-light);
+      color: var(--dark);
+      border-radius: 99px;
+      padding: 4px 12px 4px 10px;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    .designer-tag .tag-avatar {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      font-size: 0.6rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      text-transform: uppercase;
+    }
+
+    .designer-tag .tag-remove {
+      cursor: pointer;
+      color: var(--warm-mid);
+      font-size: 0.85rem;
+      line-height: 1;
+      margin-left: 2px;
+      transition: color 0.15s;
+    }
+
+    .designer-tag .tag-remove:hover {
+      color: #B85C5C;
+    }
+
+    body.readonly .designer-tag .tag-remove {
+      display: none;
+    }
+
+    body.readonly .designers-add-row {
+      display: none;
+    }
+
+    .designers-empty {
+      font-size: 0.75rem;
+      color: #BDB5AD;
+      font-style: italic;
+    }
+
+    /* ── TASK META (timestamp + user) ── */
+    .task-timestamp {
+      min-width: 110px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .timestamp-who {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent);
+      white-space: nowrap;
+      margin-bottom: 1px;
     }
 
     /* ── PROGRESS BAR ── */
     .progress-wrap {
-      margin: 0 24px 8px;
+      margin: 12px 24px 8px;
       background: white;
       border-radius: 10px;
       padding: 14px 20px;
@@ -435,12 +579,6 @@
       line-height: 1.5;
     }
 
-    .task-timestamp {
-      min-width: 90px;
-      text-align: right;
-      flex-shrink: 0;
-    }
-
     .timestamp-value {
       display: block;
       font-size: 0.68rem;
@@ -628,6 +766,11 @@
         gap: 12px;
       }
 
+      .designers-card {
+        margin: 0 12px 0;
+        padding: 14px 16px;
+      }
+
       .progress-wrap {
         margin: 0 12px 8px;
         padding: 10px 14px;
@@ -663,6 +806,8 @@
     <div class="header-actions">
       <span class="save-status" id="saveStatus"></span>
       <div class="btn-group">
+        <button class="btn btn-ghost" onclick="window.location.href='index.html'"
+          style="border-color: rgba(255,255,255,0.2); color: #BDB5AD;">← Home</button>
         <button class="btn btn-save" id="saveBtn" onclick="manualSave()">💾 Save</button>
         <button class="btn btn-ghost" onclick="resetAll()">↺ Reset</button>
         <button class="btn btn-ghost" onclick="logout()"
@@ -683,6 +828,20 @@
     <div class="project-field">
       <label>Date of Signing</label>
       <input type="date" id="proj_date" />
+    </div>
+  </div>
+
+  <div class="designers-card" id="designersCard">
+    <div class="designers-card-header">
+      <label>Assigned Designers</label>
+    </div>
+    <div class="designers-add-row" id="designerAddRow">
+      <input type="text" id="designerInput" placeholder="Designer name" maxlength="40"
+        onkeydown="if(event.key==='Enter'){addDesigner();}" />
+      <button class="btn-add-designer" onclick="addDesigner()">+ Add</button>
+    </div>
+    <div class="designer-tags" id="designerTags">
+      <span class="designers-empty" id="designersEmpty">No designers assigned yet.</span>
     </div>
   </div>
 
@@ -846,6 +1005,8 @@
     let isReadonly = new URLSearchParams(window.location.search).get('readonly') === 'true';
     let currentUser = null;
     let currentUserIsAdmin = false;
+    let currentUserName = '';
+    let designers = []; // array of name strings
 
     function getKey(pIdx, tIdx) { return `p${pIdx}_t${tIdx}`; }
     function getNoteKey(pIdx) { return `note_p${pIdx}`; }
@@ -895,6 +1056,7 @@
 
       const isAdmin = profile && profile.role === 'admin';
       currentUserIsAdmin = isAdmin;
+      currentUserName = profile ? (profile.full_name || currentUser.email) : currentUser.email;
       const isOwner = project.user_id === currentUser.id;
 
       if (!isOwner && !isAdmin) {
@@ -904,9 +1066,11 @@
       }
 
       state = project.phase_data || {};
+      designers = project.designers || [];
       document.getElementById('proj_name').value = project.project_name || '';
       document.getElementById('proj_client').value = project.client_name || '';
       document.getElementById('proj_date').value = project.date_of_signing || '';
+      renderDesigners();
       buildUI();
     }
 
@@ -944,6 +1108,7 @@
           client_name: cName,
           date_of_signing: dSign,
           phase_data: state,
+          designers: designers,
           status: status,
           updated_at: new Date().toISOString()
         })
@@ -1000,30 +1165,34 @@
       return date + ' / ' + time;
     }
 
+    function renderTickMeta(tsVal, whoVal) {
+      if (!tsVal) return '<span class="timestamp-empty">—</span>';
+      const who = whoVal ? `<span class="timestamp-who">${whoVal}</span>` : '';
+      return `${who}<span class="timestamp-value">${tsVal}</span>`;
+    }
+
     function toggleTask(pIdx, tIdx) {
       if (isReadonly) return;
       const key = getKey(pIdx, tIdx);
       state[key] = !state[key];
 
-      // Auto-populate or clear timestamp
       const signKey = `sign_p${pIdx}_t${tIdx}`;
+      const whoKey  = `who_p${pIdx}_t${tIdx}`;
+
       if (state[key]) {
         state[signKey] = formatTimestamp();
+        state[whoKey]  = currentUserName;
       } else {
         delete state[signKey];
+        delete state[whoKey];
       }
 
       const row = document.getElementById(`row_${pIdx}_${tIdx}`);
       row.classList.toggle('checked', state[key]);
 
-      // Update the timestamp display in the row
       const tsEl = row.querySelector('.task-timestamp');
       if (tsEl) {
-        if (state[signKey]) {
-          tsEl.innerHTML = '<span class="timestamp-value">' + state[signKey].replace('\n', '<br>') + '</span>';
-        } else {
-          tsEl.innerHTML = '<span class="timestamp-empty">—</span>';
-        }
+        tsEl.innerHTML = renderTickMeta(state[signKey], state[whoKey]);
       }
 
       updateProgress();
@@ -1070,7 +1239,8 @@
       <div class="phase-body" id="phasebody_${pIdx}">
         ${phase.tasks.map((task, tIdx) => {
           const checked = state[getKey(pIdx, tIdx)] ? 'checked' : '';
-          const tsVal = state[`sign_p${pIdx}_t${tIdx}`] || '';
+          const tsVal  = state[`sign_p${pIdx}_t${tIdx}`] || '';
+          const whoVal = state[`who_p${pIdx}_t${tIdx}`]  || '';
           return `
           <div class="task-row ${checked}" id="row_${pIdx}_${tIdx}">
             <div class="task-checkbox-wrap">
@@ -1081,9 +1251,7 @@
               <div class="task-notes">${task.notes.replace(/\n/g, '<br>')}</div>
             </div>
             <div class="task-timestamp" onclick="event.stopPropagation()">
-              ${tsVal
-              ? `<span class="timestamp-value">${tsVal.replace(/\n/g, '<br>')}</span>`
-              : `<span class="timestamp-empty">—</span>`}
+              ${renderTickMeta(tsVal, whoVal)}
             </div>
           </div>`;
         }).join('')}
@@ -1104,6 +1272,55 @@
     }
 
 
+    // ── DESIGNER MANAGEMENT ──
+    function getInitials(name) {
+      return name.trim().split(/\s+/).map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    }
+
+    function renderDesigners() {
+      const container = document.getElementById('designerTags');
+      const emptyEl   = document.getElementById('designersEmpty');
+      if (!container) return;
+
+      // Remove all existing tags (keep empty span)
+      Array.from(container.querySelectorAll('.designer-tag')).forEach(el => el.remove());
+
+      if (designers.length === 0) {
+        if (emptyEl) emptyEl.style.display = '';
+      } else {
+        if (emptyEl) emptyEl.style.display = 'none';
+        designers.forEach((name, idx) => {
+          const tag = document.createElement('span');
+          tag.className = 'designer-tag';
+          tag.innerHTML = `
+            <span class="tag-avatar">${getInitials(name)}</span>
+            ${name}
+            <span class="tag-remove" onclick="removeDesigner(${idx})" title="Remove">×</span>
+          `;
+          container.appendChild(tag);
+        });
+      }
+    }
+
+    function addDesigner() {
+      if (isReadonly) return;
+      const input = document.getElementById('designerInput');
+      const name  = input.value.trim();
+      if (!name) return;
+      if (designers.includes(name)) { input.value = ''; return; }
+      designers.push(name);
+      renderDesigners();
+      input.value = '';
+      triggerSave();
+    }
+
+    function removeDesigner(idx) {
+      if (isReadonly) return;
+      designers.splice(idx, 1);
+      renderDesigners();
+      triggerSave();
+    }
+
     function resetAll() {
       if (isReadonly) return;
       if (!confirm('Reset all checkboxes and notes? Project name and client info will be kept.')) return;
@@ -1116,6 +1333,7 @@
     document.getElementById('proj_name').addEventListener('input', triggerSave);
     document.getElementById('proj_client').addEventListener('input', triggerSave);
     document.getElementById('proj_date').addEventListener('change', triggerSave);
+
     init();
   </script>
 </body>
