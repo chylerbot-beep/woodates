@@ -375,6 +375,12 @@
             font-style: italic;
         }
 
+        /* Quotes table has different columns to projects */
+        .quotes-header,
+        .quote-row {
+            grid-template-columns: 1.4fr 1.5fr 1.5fr 1fr 1fr 120px;
+        }
+
         footer {
             padding: 40px 20px;
             text-align: center;
@@ -442,6 +448,40 @@
             }
 
             .project-row > div:nth-child(6) {
+                display: flex;
+                gap: 16px;
+                margin-top: 4px;
+            }
+
+            /* Quote rows on mobile */
+            .quote-row > div:nth-child(3)::before {
+                content: "Address: ";
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: #9E9590;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .quote-row > div:nth-child(4)::before {
+                content: "Total: ";
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: #9E9590;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .quote-row > div:nth-child(5)::before {
+                content: "Created: ";
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: #9E9590;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .quote-row > div:nth-child(6) {
                 display: flex;
                 gap: 16px;
                 margin-top: 4px;
@@ -566,6 +606,26 @@
                     </div>
                 </div>
             </section>
+
+            <section>
+                <h2>
+                    My Quotes
+                    <a href="quote-tool.html" class="btn-new">+ New Quote</a>
+                </h2>
+                <div class="projects-container">
+                    <div class="project-row project-header quotes-header">
+                        <div>Quote No.</div>
+                        <div>Client</div>
+                        <div>Address</div>
+                        <div>Total</div>
+                        <div>Created</div>
+                        <div>Action</div>
+                    </div>
+                    <div id="quotesList">
+                        <div class="no-projects">Loading quotes...</div>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <footer>
@@ -637,6 +697,7 @@
             }
 
             fetchProjects(user.id);
+            fetchQuotes(user.id);
         }
 
         async function fetchProjects(userId) {
@@ -692,6 +753,62 @@
                 const remaining = document.querySelectorAll('#projectsList .project-row');
                 if (remaining.length === 0) {
                     projectsListEl.innerHTML = '<div class="no-projects">No projects found. Create your first one!</div>';
+                }
+            }
+        }
+
+        async function fetchQuotes(userId) {
+            const quotesListEl = document.getElementById('quotesList');
+            const { data: quotes, error } = await _supabase
+                .from('quotes')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                // Table may not exist yet — show friendly message
+                quotesListEl.innerHTML = '<div class="no-projects">No quotes saved yet. <a href="quote-tool.html" style="color:var(--accent);font-weight:600;">Create your first quote →</a></div>';
+                return;
+            }
+
+            if (!quotes || quotes.length === 0) {
+                quotesListEl.innerHTML = '<div class="no-projects">No quotes saved yet. <a href="quote-tool.html" style="color:var(--accent);font-weight:600;">Create your first quote →</a></div>';
+                return;
+            }
+
+            quotesListEl.innerHTML = quotes.map(q => {
+                const date = new Date(q.created_at).toLocaleDateString('en-SG', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                });
+                const total = q.total != null
+                    ? '$' + Number(q.total).toLocaleString('en-SG', { minimumFractionDigits: 2 })
+                    : '—';
+                return `
+                    <div class="project-row quote-row" id="quote-row-${q.id}">
+                        <div style="font-weight:600; color:var(--accent); font-size:0.85rem;">${q.quote_number || '—'}</div>
+                        <div style="font-weight:500;">${q.client_name || '—'}</div>
+                        <div style="font-size:0.85rem; color:#9E9590;">${q.address || '—'}</div>
+                        <div style="font-weight:600;">${total}</div>
+                        <div style="font-size:0.8rem; color:#9E9590;">${date}</div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <a href="quote-tool.html?quote_id=${q.id}" class="btn-open">Open</a>
+                            <button class="btn-delete" onclick="deleteQuote('${q.id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function deleteQuote(quoteId) {
+            if (!confirm('Delete this quote? This cannot be undone.')) return;
+            const { error } = await _supabase.from('quotes').delete().eq('id', quoteId);
+            if (error) {
+                alert('Error deleting quote.');
+            } else {
+                document.getElementById(`quote-row-${quoteId}`).remove();
+                const remaining = document.querySelectorAll('#quotesList .quote-row');
+                if (remaining.length === 0) {
+                    document.getElementById('quotesList').innerHTML = '<div class="no-projects">No quotes saved yet. <a href="quote-tool.html" style="color:var(--accent);font-weight:600;">Create your first quote →</a></div>';
                 }
             }
         }

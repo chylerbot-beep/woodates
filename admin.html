@@ -203,7 +203,6 @@
         </div>
         <div class="nav-actions">
             <a href="index.html" class="btn">← Home</a>
-            <button class="btn" id="logoutBtn">Logout</button>
         </div>
     </header>
 
@@ -243,7 +242,6 @@
         );
 
         const projectsBody = document.getElementById('projectsBody');
-        const logoutBtn = document.getElementById('logoutBtn');
 
         async function init() {
             const { data: { session } } = await _supabase.auth.getSession();
@@ -305,11 +303,6 @@
                 `;
             }).join('');
         }
-
-        logoutBtn.addEventListener('click', async () => {
-            await _supabase.auth.signOut();
-            window.location.href = 'index.html';
-        });
 
         init();
     </script>
