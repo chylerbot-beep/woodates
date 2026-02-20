@@ -602,6 +602,20 @@
                         <h3>Admin Dashboard</h3>
                         <p>Overview of all designer projects, status tracking, and global management controls.</p>
                     </a>
+
+                    <a href="leads.html" id="leadsCard" class="card" style="display: none;">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <line x1="19" y1="8" x2="19" y2="14"></line>
+                                <line x1="22" y1="11" x2="16" y2="11"></line>
+                            </svg>
+                        </div>
+                        <h3>Chyler Leads</h3>
+                        <p>Pipeline, progression tracking, and lead management for Chyler's sales leads. Admin only.</p>
+                    </a>
                 </div>
             </section>
 
@@ -711,7 +725,10 @@
             if (profile) {
                 userNameEl.textContent = profile.full_name;
                 userRoleEl.textContent = profile.role === 'admin' ? 'Administrator' : 'Designer';
-                if (profile.role === 'admin') adminCard.style.display = 'flex';
+                if (profile.role === 'admin') {
+                    adminCard.style.display = 'flex';
+                    document.getElementById('leadsCard').style.display = 'flex';
+                }
             }
 
             fetchProjects(user.id);
