@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chyler Leads | Woodates</title>
+<title>Leads | Woodates</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
@@ -190,6 +190,24 @@
   .page-title { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--dark); }
   .page-subtitle { color: var(--muted); font-size: 0.82rem; margin-top: 4px; letter-spacing: 0.02em; }
 
+  /* ── COMBINED STATS + FILTERS ── */
+  .combined-stats-filters {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+  }
+  .combined-stats-filters .stat-row {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .combined-stats-filters .status-filter-row {
+    margin-bottom: 0;
+  }
+
   /* ── STAT PILLS ── */
   .stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
   .stat-pill {
@@ -327,6 +345,7 @@
   }
   .tag.type-tag { background: var(--active-bg); color: var(--active); border-color: var(--active-border); }
   .tag.pm-tag   { background: #F0EDF8; color: #7A5FA0; border-color: #D8CEED; }
+  .tag.stage-tag { background: #EBF3FB; color: #3A6EA8; border-color: #B8D4EE; font-size: 0.68rem; }
 
   .card-phone { font-size: 0.75rem; color: var(--muted); }
   .card-comment {
@@ -709,10 +728,10 @@
   <div class="header-top">
     <div class="brand">
       <p>Woodates</p>
-      <h1>Chyler Leads</h1>
+      <h1>Leads</h1>
     </div>
     <div class="main-nav">
-      <div class="main-nav-tab">Chyler Leads</div>
+      <div class="main-nav-tab">Leads</div>
     </div>
     <div class="header-actions">
       <a href="index.html" class="btn-outline">← Home</a>
@@ -731,7 +750,17 @@
     <div class="page-title">Active Pipeline</div>
     <div class="page-subtitle">Kanban view — As of 11 Feb 2026</div>
   </div>
-  <div class="stat-row" id="pipeline-stats"></div>
+  <div class="combined-stats-filters">
+    <div class="stat-row" id="pipeline-stats"></div>
+    <div class="status-filter-row">
+      <div class="status-filter-pill sf-all selected" onclick="setPipelineFilter('ALL', this)">All</div>
+      <div class="status-filter-pill sf-active" onclick="setPipelineFilter('ACTIVE', this)">Active</div>
+      <div class="status-filter-pill sf-signed" onclick="setPipelineFilter('SIGNED', this)">Signed</div>
+      <div class="status-filter-pill sf-lapsed" onclick="setPipelineFilter('LAPSED', this)">Lapsed</div>
+      <div class="status-filter-pill sf-keyco" onclick="setPipelineFilter('KEYCO', this)">Key Collection</div>
+      <div class="status-filter-pill sf-reachout" onclick="setPipelineFilter('REACHOUT', this)">🔔 Reach Out</div>
+    </div>
+  </div>
   <div class="filters">
     <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterPipeline()" id="pipeline-search">
     <select class="filter-select" onchange="filterPipeline()" id="pipeline-pm-filter">
@@ -740,16 +769,6 @@
     <select class="filter-select" onchange="filterPipeline()" id="pipeline-type-filter">
       <option value="">All Types</option>
     </select>
-  </div>
-
-  <!-- Status filter pills -->
-  <div class="status-filter-row">
-    <div class="status-filter-pill sf-all selected" onclick="setPipelineFilter('ALL', this)">All</div>
-    <div class="status-filter-pill sf-active" onclick="setPipelineFilter('ACTIVE', this)">Active</div>
-    <div class="status-filter-pill sf-signed" onclick="setPipelineFilter('SIGNED', this)">Signed</div>
-    <div class="status-filter-pill sf-lapsed" onclick="setPipelineFilter('LAPSED', this)">Lapsed</div>
-    <div class="status-filter-pill sf-keyco" onclick="setPipelineFilter('KEYCO', this)">Key Collection</div>
-    <div class="status-filter-pill sf-reachout" onclick="setPipelineFilter('REACHOUT', this)">🔔 Reach Out</div>
   </div>
 
   <!-- REACH OUT SECTION -->
@@ -870,6 +889,7 @@
           <th>D · Phone</th>
           <th>E · Type</th>
           <th>F · Name</th>
+          <th>Current Status</th>
           <th>G · Responsive?</th>
           <th>H · GC Created</th>
           <th>I · PM</th>
@@ -1287,6 +1307,7 @@ function renderProgression(data) {
       <td ${editable} style="color:var(--muted);font-size:0.78rem">${r.Phone}</td>
       <td ${editable}>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'—'}</td>
       <td ${editable} style="font-weight:600">${esc(r.Name)}</td>
+      <td>${st==='ACTIVE' ? `<span class="tag stage-tag">${esc(r.stage||'—')}</span>` : '<span style="color:#CCC">—</span>'}</td>
       <td>${cellVal(r['Responsive?'])}</td>
       <td>${cellVal(r['GC created'])}</td>
       <td>${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:'<span style="color:#CCC">—</span>'}</td>
@@ -1328,8 +1349,8 @@ function toggleEditMode() {
 // ── EXCEL DOWNLOAD ──
 function downloadExcel() {
   const data = progFiltered.length ? progFiltered : CHYLER_DATA;
-  const cols = ['Number','Date','Source','Phone','Type','Name','Responsive?','GC created','PM','1st meet','2D','Quotation','2nd meet','Revised 2D','Revised Quotation','Site visit','Comments','1st Deposit','2nd Deposit','FINAL STATUS'];
-  const headers = ['A · #','B · Date','C · Source','D · Phone','E · Type','F · Name','G · Responsive?','H · GC Created','I · PM','J · 1st Meet','K · 2D','L · Quotation','M · 2nd Meet','N · Revised 2D','O · Revised Quot.','P · Site Visit','Q · Comments','R · 1st Deposit','S · 2nd Deposit','T · Final Status'];
+  const cols = ['Number','Date','Source','Phone','Type','Name','stage','Responsive?','GC created','PM','1st meet','2D','Quotation','2nd meet','Revised 2D','Revised Quotation','Site visit','Comments','1st Deposit','2nd Deposit','FINAL STATUS'];
+  const headers = ['A · #','B · Date','C · Source','D · Phone','E · Type','F · Name','Current Status','G · Responsive?','H · GC Created','I · PM','J · 1st Meet','K · 2D','L · Quotation','M · 2nd Meet','N · Revised 2D','O · Revised Quot.','P · Site Visit','Q · Comments','R · 1st Deposit','S · 2nd Deposit','T · Final Status'];
 
   // Build CSV with BOM for Excel
   let csv = '\uFEFF' + headers.join(',') + '\n';
