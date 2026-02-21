@@ -644,10 +644,6 @@
                             <input type="text" id="clientName" placeholder="e.g. John Tan" required>
                         </div>
                         <div class="form-group">
-                            <label>Contact Number</label>
-                            <input type="tel" id="clientPhone" placeholder="8123 4567" required>
-                        </div>
-                        <div class="form-group">
                             <label>Project Address</label>
                             <input type="text" id="projectAddress" placeholder="e.g. Tampines Green Opal" required>
                         </div>
@@ -936,7 +932,7 @@
         let state = {
             client: {
                 name: "",
-                phone: "",
+
                 address: "",
                 flatType: "4-Room HDB"
             },
@@ -1214,7 +1210,6 @@
             <h2>Quotation For:</h2>
             <p><strong>${state.client.name}</strong></p>
             <p>${state.client.address}</p>
-            <p>${state.client.phone}</p>
             <p><strong>Flat Type:</strong> ${state.client.flatType}</p>
         </div>
 
@@ -1469,7 +1464,7 @@
                 addMerge(rows.length - 1, 0, rows.length - 1, 1);
                 rows.push(lhRow('DATE :  ' + state.quoteDate, '', 'Quote No: ' + state.quoteId));
                 addMerge(rows.length - 1, 0, rows.length - 1, 1);
-                rows.push(lhRow('ATTENTION :  ' + (state.client.name || '') + (state.client.phone ? '   |   ' + state.client.phone : '')));
+                rows.push(lhRow('ATTENTION :  ' + (state.client.name || '')));
                 addMerge(rows.length - 1, 0, rows.length - 1, 1);
                 rows.push(lhRow('FLAT TYPE :  ' + (state.client.flatType || '')));
                 addMerge(rows.length - 1, 0, rows.length - 1, 1);
@@ -1636,7 +1631,6 @@
                 }
                 state.client = {
                     name: document.getElementById('clientName').value,
-                    phone: document.getElementById('clientPhone').value,
                     address: document.getElementById('projectAddress').value,
                     flatType: document.getElementById('flatType').value
                 };
