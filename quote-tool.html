@@ -778,6 +778,8 @@
             // ALUMINIUM, WINDOW AND GLASS WORKS
             { code: "WIN-01", category: "ALUMINIUM, WINDOW AND GLASS WORKS", name: "Shower Screen 1fix 1 swing", description: "Supply and install 1 full fixed panel and 1 full swing door for shower screen ([DIMENSIONS])", unit: "pcs", displayUnit: "pcs", unitCost: 750 },
             { code: "WIN-02", category: "ALUMINIUM, WINDOW AND GLASS WORKS", name: "Shower Screen 2 fix 2 slide", description: "Supply and install full height 2 fix 2 slide shower screen for common bath ([DIMENSIONS])", unit: "pcs", displayUnit: "pcs", unitCost: 750 },
+            { code: "WIN-04", category: "ALUMINIUM, WINDOW AND GLASS WORKS", name: "Frosted Glass Sliding Door (Bathroom)", description: "Supply and install frosted glass sliding door with aluminium frame for bathroom ([DIMENSIONS])", unit: "pcs", displayUnit: "pcs", unitCost: 1050 },
+            { code: "WIN-05", category: "ALUMINIUM, WINDOW AND GLASS WORKS", name: "Fixed Panel Shower Screen (Low)", description: "Supply and install full height fixed panel shower screen up to 900mm W x 900mm H", unit: "pcs", displayUnit: "pcs", unitCost: 300 },
             { code: "WIN-03", category: "ALUMINIUM, WINDOW AND GLASS WORKS", name: "Service Yard Window", description: "Supply and install 3 way sliding window at service yard ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 100 },
             // CARPENTRY - BATHROOM
             { code: "BAT-01", category: "CARPENTRY - BATHROOM", name: "Laminated Door", description: "Supply and install laminated door for common bath in selected laminate finish, c/w lever handle ([DIMENSIONS])", unit: "pcs", displayUnit: "pcs", unitCost: 500 },
@@ -788,7 +790,7 @@
             { code: "C1BED3", category: "CARPENTRY - C1 BEDROOM", name: "Headboard Laminate (Bedroom 2)", description: "Design, fabricate and install headboard for bedroom 2 in selected laminate finish ([DIMENSIONS])", unit: "psf", displayUnit: "sf", unitCost: 30 },
             { code: "C1BED4", category: "CARPENTRY - C1 BEDROOM", name: "Headboard PVC (Bedroom 2)", description: "Design, fabricate and install headboard for bedroom 2 in pvc/fabric cushion finish ([DIMENSIONS])", unit: "psf", displayUnit: "sf", unitCost: 40 },
             { code: "C1BED5", category: "CARPENTRY - C1 BEDROOM", name: "Bedside Table (Bedroom 2)", description: "Design, fabricate and install bedside table for bedroom 2 with drawer ([DIMENSIONS])", unit: "set", displayUnit: "set", unitCost: 350 },
-            { code: "C1BED6", category: "CARPENTRY - C1 BEDROOM", name: "Study Table (Bedroom 2)", description: "Design, fabricate and install study table for bedroom 2 with drawers in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 200 },
+            { code: "C1BED13", category: "CARPENTRY - C1 BEDROOM", name: "Study Desk with Drawer (Bedroom 2)", description: "Design, fabricate and install study desk c/w drawer in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 175 },
             { code: "C1BED7", category: "CARPENTRY - C1 BEDROOM", name: "Bed Single (Bedroom 2)", description: "Bed box of Single-sized mattress in selected laminate finish", unit: "set", displayUnit: "set", unitCost: 1200 },
             { code: "C1BED8", category: "CARPENTRY - C1 BEDROOM", name: "Bed Single with Storage (Bedroom 2)", description: "Bed box of Single-sized mattress (with Storage) in selected laminate finish", unit: "set", displayUnit: "set", unitCost: 1400 },
             { code: "C1BED9", category: "CARPENTRY - C1 BEDROOM", name: "Bed Queen (Bedroom 2)", description: "Bed box Queen-sized mattress in selected laminate finish", unit: "set", displayUnit: "set", unitCost: 1400 },
@@ -801,7 +803,7 @@
             { code: "C2BED3", category: "CARPENTRY - C2 BEDROOM", name: "Headboard Laminate (Bedroom 3)", description: "Design, fabricate and install headboard for bedroom 3 in selected laminate finish ([DIMENSIONS])", unit: "psf", displayUnit: "sf", unitCost: 30 },
             { code: "C2BED4", category: "CARPENTRY - C2 BEDROOM", name: "Headboard PVC (Bedroom 3)", description: "Design, fabricate and install headboard for bedroom 3 in pvc/fabric cushion finish ([DIMENSIONS])", unit: "psf", displayUnit: "sf", unitCost: 40 },
             { code: "C2BED5", category: "CARPENTRY - C2 BEDROOM", name: "Bedside Table (Bedroom 3)", description: "Design, fabricate and install bedside table for bedroom 3 with drawer ([DIMENSIONS])", unit: "set", displayUnit: "set", unitCost: 350 },
-            { code: "C2BED6", category: "CARPENTRY - C2 BEDROOM", name: "Study Table (Bedroom 3)", description: "Design, fabricate and install study table for bedroom 3 with drawers in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 200 },
+            { code: "C2BED13", category: "CARPENTRY - C2 BEDROOM", name: "Study Desk with Drawer (Bedroom 3)", description: "Design, fabricate and install study desk c/w drawer in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 175 },
             { code: "C2BED7", category: "CARPENTRY - C2 BEDROOM", name: "Bed Single (Bedroom 3)", description: "Bed box of Single-sized mattress in selected laminate finish", unit: "set", displayUnit: "set", unitCost: 1200 },
             { code: "C2BED8", category: "CARPENTRY - C2 BEDROOM", name: "Bed Single with Storage (Bedroom 3)", description: "Bed box of Single-sized mattress (with Storage) in selected laminate finish", unit: "set", displayUnit: "set", unitCost: 1400 },
             { code: "C2BED9", category: "CARPENTRY - C2 BEDROOM", name: "Bed Queen (Bedroom 3)", description: "Bed box Queen-sized mattress in selected laminate finish", unit: "set", displayUnit: "set", unitCost: 1400 },
@@ -812,29 +814,35 @@
             { code: "E-CARP", category: "CARPENTRY - FOYER & LIVING ROOM", name: "Shoe Cabinet Half Height", description: "Design, fabricate and install shoe cabinet with casement doors half height in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 180 },
             { code: "FOY-02", category: "CARPENTRY - FOYER & LIVING ROOM", name: "Shoe Cabinet Full Height", description: "Design, fabricate and install shoe cabinet with casement doors full height in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 300 },
             { code: "FOY-03", category: "CARPENTRY - FOYER & LIVING ROOM", name: "Settee with Storage", description: "Design, fabricate and install settee with storage in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 180 },
-            { code: "FOY-04", category: "CARPENTRY - FOYER & LIVING ROOM", name: "DB Box Cover", description: "Design, fabricate and install feature panel to conceal DB box with tic tac door ([DIMENSIONS])", unit: "ls", displayUnit: "ls", unitCost: 600 },
+            { code: "FOY-04", category: "CARPENTRY - FOYER & LIVING ROOM", name: "Household Shelter / DB Panel", description: "Design, fabricate and install full height panel concealing household shelter / DB box c/w tic tac mechanism door in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 300 },
             { code: "F-LIV", category: "CARPENTRY - FOYER & LIVING ROOM", name: "Feature Wall (1 side)", description: "Design, fabricate and install feature wall (1 side) in selected laminate finish ([DIMENSIONS])", unit: "psf", displayUnit: "sf", unitCost: 30 },
             { code: "LIV-02", category: "CARPENTRY - FOYER & LIVING ROOM", name: "Feature Wall (2 sides)", description: "Design, fabricate and install feature wall (2 sides) in selected laminate finish ([DIMENSIONS])", unit: "psf", displayUnit: "sf", unitCost: 55 },
             { code: "LIV-03", category: "CARPENTRY - FOYER & LIVING ROOM", name: "TV Console", description: "Design, fabricate and install TV console with drawers in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 180 },
             { code: "LIV-04", category: "CARPENTRY - FOYER & LIVING ROOM", name: "TV Console 2-Tier", description: "Design, fabricate and install TV console with drawers (2 tier) in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 200 },
             { code: "LIV-06", category: "CARPENTRY - FOYER & LIVING ROOM", name: "Plasterboard Arch", description: "Provide labor and materials to frame and finish a plasterboard archway ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 50 },
             // CARPENTRY - KITCHEN & SERVICE YARD
-            { code: "G-KIT", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Top Cabinet", description: "Design, fabricate and install kitchen top cabinet in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 150 },
             { code: "KIT-02", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Bottom Cabinet - Kitchen", description: "Design, fabricate and install kitchen bottom cabinet in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 150 },
-            { code: "KIT-03", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Tall Boy", description: "Design, fabricate and install kitchen tall boy set in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 375 },
+
+            { code: "G-KIT", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Top Cabinet", description: "Design, fabricate and install kitchen top cabinet in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 150 },
+            { code: "KIT-03", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Tall Boy", description: "Design, fabricate and install kitchen tall boy set in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 450 },
             { code: "KIT-04", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Fridge Cabinet", description: "Design, fabricate and install fridge top cabinet c/w side panel in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 250 },
             { code: "KIT-05", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Island / Bar Counter", description: "Design, fabricate and install Island unit / Bar counter c/w swing door (2 side exposed) ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 250 },
-            { code: "KIT-06", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Stone Top", description: "Supply and install Melmer/Aurastone/LianHin sintered stone table top, single profile ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 150 },
-            { code: "KIT-07", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Backsplash", description: "Supply and install sintered stone backsplash for kitchen bottom cabinet ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 150 },
+            { code: "KIT-06", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Sintered Stone Top", description: "Supply and install Melmer/Aurastone/LianHin sintered stone table top, single profile ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 150 },
+            { code: "KIT-07", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Sintered Stone Backsplash", description: "Supply and install sintered stone backsplash for kitchen bottom cabinet ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 150 },
+            { code: "KIT-14", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Quartz Top", description: "Supply and install Aurastone classic series single profile quartz table top ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 125 },
+            { code: "KIT-10", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Stainless Steel Top", description: "Supply and install stainless steel table top 4mm thk ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 200 },
+            { code: "KIT-11", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Stainless Steel Backsplash", description: "Supply and install stainless steel backsplash 1mm thk ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 155 },
             { code: "KIT-08", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Blum Aventos Lift-Up", description: "Blum HK Aventos Lift up system", unit: "set", displayUnit: "set", unitCost: 150 },
             { code: "KIT-09", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Bottom Cabinet - Service Yard", description: "Design, fabricate and install service yard bottom cabinet in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 150 },
+            { code: "KIT-12", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Dry Pantry - Half Height", description: "Design, fabricate and install dry pantry half height cabinet with laminated top in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 150 },
+            { code: "KIT-13", category: "CARPENTRY - KITCHEN & SERVICE YARD", name: "Dry Pantry - Full Height", description: "Design, fabricate and install dry pantry full height cabinet in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 300 },
             // CARPENTRY - MASTER BEDROOM
             { code: "MBED1", category: "CARPENTRY - MASTER BEDROOM", name: "Wardrobe Casement (Master Bedroom)", description: "Design, fabricate and install master bedroom casement wardrobe in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 300 },
             { code: "MBED2", category: "CARPENTRY - MASTER BEDROOM", name: "Wardrobe Sliding (Master Bedroom)", description: "Design, fabricate and install master bedroom sliding door wardrobe in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 350 },
             { code: "MBED3", category: "CARPENTRY - MASTER BEDROOM", name: "Headboard Laminate (Master Bedroom)", description: "Design, fabricate and install master bedroom headboard in selected laminate finish ([DIMENSIONS])", unit: "psf", displayUnit: "sf", unitCost: 30 },
             { code: "MBED4", category: "CARPENTRY - MASTER BEDROOM", name: "Headboard PVC (Master Bedroom)", description: "Design, fabricate and install master bedroom headboard in pvc/fabric cushion finish ([DIMENSIONS])", unit: "psf", displayUnit: "sf", unitCost: 40 },
             { code: "MBED5", category: "CARPENTRY - MASTER BEDROOM", name: "Bedside Table (Master Bedroom)", description: "Design, fabricate and install master bedroom bedside table with drawer ([DIMENSIONS])", unit: "set", displayUnit: "set", unitCost: 350 },
-            { code: "MBED6", category: "CARPENTRY - MASTER BEDROOM", name: "Study Table (Master Bedroom)", description: "Design, fabricate and install master bedroom study table with drawers in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 200 },
+            { code: "MBED13", category: "CARPENTRY - MASTER BEDROOM", name: "Study Desk with Drawer (Master Bedroom)", description: "Design, fabricate and install study desk c/w drawer in selected laminate finish ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 175 },
             { code: "MBED7", category: "CARPENTRY - MASTER BEDROOM", name: "Bed Single (Master Bedroom)", description: "Bed box of Single-sized mattress in selected laminate finish", unit: "set", displayUnit: "set", unitCost: 1200 },
             { code: "MBED8", category: "CARPENTRY - MASTER BEDROOM", name: "Bed Single with Storage (Master Bedroom)", description: "Bed box of Single-sized mattress (with Storage) in selected laminate finish", unit: "set", displayUnit: "set", unitCost: 1400 },
             { code: "MBED9", category: "CARPENTRY - MASTER BEDROOM", name: "Bed Queen (Master Bedroom)", description: "Bed box Queen-sized mattress in selected laminate finish", unit: "set", displayUnit: "set", unitCost: 1400 },
@@ -846,6 +854,9 @@
             { code: "DEMO-02", category: "DEMOLITION", name: "Hack Tiles", description: "Supply labour to hack wall/floor tiles ([DIMENSIONS])", unit: "sqft", displayUnit: "sqft", unitCost: 3.5 },
             { code: "DEMO-03", category: "DEMOLITION", name: "Remove Door Frame", description: "Supply labour & tools to remove door frame ([DIMENSIONS])", unit: "nos", displayUnit: "nos", unitCost: 150 },
             { code: "DEMO-04", category: "DEMOLITION", name: "Hack Bi-fold Door & Window", description: "Supply material & labour to hack service yard bi-fold door & 2 windows", unit: "nos", displayUnit: "nos", unitCost: 350 },
+            { code: "DEMO-07", category: "DEMOLITION", name: "Remove Door", description: "Supply labour & tools to remove existing door", unit: "nos", displayUnit: "nos", unitCost: 75 },
+            { code: "DEMO-08", category: "DEMOLITION", name: "Remove Door & Door Frame", description: "Supply labour & tools to remove existing door and door frame", unit: "nos", displayUnit: "nos", unitCost: 150 },
+            { code: "DEMO-06", category: "DEMOLITION", name: "Touch Up Walls & Ceiling (Post-Hacking)", description: "Supply labour and material to touch up walls & ceiling after hacking ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 50 },
             // ELECTRICAL
             { code: "ELE-01", category: "ELECTRICAL", name: "Light Point (supply)", description: "Supply new lighting point", unit: "nos", displayUnit: "nos", unitCost: 45 },
             { code: "ELE-02", category: "ELECTRICAL", name: "Install Light", description: "Installation of lighting", unit: "nos", displayUnit: "nos", unitCost: 15 },
@@ -860,28 +871,32 @@
             { code: "ELE-11", category: "ELECTRICAL", name: "Hood/Hob/Oven Point (20A)", description: "Supply and labour hood/hob/oven point (20A)", unit: "nos", displayUnit: "nos", unitCost: 120 },
             { code: "ELE-PKG", category: "ELECTRICAL", name: "4Rm BTO Electrical Package", description: "Install 12x surface light, install 4x fans, supply 5x concealed sockets, supply hob/hood/oven point, install kitchen LED light", unit: "ls", displayUnit: "ls", unitCost: 1538 },
             // FALSE CEILING & PARTITION
-            { code: "FAL-01", category: "FALSE CEILING & PARTITION", name: "Partition Wall", description: "Supply labour and material to construct partition wall", unit: "nos", displayUnit: "nos", unitCost: 1200 },
             { code: "FAL-02", category: "FALSE CEILING & PARTITION", name: "False Ceiling", description: "Supply labour and material to construct false ceiling ([DIMENSIONS])", unit: "sqft", displayUnit: "sqft", unitCost: 5 },
+            { code: "FAL-04", category: "FALSE CEILING & PARTITION", name: "Curtain Pelmet", description: "Supply labour and material to construct curtain pelmet ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 30 },
+
+            { code: "FAL-01", category: "FALSE CEILING & PARTITION", name: "Partition Wall (Plasterboard)", description: "Supply labour and material to construct plasterboard partition wall", unit: "nos", displayUnit: "nos", unitCost: 1200 },
+            { code: "FAL-03", category: "FALSE CEILING & PARTITION", name: "Hollow Block Wall", description: "Supply material & labour to construct full height hollow block wall ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 164 },
             // MASONRY - COMMON BATHROOM
             { code: "MAS-07", category: "MASONRY - COMMON BATHROOM", name: "Shower Drop / Kerb / Slope", description: "Supply material & labour to construct shower drop/kerb/slope for common bathroom", unit: "nos", displayUnit: "nos", unitCost: 200 },
             // MASONRY - KITCHEN & SERVICE YARD
             { code: "MAS-01", category: "MASONRY - KITCHEN & SERVICE YARD", name: "Kitchen Cabinet Cement Base", description: "Supply material & labour to construct kitchen cabinet cement mortar base ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 50 },
-            { code: "MAS-06", category: "MASONRY - KITCHEN & SERVICE YARD", name: "Touch Up Bi-fold Door & Window", description: "Supply material & labour to touch up bi-fold door & window after hack (10ft)", unit: "ft", displayUnit: "ft", unitCost: 0 },
             // MASONRY - LIVING ROOM & BEDROOM
+            { code: "MAS-08", category: "MASONRY - LIVING ROOM & BEDROOM", name: "Seal Door Opening (Hollow Block)", description: "Supply material & labour to seal up existing door opening using hollow block", unit: "nos", displayUnit: "nos", unitCost: 500 },
             { code: "MAS-03", category: "MASONRY - LIVING ROOM & BEDROOM", name: "Cement Screed Floor", description: "Supply material & labour to lay cement screeding for living, foyer, hallway and 3 bedrooms ([DIMENSIONS])", unit: "sqft", displayUnit: "sqft", unitCost: 5 },
-            { code: "MAS-04", category: "MASONRY - LIVING ROOM & BEDROOM", name: "Touch Up (post-hacking)", description: "Supply labour and material to touch up wall & ceiling after hacking", unit: "ls", displayUnit: "ls", unitCost: 500 },
-            { code: "MAS-05", category: "MASONRY - LIVING ROOM & BEDROOM", name: "Self-Leveling Compound", description: "Supply material & labour to apply self-leveling compound for living, foyer, hallway and 3 bedrooms ([DIMENSIONS])", unit: "sqft", displayUnit: "sqft", unitCost: 7.5 },
+            { code: "MAS-05", category: "MASONRY - LIVING ROOM & BEDROOM", name: "Self-Leveling Compound", description: "Supply material & labour to apply self-leveling compound for living, foyer, hallway and 3 bedrooms ([DIMENSIONS])", unit: "sqft", displayUnit: "sqft", unitCost: 2 },
             // MASONRY - MASTER BATHROOM
             { code: "MAS-02", category: "MASONRY - MASTER BATHROOM", name: "Shower Drop / Kerb / Slope", description: "Supply material & labour to construct shower drop/kerb/slope for master bathroom", unit: "nos", displayUnit: "nos", unitCost: 200 },
             // MISC
             { code: "MIS-01", category: "MISC", name: "Stainless Steel Dish Rack", description: "Stainless steel dish rack & pvc cutlery tray", unit: "set", displayUnit: "set", unitCost: 0 },
             { code: "MIS-02", category: "MISC", name: "Platform (Mid Height) with Storage", description: "Supply and install platform with storage (Mid Height) in selected laminate finish ([DIMENSIONS])", unit: "psf", displayUnit: "sf", unitCost: 38 },
+            { code: "MIS-05", category: "MISC", name: "Platform (Low Height) with Storage", description: "Supply and install platform with storage (Low Height) in selected laminate finish ([DIMENSIONS])", unit: "psf", displayUnit: "sf", unitCost: 32 },
             { code: "MIS-03", category: "MISC", name: "Paint Walls", description: "Supply labour to paint walls with Nippon Paint Vinilex 5000 (3 colours)", unit: "ls", displayUnit: "ls", unitCost: 1400 },
             { code: "MIS-04", category: "MISC", name: "Paint Ceiling", description: "Supply labour to paint ceiling with Nippon Paint Matex white", unit: "ls", displayUnit: "ls", unitCost: 300 },
-            { code: "MIS-05", category: "MISC", name: "Platform (Low Height) with Storage", description: "Supply and install platform with storage (Low Height) in selected laminate finish ([DIMENSIONS])", unit: "psf", displayUnit: "sf", unitCost: 32 },
             { code: "MIS-06", category: "MISC", name: "Paint Sealer", description: "Supply labour to paint water base sealer", unit: "ls", displayUnit: "ls", unitCost: 300 },
             { code: "MIS-07", category: "MISC", name: "3 Bedroom Laminated Doors", description: "Supply and install 3 bedroom laminated doors in selected laminate finish", unit: "ls", displayUnit: "ls", unitCost: 1350 },
             { code: "MIS-08", category: "MISC", name: "2 Toilet Slide & Swing Doors", description: "Supply and install 2 toilet slide and swing doors in selected aluminium frame and acrylic/phenolic insert", unit: "ls", displayUnit: "ls", unitCost: 900 },
+            { code: "MIS-09", category: "MISC", name: "Rounded Corner", description: "Top up for 1x rounded corner without storage", unit: "nos", displayUnit: "nos", unitCost: 200 },
+            { code: "MIS-10", category: "MISC", name: "Extra Drawer", description: "One extra drawer with PIO soft closing drawer runner", unit: "nos", displayUnit: "nos", unitCost: 80 },
             // PLUMBING
             { code: "PLU-01", category: "PLUMBING", name: "Install Kitchen Sink & Tap", description: "Supply labour to install 01 nos of kitchen sink & tap", unit: "nos", displayUnit: "nos", unitCost: 150 },
             { code: "PLU-02", category: "PLUMBING", name: "Install Bathroom Sink & Tap", description: "Supply labour to install bathroom sink & tap", unit: "nos", displayUnit: "nos", unitCost: 100 },
@@ -891,7 +906,8 @@
             { code: "PLU-06", category: "PLUMBING", name: "Install Storage Heater", description: "Supply labour to install storage heater", unit: "nos", displayUnit: "nos", unitCost: 200 },
             { code: "PLU-07", category: "PLUMBING", name: "Install Water Bidet", description: "Supply labour to install water bidet", unit: "nos", displayUnit: "nos", unitCost: 50 },
             // TILING & VINYL
-            { code: "TIL-01", category: "TILING & VINYL", name: "LVT Vinyl Flooring", description: "Supply material & labour to lay 5mm LVT floor vinyl c/w PVC skirting ([DIMENSIONS])", unit: "pfr", displayUnit: "ft", unitCost: 5.5 },
+            { code: "TIL-02", category: "TILING & VINYL", name: "Homogenous Floor Tiles", description: "Supply material & labour to lay homogenous floor tiles 600mm x 600mm c/w grouting ([DIMENSIONS])", unit: "sqft", displayUnit: "sqft", unitCost: 7.5 },
+            { code: "TIL-01", category: "TILING & VINYL", name: "LVT Vinyl Flooring", description: "Supply material & labour to lay 5mm LVT floor vinyl c/w PVC skirting ([DIMENSIONS])", unit: "sqft", displayUnit: "sqft", unitCost: 6 },
         ];
 
         const PRELIMS = [
@@ -911,9 +927,9 @@
             { label: "🧱 Masonry", id: "masonry", categories: ["MASONRY - COMMON BATHROOM", "MASONRY - KITCHEN & SERVICE YARD", "MASONRY - LIVING ROOM & BEDROOM", "MASONRY - MASTER BATHROOM"] },
             { label: "🪵 Carpentry", id: "carpentry", categories: ["CARPENTRY - BATHROOM", "CARPENTRY - C1 BEDROOM", "CARPENTRY - C2 BEDROOM", "CARPENTRY - FOYER & LIVING ROOM", "CARPENTRY - KITCHEN & SERVICE YARD", "CARPENTRY - MASTER BEDROOM"] },
             { label: "💡 Electrical", id: "electrical", categories: ["ELECTRICAL"] },
-            { label: "🏠 Ceiling", id: "ceiling", categories: ["FALSE CEILING & PARTITION"] },
-            { label: "🪟 Aluminium", id: "aluminium", categories: ["ALUMINIUM, WINDOW AND GLASS WORKS"] },
-            { label: "🎨 Misc", id: "misc", categories: ["MISC", "TILING & VINYL"] }
+            { label: "🏠 Ceiling & Walls", id: "ceiling", categories: ["FALSE CEILING & PARTITION"] },
+            { label: "🪟 Glass & Aluminium", id: "aluminium", categories: ["ALUMINIUM, WINDOW AND GLASS WORKS"] },
+            { label: "🎨 Misc & Doors", id: "misc", categories: ["MISC", "TILING & VINYL"] }
         ];
 
         // App State
@@ -937,6 +953,11 @@
             if (item.unit === 'pfr') {
                 return Math.ceil(parseFloat(rawInput) / 304.8);
             }
+            if (item.unit === 'psfr') {
+                // mm length × 600mm depth → sqft (rounded up to 1 decimal)
+                const sqft = (parseFloat(rawInput) * 600) / (304.8 * 304.8);
+                return Math.ceil(sqft * 10) / 10;
+            }
             return parseFloat(rawInput);
         }
 
@@ -948,7 +969,12 @@
 
         function buildDescription(item, rawInput) {
             const converted = convertUnit(item, rawInput);
-            const dimText = rawInput ? `${converted}${item.displayUnit}` : '---';
+            let dimText;
+            if (item.unit === 'psfr') {
+                dimText = rawInput ? `${converted} sqft` : '---';
+            } else {
+                dimText = rawInput ? `${converted}${item.displayUnit}` : '---';
+            }
             return item.description.replace('[DIMENSIONS]', dimText);
         }
 
@@ -1023,9 +1049,10 @@
                                placeholder="0" 
                                value="${value}" 
                                oninput="updateSelection('${item.code}', this.value)">
-                        <span class="input-unit">${item.unit === 'pfr' ? 'mm' : item.displayUnit}</span>
+                        <span class="input-unit">${item.unit === 'pfr' || item.unit === 'psfr' ? 'mm' : item.displayUnit}</span>
                     </div>
                     ${item.unit === 'pfr' ? '<div class="pfr-hint">Entered in mm, converts to ft</div>' : ''}
+                    ${item.unit === 'psfr' ? '<div class="pfr-hint">Entered in mm (length), converts to sqft</div>' : ''}
                     <div class="item-subtotal" id="subtotal-${item.code}">
                         ${subtotal > 0 ? '$' + subtotal.toLocaleString() : ''}
                     </div>
@@ -1276,8 +1303,10 @@
             if (!confirm("Load the standard 4-Room BTO $32,888 package?\n\nThis will replace all current selections.")) return;
 
             state.selections = {
-                // DEMOLITION
-                "DEMO-04": 1,        // Hack Bi-fold Door & Window = $350
+                // MASONRY
+                "MAS-03": 700,       // Cement Screed Floor 700sqft = $3,500
+                // TILING
+                "TIL-02": 780,       // Homogenous Floor Tiles 780sqft = $5,850
 
                 // PLUMBING
                 "PLU-01": 1,         // Kitchen Sink & Tap x1 = $150
@@ -1287,20 +1316,14 @@
                 "PLU-06": 1,         // Storage Heater x1 = $200
                 "PLU-07": 2,         // Water Bidet x2 = $100
 
-                // MASONRY
-                "MAS-02": 1,         // Master Bath Shower Drop/Kerb = $200
-                "MAS-07": 1,         // Common Bath Shower Drop/Kerb = $200
-                "MAS-03": 700,       // Cement Screed Floor 700sqft = $3,500
-                "MAS-05": 780,       // Self-Leveling Compound 780sqft = $5,850
-
                 // CARPENTRY - KITCHEN
                 "KIT-02": 4500,      // Bottom Cabinet 4500mm → 15ft = $2,250
-                "KIT-06": 4500,      // Stone Top 4500mm → 15ft = $2,250
-                "G-KIT": 4500,      // Top Cabinet 4500mm → 15ft = $2,250
-                "KIT-03": 600,       // Tall Boy 600mm → 2ft = $750
+                "KIT-06": 4500,      // Sintered Stone Top 4500mm → 15ft = $2,250
+                "G-KIT": 4500,       // Top Cabinet 4500mm → 15ft = $2,250
+                "KIT-04": 900,       // Fridge Cabinet 900mm → 3ft = $750
 
                 // CARPENTRY - MASTER BEDROOM
-                "MBED1": 3300,      // Wardrobe Casement 3300mm → 11ft = $3,300
+                "MBED1": 3300,       // Wardrobe Casement 3300mm → 11ft = $3,300
 
                 // CARPENTRY - BEDROOM 2
                 "C1BED1": 1700,      // Wardrobe Casement 1700mm → 6ft = $1,800
@@ -1310,6 +1333,7 @@
 
                 // ALUMINIUM
                 "WIN-01": 1,         // Shower Screen Master Bath (1fix 1swing) = $750
+                "WIN-02": 1,         // Shower Screen Common Bath (2fix 2slide) = $750
 
                 // MISC
                 "MIS-03": 1,         // Paint Walls (3 colours) = $1,400
