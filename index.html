@@ -618,7 +618,7 @@
                         <p>Overview of all designer projects, status tracking, and global management controls.</p>
                     </a>
 
-                    <a href="ai-quote.html" class="card">
+                    <a href="help-me-quote.html" class="card">
                         <div class="card-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
@@ -626,7 +626,7 @@
                                 <path d="M12 8v4l3 3"></path>
                             </svg>
                         </div>
-                        <h3>AI Quote</h3>
+                        <h3>Help Me Quote</h3>
                         <p>Upload a floor plan and answer intake questions. Our team will prepare your renovation quote.</p>
                     </a>
 
@@ -688,8 +688,8 @@
 
             <section>
                 <h2>
-                    AI Quote Requests
-                    <a href="ai-quote.html" class="btn-new">+ New AI Quote</a>
+                    Help Me Quote Requests
+                    <a href="help-me-quote.html" class="btn-new">+ New Quote Request</a>
                 </h2>
                 <div class="projects-container">
                     <div class="project-row project-header" style="grid-template-columns: 1.5fr 1.5fr 1fr 1fr 100px;">
@@ -904,7 +904,7 @@
                 .order('created_at', { ascending: false });
 
             if (error || !requests || requests.length === 0) {
-                listEl.innerHTML = '<div class="no-projects">No AI quote requests yet. <a href="ai-quote.html" style="color:var(--accent);font-weight:600;">Submit your first →</a></div>';
+                listEl.innerHTML = '<div class="no-projects">No AI quote requests yet. <a href="help-me-quote.html" style="color:var(--accent);font-weight:600;">Submit your first →</a></div>';
                 return;
             }
 
@@ -937,7 +937,7 @@
             document.getElementById(`aiq-row-${id}`).remove();
             const remaining = document.querySelectorAll('[id^="aiq-row-"]');
             if (remaining.length === 0) {
-                document.getElementById('aiQuotesList').innerHTML = '<div class="no-projects">No AI quote requests yet. <a href="ai-quote.html" style="color:var(--accent);font-weight:600;">Submit your first →</a></div>';
+                document.getElementById('aiQuotesList').innerHTML = '<div class="no-projects">No AI quote requests yet. <a href="help-me-quote.html" style="color:var(--accent);font-weight:600;">Submit your first →</a></div>';
             }
         }
 
