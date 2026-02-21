@@ -178,8 +178,144 @@
             color: var(--accent);
         }
 
-        .loading,
-        .no-data {
+        .status-pending {
+            background: #FFF3CD;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #DFF0D8;
+            color: #3C763D;
+        }
+
+        .btn-complete {
+            background: #4A7C59;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-complete:hover { opacity: 0.85; }
+
+        .btn-dl {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-dl:hover { opacity: 0.85; }
+
+        .ai-table th, .ai-table td { padding: 14px 20px; }
+
+        .ai-table { font-size: 0.88rem; }
+
+        .answers-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(26,26,24,0.5);
+            backdrop-filter: blur(6px);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .answers-modal.open { display: flex; }
+
+        .modal-box {
+            background: white;
+            border-radius: 12px;
+            max-width: 680px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #E8E2DA;
+            position: sticky;
+            top: 0;
+            background: white;
+        }
+
+        .modal-header h3 { font-family: 'DM Serif Display', serif; font-size: 1.2rem; }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #9E9590;
+            line-height: 1;
+        }
+
+        .modal-body { padding: 24px; }
+
+        .answer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 24px;
+        }
+
+        .answer-item label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #9E9590;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .answer-item p {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .answer-remarks {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #E8E2DA;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            padding: 16px 24px;
+            border-top: 1px solid #E8E2DA;
+            background: #FDFCFA;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .section-divider {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            margin: 48px 0 20px;
+        }
             padding: 60px;
             text-align: center;
             color: #9E9590;
@@ -228,6 +364,47 @@
                 </tbody>
             </table>
         </div>
+
+        <h2 class="section-divider">AI Quote Requests</h2>
+
+        <div class="admin-container">
+            <table class="project-table ai-table">
+                <thead>
+                    <tr>
+                        <th>Designer</th>
+                        <th>Client</th>
+                        <th>Floor Plan</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="aiQuotesBody">
+                    <tr><td colspan="6" class="loading">Fetching AI quote requests...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Answers Modal -->
+        <div class="answers-modal" id="answersModal">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3 id="modalClientName">Intake Answers</h3>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="answer-grid" id="answerGrid"></div>
+                    <div class="answer-remarks" id="answerRemarks" style="display:none;">
+                        <label style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#9E9590;display:block;margin-bottom:6px;">Remarks</label>
+                        <p id="remarksText" style="font-size:0.88rem;line-height:1.6;"></p>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <a id="modalFloorPlanLink" href="#" target="_blank" class="btn-dl">⬇ Download Floor Plan</a>
+                    <button id="modalCompleteBtn" class="btn-complete" onclick="markComplete(null)">✓ Mark Complete</button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <footer>
@@ -264,6 +441,7 @@
 
             document.body.style.display = 'flex';
             fetchAllProjects();
+            fetchAiQuoteRequests();
         }
 
         async function fetchAllProjects() {
@@ -302,6 +480,137 @@
                     </tr>
                 `;
             }).join('');
+        }
+
+        // ── AI QUOTE REQUESTS ─────────────────────────────────────────────
+        let currentRequestId = null;
+
+        async function fetchAiQuoteRequests() {
+            const body = document.getElementById('aiQuotesBody');
+            const { data: requests, error } = await _supabase
+                .from('ai_quote_requests')
+                .select('*, profiles(full_name)')
+                .order('created_at', { ascending: false });
+
+            if (error || !requests || requests.length === 0) {
+                body.innerHTML = '<tr><td colspan="6" class="no-data">No AI quote requests yet.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = requests.map(r => {
+                const date = new Date(r.created_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
+                const status = r.status || 'pending';
+                const designer = r.profiles?.full_name || 'Unknown';
+                const floorPlanCell = r.floor_plan_url
+                    ? `<a href="${r.floor_plan_url}" target="_blank" class="btn-dl" style="font-size:0.75rem;padding:4px 10px;">⬇ Download</a>`
+                    : '<span style="color:#9E9590;font-size:0.85rem;">—</span>';
+
+                return `
+                    <tr id="aiq-admin-${r.id}">
+                        <td class="designer-name">${designer}</td>
+                        <td style="font-weight:500;">${r.client_name || '—'}</td>
+                        <td>${floorPlanCell}</td>
+                        <td style="font-size:0.82rem;color:#9E9590;">${date}</td>
+                        <td><span class="status-badge status-${status}">${status}</span></td>
+                        <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <button class="btn-dl" style="font-size:0.75rem;padding:5px 10px;" onclick="openModal('${r.id}')">View Answers</button>
+                            ${status !== 'completed' ? `<button class="btn-complete" style="font-size:0.75rem;padding:5px 10px;" onclick="markComplete('${r.id}')">✓ Complete</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openModal(id) {
+            currentRequestId = id;
+            // Fetch the request data
+            _supabase.from('ai_quote_requests').select('*').eq('id', id).single().then(({ data: r }) => {
+                if (!r) return;
+                document.getElementById('modalClientName').textContent = `${r.client_name || 'Client'} — Intake Answers`;
+
+                const a = r.answers || {};
+                const fields = [
+                    ['Unit Type', a.unit_type],
+                    ['OCS Opted Out', a.ocs_opted_out],
+                    ['Flooring Material', a.flooring_material],
+                    ['Flooring Area', a.flooring_area_sqft ? a.flooring_area_sqft + ' sqft' : null],
+                    ['Hack Walls', a.hack_walls],
+                    ['Hack Walls Detail', a.hack_walls_desc],
+                    ['Hack Bi-fold', a.hack_bifold],
+                    ['Remove Doors', a.remove_doors],
+                    ['Remove Doors Detail', a.remove_doors_desc],
+                    ['Countertop', a.countertop],
+                    ['Backsplash', a.backsplash],
+                    ['Cement Base', a.cement_base],
+                    ['Kerb Master Bath', a.kerb_master],
+                    ['Kerb Common Bath', a.kerb_common],
+                    ['Wardrobe Master', a.wardrobe_master],
+                    ['Wardrobe Bed 2', a.wardrobe_bed2],
+                    ['Wardrobe Bed 3', a.wardrobe_bed3],
+                    ['False Ceiling', a.false_ceiling],
+                    ['Ceiling Area', a.ceiling_area_sqft ? a.ceiling_area_sqft + ' sqft' : null],
+                    ['Cove Lighting', a.cove_lighting],
+                    ['Bedroom Doors', a.bedroom_doors],
+                    ['Toilet Doors', a.toilet_doors],
+                ];
+
+                document.getElementById('answerGrid').innerHTML = fields
+                    .filter(([, v]) => v != null && v !== '')
+                    .map(([label, val]) => `
+                        <div class="answer-item">
+                            <label>${label}</label>
+                            <p>${val}</p>
+                        </div>
+                    `).join('');
+
+                const remarksEl = document.getElementById('answerRemarks');
+                if (a.remarks) {
+                    document.getElementById('remarksText').textContent = a.remarks;
+                    remarksEl.style.display = 'block';
+                } else {
+                    remarksEl.style.display = 'none';
+                }
+
+                const floorLink = document.getElementById('modalFloorPlanLink');
+                if (r.floor_plan_url) {
+                    floorLink.href = r.floor_plan_url;
+                    floorLink.style.display = 'inline-block';
+                } else {
+                    floorLink.style.display = 'none';
+                }
+
+                document.getElementById('modalCompleteBtn').onclick = () => markComplete(r.id);
+                document.getElementById('modalCompleteBtn').style.display = r.status === 'completed' ? 'none' : 'inline-block';
+
+                document.getElementById('answersModal').classList.add('open');
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('answersModal').classList.remove('open');
+            currentRequestId = null;
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('answersModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        async function markComplete(id) {
+            const targetId = id || currentRequestId;
+            if (!targetId) return;
+            if (!confirm('Mark this AI quote request as complete? The designer will see it as completed.')) return;
+
+            const { error } = await _supabase
+                .from('ai_quote_requests')
+                .update({ status: 'completed' })
+                .eq('id', targetId);
+
+            if (error) { alert('Error updating status.'); return; }
+
+            // Refresh the table
+            fetchAiQuoteRequests();
+            closeModal();
         }
 
         init();
