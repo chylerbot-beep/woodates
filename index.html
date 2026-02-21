@@ -381,6 +381,21 @@
             grid-template-columns: 1.4fr 1.5fr 1.5fr 1fr 1fr 120px;
         }
 
+        /* AI Quote rows */
+        .ai-quote-row {
+            grid-template-columns: 1.5fr 1.5fr 1fr 1fr 100px;
+        }
+
+        .status-pending {
+            background: #FFF3CD;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #DFF0D8;
+            color: #3C763D;
+        }
+
         footer {
             padding: 40px 20px;
             text-align: center;
@@ -603,6 +618,18 @@
                         <p>Overview of all designer projects, status tracking, and global management controls.</p>
                     </a>
 
+                    <a href="ai-quote.html" class="card">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"></path>
+                                <path d="M12 8v4l3 3"></path>
+                            </svg>
+                        </div>
+                        <h3>AI Quote</h3>
+                        <p>Upload a floor plan and answer intake questions. Our team will prepare your renovation quote.</p>
+                    </a>
+
                     <a href="leads.html" id="leadsCard" class="card" style="display: none;">
                         <div class="card-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -655,6 +682,25 @@
                     </div>
                     <div id="quotesList">
                         <div class="no-projects">Loading quotes...</div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>
+                    AI Quote Requests
+                    <a href="ai-quote.html" class="btn-new">+ New AI Quote</a>
+                </h2>
+                <div class="projects-container">
+                    <div class="project-row project-header" style="grid-template-columns: 1.5fr 1.5fr 1fr 1fr 100px;">
+                        <div>Client</div>
+                        <div>Floor Plan</div>
+                        <div>Submitted</div>
+                        <div>Status</div>
+                        <div>Action</div>
+                    </div>
+                    <div id="aiQuotesList">
+                        <div class="no-projects">Loading AI quote requests...</div>
                     </div>
                 </div>
             </section>
@@ -733,6 +779,7 @@
 
             fetchProjects(user.id);
             fetchQuotes(user.id);
+            fetchAiQuotes(user.id);
         }
 
         async function fetchProjects(userId) {
@@ -845,6 +892,52 @@
                 if (remaining.length === 0) {
                     document.getElementById('quotesList').innerHTML = '<div class="no-projects">No quotes saved yet. <a href="quote-tool.html" style="color:var(--accent);font-weight:600;">Create your first quote →</a></div>';
                 }
+            }
+        }
+
+        async function fetchAiQuotes(userId) {
+            const listEl = document.getElementById('aiQuotesList');
+            const { data: requests, error } = await _supabase
+                .from('ai_quote_requests')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error || !requests || requests.length === 0) {
+                listEl.innerHTML = '<div class="no-projects">No AI quote requests yet. <a href="ai-quote.html" style="color:var(--accent);font-weight:600;">Submit your first →</a></div>';
+                return;
+            }
+
+            listEl.innerHTML = requests.map(r => {
+                const date = new Date(r.created_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
+                const status = r.status || 'pending';
+                const filename = r.floor_plan_filename || 'Floor Plan';
+                const floorPlanLink = r.floor_plan_url
+                    ? `<a href="${r.floor_plan_url}" target="_blank" style="color:var(--accent);font-weight:600;font-size:0.85rem;">${filename}</a>`
+                    : `<span style="color:#9E9590;">${filename}</span>`;
+
+                return `
+                    <div class="project-row ai-quote-row" id="aiq-row-${r.id}">
+                        <div style="font-weight:500;">${r.client_name || '—'}</div>
+                        <div>${floorPlanLink}</div>
+                        <div style="font-size:0.8rem;color:#9E9590;">${date}</div>
+                        <div><span class="status-badge status-${status}">${status}</span></div>
+                        <div>
+                            <button class="btn-delete" onclick="deleteAiQuote('${r.id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function deleteAiQuote(id) {
+            if (!confirm('Delete this AI quote request? This cannot be undone.')) return;
+            const { error } = await _supabase.from('ai_quote_requests').delete().eq('id', id);
+            if (error) { alert('Error deleting request.'); return; }
+            document.getElementById(`aiq-row-${id}`).remove();
+            const remaining = document.querySelectorAll('[id^="aiq-row-"]');
+            if (remaining.length === 0) {
+                document.getElementById('aiQuotesList').innerHTML = '<div class="no-projects">No AI quote requests yet. <a href="ai-quote.html" style="color:var(--accent);font-weight:600;">Submit your first →</a></div>';
             }
         }
 
