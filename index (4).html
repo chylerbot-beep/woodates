@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Woodates Project Manager Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --cream: #F5F0E8;
+            --dark: #1A1A18;
+            --accent: #C4956A;
+            --accent-light: #E8D5BF;
+            --border: #D6CEC4;
+            --warm-mid: #6B5B4E;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Modal Overlay Styles */
+        #loginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 26, 24, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            display: none;
+            /* Shown via JS */
+        }
+
+        .login-card {
+            background: white;
+            padding: 48px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-card h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            font-size: 0.85rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 32px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+            color: var(--warm-mid);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+        }
+
+        #signInBtn {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        #signInBtn:hover {
+            background-color: #b37d50;
+        }
+
+        .error-msg {
+            color: #B85C5C;
+            font-size: 0.85rem;
+            margin-top: 16px;
+            display: none;
+        }
+
+        /* Main Portal Styles (Hidden when unauthenticated) */
+        #mainContent {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 30px 40px;
+            background: white;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.8rem;
+            color: var(--dark);
+        }
+
+        .brand p {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: var(--dark);
+            color: white;
+            border-color: var(--dark);
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+        }
+
+        section {
+            margin-bottom: 60px;
+        }
+
+        section h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent);
+        }
+
+        .card-icon {
+            width: 54px;
+            height: 54px;
+            background: var(--cream);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .card h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: #6B5B4E;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .projects-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .project-row {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 140px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .project-row:last-child {
+            border-bottom: none;
+        }
+
+        .project-row:hover {
+            background: #FAF8F5;
+        }
+
+        .project-header {
+            background: #F9F7F4;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6B5B4E;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-in_progress {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .status-completed {
+            background: #DFF0D8;
+            color: #3C763D;
+        }
+
+        .btn-new {
+            background: var(--dark);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s;
+        }
+
+        .btn-new:hover {
+            opacity: 0.9;
+        }
+
+        .btn-open {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .btn-open:hover {
+            text-decoration: underline;
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #B85C5C;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            padding: 0;
+            margin-left: 12px;
+        }
+
+        .btn-delete:hover {
+            text-decoration: underline;
+        }
+
+        .no-projects {
+            padding: 40px;
+            text-align: center;
+            color: #BDB5AD;
+            font-style: italic;
+        }
+
+        /* Quotes table has different columns to projects */
+        .quotes-header,
+        .quote-row {
+            grid-template-columns: 1.4fr 1.5fr 1.5fr 1fr 1fr 120px;
+        }
+
+        /* AI Quote rows */
+        .ai-quote-row {
+            grid-template-columns: 1.5fr 1.5fr 1fr 1fr 100px;
+        }
+
+        .status-pending {
+            background: #FFF3CD;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #DFF0D8;
+            color: #3C763D;
+        }
+
+        footer {
+            padding: 40px 20px;
+            text-align: center;
+            color: #9E9590;
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+        }
+
+        svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 14px 20px;
+            }
+
+            .brand h1 {
+                font-size: 1.15rem;
+            }
+
+            .brand p {
+                font-size: 0.65rem;
+                letter-spacing: 0.1em;
+            }
+
+            .user-name {
+                font-size: 0.8rem;
+            }
+
+            .logout-btn {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+
+            main {
+                padding: 24px 16px;
+            }
+
+            .project-row.project-header {
+                display: none;
+            }
+
+            .project-row {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                padding: 16px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .project-row > div:nth-child(1) {
+                font-size: 1rem;
+                font-weight: 600;
+            }
+
+            .project-row > div:nth-child(2)::before {
+                content: "Client: ";
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: #9E9590;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .project-row > div:nth-child(4)::before {
+                content: "Updated: ";
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: #9E9590;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .project-row > div:nth-child(5)::before {
+                content: "Designer: ";
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: #9E9590;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .project-row > div:nth-child(6) {
+                display: flex;
+                gap: 16px;
+                margin-top: 4px;
+            }
+
+            /* Quote rows on mobile */
+            .quote-row > div:nth-child(3)::before {
+                content: "Address: ";
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: #9E9590;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .quote-row > div:nth-child(4)::before {
+                content: "Total: ";
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: #9E9590;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .quote-row > div:nth-child(5)::before {
+                content: "Created: ";
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: #9E9590;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .quote-row > div:nth-child(6) {
+                display: flex;
+                gap: 16px;
+                margin-top: 4px;
+            }
+
+            .btn-open, .btn-delete {
+                font-size: 0.9rem;
+            }
+
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Login Modal -->
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h2>Woodates</h2>
+            <p class="login-subtitle">Project Manager Portal</p>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter your name" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter password" required
+                        autocomplete="current-password">
+                </div>
+                <button type="submit" id="signInBtn">Sign In</button>
+                <p class="error-msg" id="loginError">Incorrect username or password</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application Content -->
+    <div id="mainContent">
+        <header>
+            <div class="brand">
+                <p>Woodates</p>
+                <h1>Project Manager Portal</h1>
+            </div>
+            <div class="user-nav">
+                <div class="user-info">
+                    <p class="user-name" id="userName">...</p>
+                    <p style="font-size: 0.7rem; color: #9E9590;" id="userRole">Designer</p>
+                </div>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <h2>Available Tools</h2>
+                <div class="tool-grid">
+                    <a href="leads.html" id="leadsCard" class="card" style="display: none;">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <line x1="19" y1="8" x2="19" y2="14"></line>
+                                <line x1="22" y1="11" x2="16" y2="11"></line>
+                            </svg>
+                        </div>
+                        <h3>Leads</h3>
+                        <p>Pipeline, progression tracking, and lead management. Admin only.</p>
+                    </a>
+
+                    <a href="#" class="card" id="workflowCard" onclick="createAndOpenProject(event)">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9 11 12 14 22 4"></polyline>
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                            </svg>
+                        </div>
+                        <h3>PM Project Checklist</h3>
+                        <p>Track project progress from onboarding to handover. Manage technical site visits and
+                            documentation protocols.</p>
+                    </a>
+
+                    <a href="quote-tool.html" class="card">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </div>
+                        <h3>Generate a Quote</h3>
+                        <p>Generate professional BTO and resale renovation quotations with real-time pricing and Excel
+                            export.</p>
+                    </a>
+
+                    <a href="help-me-quote.html" class="card">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"></path>
+                                <path d="M12 8v4l3 3"></path>
+                            </svg>
+                        </div>
+                        <h3>Help Me Quote</h3>
+                        <p>Upload a floor plan and answer intake questions.</p>
+                    </a>
+
+                    <a href="admin.html" id="adminCard" class="card" style="display: none;">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <h3>Admin Dashboard</h3>
+                        <p>Overview of all designer projects, status tracking, and global management controls.</p>
+                    </a>
+                </div>
+            </section>
+
+            <section>
+                <h2>
+                    My Projects
+                    <button class="btn-new" id="newProjectBtn">+ New Project</button>
+                </h2>
+                <div class="projects-container">
+                    <div class="project-row project-header">
+                        <div>Project Name</div>
+                        <div>Client</div>
+                        <div>Status</div>
+                        <div>Updated</div>
+                        <div>Designer</div>
+                        <div>Action</div>
+                    </div>
+                    <div id="projectsList">
+                        <div class="no-projects">Loading projects...</div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>
+                    My Quotes
+                    <a href="quote-tool.html" class="btn-new">+ New Quote</a>
+                </h2>
+                <div class="projects-container">
+                    <div class="project-row project-header quotes-header">
+                        <div>Quote No.</div>
+                        <div>Client</div>
+                        <div>Address</div>
+                        <div>Total</div>
+                        <div>Created</div>
+                        <div>Action</div>
+                    </div>
+                    <div id="quotesList">
+                        <div class="no-projects">Loading quotes...</div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>
+                    Help Me Quote Requests
+                    <a href="help-me-quote.html" class="btn-new">+ New Quote Request</a>
+                </h2>
+                <div class="projects-container">
+                    <div class="project-row project-header" style="grid-template-columns: 1.5fr 1.5fr 1fr 1fr 100px;">
+                        <div>Client</div>
+                        <div>Floor Plan</div>
+                        <div>Submitted</div>
+                        <div>Status</div>
+                        <div>Action</div>
+                    </div>
+                    <div id="aiQuotesList">
+                        <div class="no-projects">Loading AI quote requests...</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            &copy; 2025 Woodates Design &amp; Build Pte Ltd. All rights reserved.
+        </footer>
+    </div>
+
+    <script>
+        const { createClient } = supabase;
+        const _supabase = createClient(
+            'https://ilytehukqrkwpupdpkgo.supabase.co',
+            'sb_publishable_tNMpLdZaqm0e-El_LP4kKg_fhfj-ARF'
+        );
+
+        const emailMap = {
+            'queenie': 'queenie@woodates.com',
+            'shela': 'shela@woodates.com',
+            'xueqi': 'xueqi@woodates.com',
+            'pengfei': 'pengfei@woodates.com',
+            'shan': 'shan@woodates.com'
+        };
+
+        const loginOverlay = document.getElementById('loginOverlay');
+        const mainContent = document.getElementById('mainContent');
+        const loginForm = document.getElementById('loginForm');
+        const loginError = document.getElementById('loginError');
+        const userNameEl = document.getElementById('userName');
+        const userRoleEl = document.getElementById('userRole');
+        const projectsListEl = document.getElementById('projectsList');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const newProjectBtn = document.getElementById('newProjectBtn');
+        const adminCard = document.getElementById('adminCard');
+
+        async function init() {
+            const { data: { session } } = await _supabase.auth.getSession();
+
+            if (!session) {
+                showLogin();
+                return;
+            }
+
+            hideLogin();
+            loadUserData(session.user);
+        }
+
+        function showLogin() {
+            loginOverlay.style.display = 'flex';
+            mainContent.style.display = 'flex'; // Visible but blurred behind overlay
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideLogin() {
+            loginOverlay.style.display = 'none';
+            mainContent.style.display = 'flex';
+            document.body.style.overflow = 'auto';
+        }
+
+        async function loadUserData(user) {
+            const { data: profile } = await _supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (profile) {
+                userNameEl.textContent = profile.full_name;
+                userRoleEl.textContent = profile.role === 'admin' ? 'Administrator' : 'Designer';
+                if (profile.role === 'admin') {
+                    adminCard.style.display = 'flex';
+                    document.getElementById('leadsCard').style.display = 'flex';
+                }
+            }
+
+            fetchProjects(user.id);
+            fetchQuotes(user.id);
+            fetchAiQuotes(user.id);
+        }
+
+        async function fetchProjects(userId) {
+            const { data: projects, error } = await _supabase
+                .from('projects')
+                .select('*, profiles(full_name)')
+                .eq('user_id', userId)
+                .order('updated_at', { ascending: false });
+
+            if (error) {
+                projectsListEl.innerHTML = '<div class="no-projects">Error loading projects.</div>';
+                return;
+            }
+
+            if (!projects || projects.length === 0) {
+                projectsListEl.innerHTML = '<div class="no-projects">No projects found. Create your first one!</div>';
+                return;
+            }
+
+            projectsListEl.innerHTML = projects.map(p => {
+                const date = new Date(p.updated_at).toLocaleDateString('en-SG', {
+                    day: '2-digit',
+                    month: 'short'
+                });
+                const status = p.status || 'in_progress';
+                const designerName = p.profiles?.full_name ?? '—';
+                return `
+                    <div class="project-row" id="project-row-${p.id}">
+                        <div style="font-weight: 500;">${p.project_name || 'Untitled Project'}</div>
+                        <div>${p.client_name || '—'}</div>
+                        <div><span class="status-badge status-${status}">${status.replace('_', ' ')}</span></div>
+                        <div style="font-size: 0.8rem; color: #9E9590;">${date}</div>
+                        <div style="font-size: 0.85rem; color: var(--accent); font-weight: 600;">${designerName}</div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <a href="workflow.html?project_id=${p.id}" class="btn-open">Open</a>
+                            <button class="btn-delete" onclick="deleteProject('${p.id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function deleteProject(projectId) {
+            if (!confirm('Are you sure you want to delete this project? This cannot be undone.')) return;
+            const { error } = await _supabase
+                .from('projects')
+                .delete()
+                .eq('id', projectId);
+            if (error) {
+                alert('Error deleting project.');
+            } else {
+                document.getElementById(`project-row-${projectId}`).remove();
+                const remaining = document.querySelectorAll('#projectsList .project-row');
+                if (remaining.length === 0) {
+                    projectsListEl.innerHTML = '<div class="no-projects">No projects found. Create your first one!</div>';
+                }
+            }
+        }
+
+        async function fetchQuotes(userId) {
+            const quotesListEl = document.getElementById('quotesList');
+            const { data: quotes, error } = await _supabase
+                .from('quotes')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                // Table may not exist yet — show friendly message
+                quotesListEl.innerHTML = '<div class="no-projects">No quotes saved yet. <a href="quote-tool.html" style="color:var(--accent);font-weight:600;">Create your first quote →</a></div>';
+                return;
+            }
+
+            if (!quotes || quotes.length === 0) {
+                quotesListEl.innerHTML = '<div class="no-projects">No quotes saved yet. <a href="quote-tool.html" style="color:var(--accent);font-weight:600;">Create your first quote →</a></div>';
+                return;
+            }
+
+            quotesListEl.innerHTML = quotes.map(q => {
+                const date = new Date(q.created_at).toLocaleDateString('en-SG', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                });
+                const total = q.total != null
+                    ? '$' + Number(q.total).toLocaleString('en-SG', { minimumFractionDigits: 2 })
+                    : '—';
+                return `
+                    <div class="project-row quote-row" id="quote-row-${q.id}">
+                        <div style="font-weight:600; color:var(--accent); font-size:0.85rem;">${q.quote_number || '—'}</div>
+                        <div style="font-weight:500;">${q.client_name || '—'}</div>
+                        <div style="font-size:0.85rem; color:#9E9590;">${q.address || '—'}</div>
+                        <div style="font-weight:600;">${total}</div>
+                        <div style="font-size:0.8rem; color:#9E9590;">${date}</div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <a href="quote-tool.html?quote_id=${q.id}" class="btn-open">Open</a>
+                            <button class="btn-delete" onclick="deleteQuote('${q.id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function deleteQuote(quoteId) {
+            if (!confirm('Delete this quote? This cannot be undone.')) return;
+            const { error } = await _supabase.from('quotes').delete().eq('id', quoteId);
+            if (error) {
+                alert('Error deleting quote.');
+            } else {
+                document.getElementById(`quote-row-${quoteId}`).remove();
+                const remaining = document.querySelectorAll('#quotesList .quote-row');
+                if (remaining.length === 0) {
+                    document.getElementById('quotesList').innerHTML = '<div class="no-projects">No quotes saved yet. <a href="quote-tool.html" style="color:var(--accent);font-weight:600;">Create your first quote →</a></div>';
+                }
+            }
+        }
+
+        async function fetchAiQuotes(userId) {
+            const listEl = document.getElementById('aiQuotesList');
+            const { data: requests, error } = await _supabase
+                .from('ai_quote_requests')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error || !requests || requests.length === 0) {
+                listEl.innerHTML = '<div class="no-projects">No AI quote requests yet. <a href="help-me-quote.html" style="color:var(--accent);font-weight:600;">Submit your first →</a></div>';
+                return;
+            }
+
+            listEl.innerHTML = requests.map(r => {
+                const date = new Date(r.created_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
+                const status = r.status || 'pending';
+                const filename = r.floor_plan_filename || 'Floor Plan';
+                const floorPlanLink = r.floor_plan_url
+                    ? `<a href="${r.floor_plan_url}" target="_blank" style="color:var(--accent);font-weight:600;font-size:0.85rem;">${filename}</a>`
+                    : `<span style="color:#9E9590;">${filename}</span>`;
+
+                return `
+                    <div class="project-row ai-quote-row" id="aiq-row-${r.id}">
+                        <div style="font-weight:500;">${r.client_name || '—'}</div>
+                        <div>${floorPlanLink}</div>
+                        <div style="font-size:0.8rem;color:#9E9590;">${date}</div>
+                        <div><span class="status-badge status-${status}">${status}</span></div>
+                        <div>
+                            <button class="btn-delete" onclick="deleteAiQuote('${r.id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function deleteAiQuote(id) {
+            if (!confirm('Delete this AI quote request? This cannot be undone.')) return;
+            const { error } = await _supabase.from('ai_quote_requests').delete().eq('id', id);
+            if (error) { alert('Error deleting request.'); return; }
+            document.getElementById(`aiq-row-${id}`).remove();
+            const remaining = document.querySelectorAll('[id^="aiq-row-"]');
+            if (remaining.length === 0) {
+                document.getElementById('aiQuotesList').innerHTML = '<div class="no-projects">No AI quote requests yet. <a href="help-me-quote.html" style="color:var(--accent);font-weight:600;">Submit your first →</a></div>';
+            }
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loginError.style.display = 'none';
+
+            const username = document.getElementById('username').value.toLowerCase().trim();
+            const password = document.getElementById('password').value;
+            const email = emailMap[username];
+
+            if (!email) {
+                loginError.textContent = "Unknown username";
+                loginError.style.display = 'block';
+                return;
+            }
+
+            const { data, error } = await _supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (error) {
+                loginError.textContent = "Incorrect username or password";
+                loginError.style.display = 'block';
+            } else {
+                init();
+            }
+        });
+
+        async function createAndOpenProject(e) {
+            if (e) e.preventDefault();
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) { showLogin(); return; }
+            const { data, error } = await _supabase
+                .from('projects')
+                .insert([{ user_id: user.id, project_name: 'New Project', status: 'in_progress', phase_data: {} }])
+                .select()
+                .single();
+            if (data) {
+                window.location.href = `workflow.html?project_id=${data.id}`;
+            } else {
+                alert('Error creating project: ' + (error?.message || 'Unknown error'));
+            }
+        }
+
+        newProjectBtn.addEventListener('click', createAndOpenProject);
+
+        logoutBtn.addEventListener('click', async () => {
+            await _supabase.auth.signOut();
+            location.reload();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>
