@@ -190,24 +190,6 @@
   .page-title { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--dark); }
   .page-subtitle { color: var(--muted); font-size: 0.82rem; margin-top: 4px; letter-spacing: 0.02em; }
 
-  /* ── COMBINED STATS + FILTERS ── */
-  .combined-stats-filters {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px 20px;
-    margin-bottom: 24px;
-    box-shadow: var(--shadow-sm);
-  }
-  .combined-stats-filters .stat-row {
-    margin-bottom: 14px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--border-light);
-  }
-  .combined-stats-filters .status-filter-row {
-    margin-bottom: 0;
-  }
-
   /* ── STAT PILLS ── */
   .stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
   .stat-pill {
@@ -513,6 +495,20 @@
   .master-section-header.lapsed-header { background: var(--lapsed-bg); color: var(--lapsed); }
   .master-section-header.keyco-header  { background: var(--keyco-bg);  color: var(--keyco); }
 
+  /* ── PILL COUNT (number shown inside filter pill) ── */
+  .pill-count {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    line-height: 1;
+    margin-right: 7px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .status-filter-pill .pill-count { opacity: 0.85; }
+  .status-filter-pill.selected .pill-count,
+  .status-filter-pill:hover .pill-count { opacity: 1; }
+
   /* ── PIPELINE STATUS FILTER PILLS ── */
   .status-filter-row {
     display: flex;
@@ -750,16 +746,13 @@
     <div class="page-title">Active Pipeline</div>
     <div class="page-subtitle">Kanban view — As of 11 Feb 2026</div>
   </div>
-  <div class="combined-stats-filters">
-    <div class="stat-row" id="pipeline-stats"></div>
-    <div class="status-filter-row">
-      <div class="status-filter-pill sf-all selected" onclick="setPipelineFilter('ALL', this)">All</div>
-      <div class="status-filter-pill sf-active" onclick="setPipelineFilter('ACTIVE', this)">Active</div>
-      <div class="status-filter-pill sf-signed" onclick="setPipelineFilter('SIGNED', this)">Signed</div>
-      <div class="status-filter-pill sf-lapsed" onclick="setPipelineFilter('LAPSED', this)">Lapsed</div>
-      <div class="status-filter-pill sf-keyco" onclick="setPipelineFilter('KEYCO', this)">Key Collection</div>
-      <div class="status-filter-pill sf-reachout" onclick="setPipelineFilter('REACHOUT', this)">🔔 Reach Out</div>
-    </div>
+  <div class="status-filter-row">
+    <div class="status-filter-pill sf-all selected" onclick="setPipelineFilter('ALL', this)"><span class="pill-count" id="pill-count-all"></span>All</div>
+    <div class="status-filter-pill sf-active" onclick="setPipelineFilter('ACTIVE', this)"><span class="pill-count" id="pill-count-active"></span>Active</div>
+    <div class="status-filter-pill sf-signed" onclick="setPipelineFilter('SIGNED', this)"><span class="pill-count" id="pill-count-signed"></span>Signed</div>
+    <div class="status-filter-pill sf-lapsed" onclick="setPipelineFilter('LAPSED', this)"><span class="pill-count" id="pill-count-lapsed"></span>Lapsed</div>
+    <div class="status-filter-pill sf-keyco" onclick="setPipelineFilter('KEYCO', this)"><span class="pill-count" id="pill-count-keyco"></span>Key Collection</div>
+    <div class="status-filter-pill sf-reachout" onclick="setPipelineFilter('REACHOUT', this)">🔔 Reach Out</div>
   </div>
   <div class="filters">
     <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterPipeline()" id="pipeline-search">
@@ -1156,13 +1149,11 @@ function renderPipeline(data) {
     return isReachOutNow(kc);
   });
 
-  document.getElementById('pipeline-stats').innerHTML = `
-    <div class="stat-pill s-active"><span class="count">${active.length}</span> Active</div>
-    <div class="stat-pill s-signed"><span class="count">${signed.length}</span> Signed</div>
-    <div class="stat-pill s-lapsed"><span class="count">${lapsed.length}</span> Lapsed</div>
-    <div class="stat-pill s-keyco"><span class="count">${keyco.length}</span> Long Key Collection</div>
-    <div class="stat-pill s-total"><span class="count" style="color:var(--dark-mid)">${data.length}</span> Total</div>
-  `;
+  document.getElementById('pill-count-all').textContent    = data.length;
+  document.getElementById('pill-count-active').textContent = active.length;
+  document.getElementById('pill-count-signed').textContent = signed.length;
+  document.getElementById('pill-count-lapsed').textContent = lapsed.length;
+  document.getElementById('pill-count-keyco').textContent  = keyco.length;
   document.getElementById('cnt-active').textContent = active.length;
   document.getElementById('cnt-keyco').textContent  = keyco.length;
   document.getElementById('cnt-signed-pipeline').textContent = signed.length;
