@@ -615,6 +615,13 @@
     #wdt-view-progression .filters .search-box { width: 100%; flex: 0 0 100%; }
     #page-progression .filters .filter-select,
     #wdt-view-progression .filters .filter-select { flex: 1; min-width: 0; }
+    /* Pipeline PM + Type side by side */
+    #pipeline-filters,
+    #wdt-pipeline-filters { flex-direction: row; flex-wrap: wrap; }
+    #pipeline-filters .search-box,
+    #wdt-pipeline-filters .search-box { width: 100%; flex: 0 0 100%; }
+    #pipeline-filters .filter-select,
+    #wdt-pipeline-filters .filter-select { flex: 1; min-width: 0; }
     /* Table wrap full width on mobile */
     .table-wrap { max-height: calc(100vh - 260px); }
     /* New modal fields */
@@ -646,6 +653,13 @@
     #wdt-view-progression .filters { flex-direction: row; flex-wrap: wrap; }
     #page-progression .filters .search-box,
     #wdt-view-progression .filters .search-box { flex: 0 0 100%; min-width: 0; }
+    /* Pipeline PM + Type side by side on tiny screens */
+    #pipeline-filters,
+    #wdt-pipeline-filters { flex-direction: row; flex-wrap: wrap; }
+    #pipeline-filters .search-box,
+    #wdt-pipeline-filters .search-box { flex: 0 0 100%; min-width: 0; }
+    #pipeline-filters .filter-select,
+    #wdt-pipeline-filters .filter-select { flex: 1; min-width: 0; width: auto; }
     .btn-edit-toggle, .btn-download, .btn-new-row { padding: 8px 14px; font-size: 0.8rem; }
   }
 
@@ -789,15 +803,7 @@
     <div class="page-title">Active Pipeline</div>
     <div class="page-subtitle">Kanban view — As of 11 Feb 2026</div>
   </div>
-  <div class="status-filter-row">
-    <div class="status-filter-pill sf-all selected" onclick="setPipelineFilter('ALL', this)"><span class="pill-count" id="pill-count-all"></span>All</div>
-    <div class="status-filter-pill sf-active" onclick="setPipelineFilter('ACTIVE', this)"><span class="pill-count" id="pill-count-active"></span>Active</div>
-    <div class="status-filter-pill sf-signed" onclick="setPipelineFilter('SIGNED', this)"><span class="pill-count" id="pill-count-signed"></span>Signed</div>
-    <div class="status-filter-pill sf-lapsed" onclick="setPipelineFilter('LAPSED', this)"><span class="pill-count" id="pill-count-lapsed"></span>Lapsed</div>
-    <div class="status-filter-pill sf-keyco" onclick="setPipelineFilter('KEYCO', this)"><span class="pill-count" id="pill-count-keyco"></span>Key Collection</div>
-    <div class="status-filter-pill sf-reachout" onclick="setPipelineFilter('REACHOUT', this)">🔔 Reach Out</div>
-  </div>
-  <div class="filters">
+  <div class="filters" id="pipeline-filters">
     <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterPipeline()" id="pipeline-search">
     <select class="filter-select" onchange="filterPipeline()" id="pipeline-pm-filter">
       <option value="">All PMs</option>
@@ -805,6 +811,14 @@
     <select class="filter-select" onchange="filterPipeline()" id="pipeline-type-filter">
       <option value="">All Types</option>
     </select>
+  </div>
+  <div class="status-filter-row">
+    <div class="status-filter-pill sf-all selected" onclick="setPipelineFilter('ALL', this)"><span class="pill-count" id="pill-count-all"></span>All</div>
+    <div class="status-filter-pill sf-active" onclick="setPipelineFilter('ACTIVE', this)"><span class="pill-count" id="pill-count-active"></span>Active</div>
+    <div class="status-filter-pill sf-signed" onclick="setPipelineFilter('SIGNED', this)"><span class="pill-count" id="pill-count-signed"></span>Signed</div>
+    <div class="status-filter-pill sf-lapsed" onclick="setPipelineFilter('LAPSED', this)"><span class="pill-count" id="pill-count-lapsed"></span>Lapsed</div>
+    <div class="status-filter-pill sf-keyco" onclick="setPipelineFilter('KEYCO', this)"><span class="pill-count" id="pill-count-keyco"></span>Key Collection</div>
+    <div class="status-filter-pill sf-reachout" onclick="setPipelineFilter('REACHOUT', this)">🔔 Reach Out</div>
   </div>
 
   <!-- REACH OUT SECTION -->
@@ -987,13 +1001,7 @@
 
   <!-- ── WDT PIPELINE VIEW ── -->
   <div id="wdt-view-pipeline">
-    <div class="status-filter-row">
-      <div class="status-filter-pill sf-all selected" onclick="setWdtPipelineFilter('ALL',this)"><span class="pill-count" id="wdt-pill-all"></span>All</div>
-      <div class="status-filter-pill sf-active" onclick="setWdtPipelineFilter('ACTIVE',this)"><span class="pill-count" id="wdt-pill-active"></span>Active</div>
-      <div class="status-filter-pill sf-signed" onclick="setWdtPipelineFilter('SIGNED',this)"><span class="pill-count" id="wdt-pill-signed"></span>Signed</div>
-      <div class="status-filter-pill sf-lapsed" onclick="setWdtPipelineFilter('LAPSED',this)"><span class="pill-count" id="wdt-pill-lapsed"></span>Lapsed</div>
-    </div>
-    <div class="filters">
+    <div class="filters" id="wdt-pipeline-filters">
       <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterWdtPipeline()" id="wdt-pipeline-search">
       <select class="filter-select" onchange="filterWdtPipeline()" id="wdt-pipeline-pm-filter">
         <option value="">All PMs</option>
@@ -1001,6 +1009,12 @@
       <select class="filter-select" onchange="filterWdtPipeline()" id="wdt-pipeline-type-filter">
         <option value="">All Types</option>
       </select>
+    </div>
+    <div class="status-filter-row">
+      <div class="status-filter-pill sf-all selected" onclick="setWdtPipelineFilter('ALL',this)"><span class="pill-count" id="wdt-pill-all"></span>All</div>
+      <div class="status-filter-pill sf-active" onclick="setWdtPipelineFilter('ACTIVE',this)"><span class="pill-count" id="wdt-pill-active"></span>Active</div>
+      <div class="status-filter-pill sf-signed" onclick="setWdtPipelineFilter('SIGNED',this)"><span class="pill-count" id="wdt-pill-signed"></span>Signed</div>
+      <div class="status-filter-pill sf-lapsed" onclick="setWdtPipelineFilter('LAPSED',this)"><span class="pill-count" id="wdt-pill-lapsed"></span>Lapsed</div>
     </div>
     <div id="wdt-section-active">
       <div class="section-header">
@@ -1135,6 +1149,10 @@
       <div class="page-subtitle">Signed clients — deposit tracking</div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn-edit-toggle" id="signed-edit-toggle-btn" onclick="toggleSignedEditMode()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit
+      </button>
       <button class="btn-download" onclick="downloadSignedExcel()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download Excel
@@ -1146,10 +1164,15 @@
     </div>
   </div>
 
+  <div class="edit-banner" id="signed-edit-banner">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Editing mode is on — click any cell to edit. Changes save automatically.
+  </div>
+
   <div class="stat-row" id="signed-stat-row"></div>
 
   <div class="table-wrap" style="max-width:700px">
-    <table class="w-table">
+    <table class="w-table" id="signed-table">
       <thead>
         <tr>
           <th style="width:40px">#</th>
@@ -2422,17 +2445,84 @@ function renderSigned() {
   years.forEach(year => {
     const group = SIGNED_DATA.filter(r=>r.Year===year);
     html += `<tr><td colspan="5" class="master-section-header signed-header">${year}</td></tr>`;
-    group.forEach(r => {
+    group.forEach((r, gi) => {
+      const rowId = r.id || (year * 1000 + gi);
+      const nameCell = signedEditMode
+        ? `<td contenteditable="true" style="font-weight:600;outline:none;cursor:text" onblur="signedNameChange(this,${rowId})">${esc(r.Name)}</td>`
+        : `<td style="font-weight:600">${esc(r.Name)}</td>`;
+      const dep1Cell = signedEditMode
+        ? `<td>${signedDepositDropdown(rowId,'Deposit 1',r['Deposit 1'])}</td>`
+        : `<td>${depositBadge(r['Deposit 1'])}</td>`;
+      const dep2Cell = signedEditMode
+        ? `<td>${signedDepositDropdown(rowId,'Deposit 2',r['Deposit 2'])}</td>`
+        : `<td>${depositBadge(r['Deposit 2'])}</td>`;
       html += `<tr>
         <td style="color:var(--muted);font-size:0.75rem">${idx++}</td>
         <td style="color:var(--muted);font-size:0.8rem">${r.Year}</td>
-        <td style="font-weight:600">${esc(r.Name)}</td>
-        <td>${depositBadge(r['Deposit 1'])}</td>
-        <td>${depositBadge(r['Deposit 2'])}</td>
+        ${nameCell}
+        ${dep1Cell}
+        ${dep2Cell}
       </tr>`;
     });
   });
   document.getElementById('signed-tbody').innerHTML = html;
+}
+
+let signedEditMode = false;
+
+function toggleSignedEditMode() {
+  signedEditMode = !signedEditMode;
+  const btn = document.getElementById('signed-edit-toggle-btn');
+  const banner = document.getElementById('signed-edit-banner');
+  const wrap = document.querySelector('#signed-table').closest('.table-wrap');
+  if(signedEditMode) {
+    btn.classList.add('active');
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editing On`;
+    banner.classList.add('visible');
+    if(wrap) wrap.classList.add('edit-mode');
+  } else {
+    btn.classList.remove('active');
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit`;
+    banner.classList.remove('visible');
+    if(wrap) wrap.classList.remove('edit-mode');
+  }
+  renderSigned();
+}
+
+function signedDepositDropdown(rowId, field, value) {
+  const sel = (v) => v === value ? 'selected' : '';
+  return `<select style="border:1px solid var(--border);border-radius:5px;padding:4px 6px;font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--white);color:var(--dark);cursor:pointer;min-width:70px"
+    onchange="signedDepositChange(this,${rowId},'${field}')">
+    <option value="" ${sel('')}>—</option>
+    <option value="PAID" ${sel('PAID')}>PAID</option>
+  </select>`;
+}
+
+function signedNameChange(el, rowId) {
+  const val = el.textContent.trim();
+  const row = SIGNED_DATA.find((r,i)=> (r.id || i) === rowId);
+  if(row && val) {
+    row.Name = val;
+    if(row.id) {
+      showSyncStatus('Saving…','saving');
+      _db.from('chyler_signed').update({name: val}).eq('id', row.id)
+        .then(({error}) => error ? showSyncStatus('Save failed ✗','error') : showSyncStatus('Saved ✓','success'));
+    }
+  }
+}
+
+function signedDepositChange(el, rowId, field) {
+  const val = el.value || null;
+  const row = SIGNED_DATA.find((r,i)=> (r.id || i) === rowId);
+  if(row) row[field] = val;
+  // Sync to Supabase
+  if(row && row.id) {
+    const col = field === 'Deposit 1' ? 'deposit_1' : 'deposit_2';
+    showSyncStatus('Saving…','saving');
+    _db.from('chyler_signed').update({[col]: val||null}).eq('id', row.id)
+      .then(({error}) => error ? showSyncStatus('Save failed ✗','error') : showSyncStatus('Saved ✓','success'));
+  }
+  renderSigned();
 }
 
 function openSignedModal() {
