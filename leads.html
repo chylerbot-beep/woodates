@@ -2427,7 +2427,6 @@ async function loadFromSupabase() {
     showSyncStatus('Synced ✓', 'success');
     return true;
   } catch(e) {
-    console.warn('Supabase unavailable, using local data:', e);
     showSyncStatus('Offline — using local data', 'error');
     return false;
   }
