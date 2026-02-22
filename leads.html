@@ -1889,13 +1889,8 @@ const WDT_DATA = [
   {Date:'06 Feb 2026',Number:8,Phone:'87481853',Type:null,Name:'Vanessa Lee','Responsive?':'YES','GC created':null,PM:'SHELA','1st meet':null,'2D':null,'Quotation':null,'2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
 ];
 
-const WDT_MASTER = [
-  {Phone:'82239275',Name:'Amanda',Type:'BTO'},
-  {Phone:'94380776',Name:'Cindy',Type:'Resale'},
-  {Phone:'97711317',Name:'Alistaire',Type:'BTO'},
-  {Phone:'97646935',Name:'Quanyou',Type:'EC'},
-  {Phone:'90110159',Name:'Erlie',Type:'Condo'},
-];
+// WDT_MASTER is derived live from WDT_DATA — never hardcoded separately
+const WDT_MASTER = WDT_DATA.map(r => ({ Phone: String(r.Phone||''), Name: r.Name, Type: r.Type||'' }));
 
 // Derive status from data
 function getWdtStatus(r) {
@@ -2161,6 +2156,10 @@ function toggleWdtEditMode() {
 
 // ── WDT MASTER ──
 function initWdtMaster() {
+  // Re-sync WDT_MASTER from WDT_DATA (in case Supabase replaced WDT_DATA after boot)
+  WDT_MASTER.length = 0;
+  WDT_DATA.forEach(r => WDT_MASTER.push({ Phone: String(r.Phone||''), Name: r.Name, Type: r.Type||'' }));
+  wdtMasterFiltered = [...WDT_MASTER];
   const types = [...new Set(WDT_MASTER.map(r=>r.Type).filter(Boolean))].sort();
   types.forEach(t=>{
     const o=document.createElement('option'); o.value=t; o.textContent=t;
@@ -2200,7 +2199,7 @@ function saveWdtRow() {
   const name = document.getElementById('wdt-new-name').value.trim();
   if(!name){document.getElementById('wdt-new-name').focus();return;}
   const maxNum = Math.max(...WDT_DATA.map(r=>r.Number||0));
-  WDT_DATA.push({
+  const newRow = {
     Date:document.getElementById('wdt-new-date').value,
     Number:maxNum+1,
     Phone:document.getElementById('wdt-new-phone').value,
@@ -2213,11 +2212,21 @@ function saveWdtRow() {
     Comments:document.getElementById('wdt-new-comments').value||null,
     '1st Deposit':null,'2nd Deposit':null,
     Status:document.getElementById('wdt-new-status').value,
-  });
+  };
+  WDT_DATA.push(newRow);
+  // ── Also add to master list ──
+  WDT_MASTER.push({ Phone: String(newRow.Phone||''), Name: newRow.Name, Type: newRow.Type||'' });
   closeWdtModal();
   renderWdtPipeline(WDT_DATA);
   renderWdtProgression(WDT_DATA);
-  supabaseInsertWdt(WDT_DATA[WDT_DATA.length-1]).then(id => { if(id) WDT_DATA[WDT_DATA.length-1].id = id; });
+  renderWdtMaster(WDT_MASTER);
+  supabaseInsertWdt(newRow).then(id => { if(id) newRow.id = id; });
+  // Flash new row in master list
+  setTimeout(()=>{
+    const rows = document.querySelectorAll('#wdt-master-tbody tr');
+    const last = rows[rows.length-1];
+    if(last){ last.style.background='#EEF6F0'; last.scrollIntoView({behavior:'smooth',block:'nearest'}); setTimeout(()=>{last.style.background='';},2000); }
+  },80);
 }
 document.getElementById('wdt-row-modal').addEventListener('click',function(e){if(e.target===this)closeWdtModal();});
 
