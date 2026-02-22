@@ -99,10 +99,20 @@
     box-shadow: var(--shadow-sm);
   }
   .header-top {
-    padding: 20px 40px 0;
+    padding: 20px 40px 14px;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
+    justify-content: space-between;
     gap: 32px;
+  }
+
+  /* ── MAIN NAV ── */
+  .main-nav {
+    display: flex;
+    gap: 0;
+    padding: 0 40px;
+    background: var(--white);
+    border-top: 1px solid var(--border-light);
   }
   .brand p {
     font-size: 0.7rem;
@@ -119,13 +129,6 @@
     line-height: 1;
   }
 
-  /* ── MAIN NAV ── */
-  .main-nav {
-    display: flex;
-    gap: 0;
-    flex: 1;
-    padding-bottom: 0;
-  }
   .main-nav-tab {
     padding: 14px 22px;
     font-size: 0.82rem;
@@ -164,11 +167,9 @@
   .sub-tab.active { color: var(--active); border-bottom-color: var(--active); }
 
   .header-actions {
-    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding-bottom: 14px;
   }
   .btn-outline {
     border: 1px solid var(--border);
@@ -584,9 +585,9 @@
 
   /* ── MOBILE IMPROVEMENTS ── */
   @media (max-width: 768px) {
-    .header-top { padding: 14px 16px 0; flex-wrap: wrap; gap: 12px; }
+    .header-top { padding: 14px 16px; flex-wrap: wrap; gap: 12px; }
     .brand h1 { font-size: 1.4rem; }
-    .main-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; scrollbar-width: none; }
+    .main-nav { padding: 0 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; scrollbar-width: none; }
     .main-nav::-webkit-scrollbar { display: none; }
     .main-nav-tab { padding: 12px 16px; font-size: 0.78rem; }
     .sub-nav { padding: 0 16px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
@@ -603,10 +604,17 @@
     .stat-pill { padding: 8px 12px; font-size: 0.78rem; }
     .stat-pill .count { font-size: 1.1rem; }
     .cards-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
-    .header-actions { padding-bottom: 12px; }
+    .header-actions { padding-bottom: 0; }
     /* Progression page header on mobile */
     #page-progression .page-header { flex-direction: column; align-items: stretch; }
     #page-progression .page-header > div:last-child { flex-wrap: wrap; }
+    /* Stack filters but keep status+PM side by side */
+    #page-progression .filters,
+    #wdt-view-progression .filters { flex-direction: row; flex-wrap: wrap; }
+    #page-progression .filters .search-box,
+    #wdt-view-progression .filters .search-box { width: 100%; flex: 0 0 100%; }
+    #page-progression .filters .filter-select,
+    #wdt-view-progression .filters .filter-select { flex: 1; min-width: 0; }
     /* Table wrap full width on mobile */
     .table-wrap { max-height: calc(100vh - 260px); }
     /* New modal fields */
@@ -617,28 +625,9 @@
     .w-table td, .w-table th { padding: 10px 12px; font-size: 0.8rem; }
   }
   @media (max-width: 480px) {
-    .header-top { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px 16px 0; }
-    .brand { flex: 1; }
+    .header-top { padding: 12px 16px; }
     .brand h1 { font-size: 1.25rem; }
-    /* Make main-nav scrollable on small screens instead of hiding it */
-    .main-nav {
-      width: 100%;
-      order: 3;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      flex-wrap: nowrap;
-      scrollbar-width: none;
-      border-top: 1px solid var(--border-light);
-      padding-top: 0;
-    }
-    .main-nav::-webkit-scrollbar { display: none; }
-    .main-nav-tab {
-      padding: 10px 14px;
-      font-size: 0.75rem;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .header-actions { padding-bottom: 8px; order: 2; }
+    .header-actions { padding-bottom: 0; }
     .status-filter-row { gap: 6px; }
     .status-filter-pill { padding: 6px 12px; font-size: 0.72rem; }
     .page { padding: 16px 12px; }
@@ -650,6 +639,13 @@
     .stat-pill { font-size: 0.75rem; padding: 7px 10px; }
     .filters { flex-direction: column; }
     .search-box { min-width: 100%; }
+    /* Keep status+PM filters side by side even on tiny screens */
+    #page-progression .filters .filter-select,
+    #wdt-view-progression .filters .filter-select { flex: 1; min-width: 0; width: auto; }
+    #page-progression .filters,
+    #wdt-view-progression .filters { flex-direction: row; flex-wrap: wrap; }
+    #page-progression .filters .search-box,
+    #wdt-view-progression .filters .search-box { flex: 0 0 100%; min-width: 0; }
     .btn-edit-toggle, .btn-download, .btn-new-row { padding: 8px 14px; font-size: 0.8rem; }
   }
 
@@ -765,14 +761,14 @@
       <p>Woodates</p>
       <h1>Leads</h1>
     </div>
-    <div class="main-nav">
-      <div class="main-nav-tab active" onclick="switchMainNav('chyler', this)">Chyler Leads</div>
-      <div class="main-nav-tab" onclick="switchMainNav('woodates', this)">Woodates Leads</div>
-      <div class="main-nav-tab" onclick="switchMainNav('signed', this)">Chyler Signed</div>
-    </div>
     <div class="header-actions">
       <a href="index.html" class="btn-outline">← Home</a>
     </div>
+  </div>
+  <div class="main-nav" id="main-nav">
+    <div class="main-nav-tab active" onclick="switchMainNav('chyler', this)">Chyler Leads</div>
+    <div class="main-nav-tab" onclick="switchMainNav('woodates', this)">Woodates Leads</div>
+    <div class="main-nav-tab" onclick="switchMainNav('signed', this)">Chyler Signed</div>
   </div>
   <div class="sub-nav" id="sub-nav-chyler">
     <div class="sub-tab active" onclick="switchSubTab('pipeline', this)">Pipeline</div>
@@ -1527,7 +1523,16 @@ function goToProgression(name) {
 }
 
 function activeCard(r) {
-  const pct = getProgress(r.stage);
+  // Build mini step indicators (same style as Woodates cards)
+  const steps = PIPELINE_STEPS.map((key, i) => {
+    const v = r[key];
+    let bg;
+    if(!v || v==='NO' || v==='NA')            bg = 'var(--border)';
+    else if(v==='PENDING'||v==='PLANNED')      bg = 'var(--keyco)';
+    else                                       bg = 'var(--signed)';
+    return `<span title="${PIPELINE_STAGES[i]||key}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${bg};margin:0 1px;flex-shrink:0"></span>`;
+  }).join('');
+
   return `<div class="card active-card" onclick="goToProgression('${esc(r.Name)}')" style="cursor:pointer">
     <div class="card-name">${esc(r.Name)}</div>
     <div class="card-meta">
@@ -1535,8 +1540,8 @@ function activeCard(r) {
       ${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:''}
       <span class="tag">${esc(r.stage)}</span>
     </div>
+    <div style="display:flex;gap:0;align-items:center;margin:6px 0 4px;flex-wrap:wrap">${steps}</div>
     <div class="card-phone">${r.Phone}</div>
-    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
     ${r.Comments?`<div class="card-comment">${esc(r.Comments)}</div>`:''}
     <div class="card-date">${r.Date}</div>
   </div>`;
