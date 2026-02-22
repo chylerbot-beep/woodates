@@ -574,76 +574,8 @@
         <main>
             <section>
                 <h2>Available Tools</h2>
-                <div class="tool-grid">
-                    <a href="#" class="card" id="workflowCard" onclick="createAndOpenProject(event)">
-                        <div class="card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="9 11 12 14 22 4"></polyline>
-                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                            </svg>
-                        </div>
-                        <h3>PM Project Checklist</h3>
-                        <p>Track project progress from onboarding to handover. Manage technical site visits and
-                            documentation protocols.</p>
-                    </a>
-
-                    <a href="quote-tool.html" class="card">
-                        <div class="card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                                <line x1="16" y1="13" x2="8" y2="13"></line>
-                                <line x1="16" y1="17" x2="8" y2="17"></line>
-                                <polyline points="10 9 9 9 8 9"></polyline>
-                            </svg>
-                        </div>
-                        <h3>Generate a Quote</h3>
-                        <p>Generate professional BTO and resale renovation quotations with real-time pricing and Excel
-                            export.</p>
-                    </a>
-
-                    <a href="admin.html" id="adminCard" class="card" style="display: none;">
-                        <div class="card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                        </div>
-                        <h3>Admin Dashboard</h3>
-                        <p>Overview of all designer projects, status tracking, and global management controls.</p>
-                    </a>
-
-                    <a href="help-me-quote.html" class="card">
-                        <div class="card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"></path>
-                                <path d="M12 8v4l3 3"></path>
-                            </svg>
-                        </div>
-                        <h3>Help Me Quote</h3>
-                        <p>Upload a floor plan and answer intake questions.</p>
-                    </a>
-
-                    <a href="leads.html" id="leadsCard" class="card" style="display: none;">
-                        <div class="card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <line x1="19" y1="8" x2="19" y2="14"></line>
-                                <line x1="22" y1="11" x2="16" y2="11"></line>
-                            </svg>
-                        </div>
-                        <h3>Leads</h3>
-                        <p>Pipeline, progression tracking, and lead management. Admin only.</p>
-                    </a>
-                </div>
+                <!-- Tool cards are rendered by JS in TOOL_ORDER — edit that array to reorder, not the HTML -->
+                <div class="tool-grid" id="toolGrid"></div>
             </section>
 
             <section>
@@ -735,7 +667,6 @@
         const projectsListEl = document.getElementById('projectsList');
         const logoutBtn = document.getElementById('logoutBtn');
         const newProjectBtn = document.getElementById('newProjectBtn');
-        const adminCard = document.getElementById('adminCard');
 
         async function init() {
             const { data: { session } } = await _supabase.auth.getSession();
@@ -761,6 +692,63 @@
             document.body.style.overflow = 'auto';
         }
 
+        // ── TOOL CARD DEFINITIONS ─────────────────────────────
+        // To reorder cards, change the array order here — not the HTML.
+        // 'adminOnly: true' cards are hidden until admin role is confirmed.
+        const TOOL_ORDER = [
+          {
+            id: 'leadsCard',
+            href: 'leads.html',
+            adminOnly: true,
+            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>`,
+            title: 'Leads',
+            desc: 'Pipeline, progression tracking, and lead management. Admin only.',
+          },
+          {
+            id: 'workflowCard',
+            href: '#',
+            onclick: 'createAndOpenProject(event)',
+            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+            title: 'PM Project Checklist',
+            desc: 'Track project progress from onboarding to handover. Manage technical site visits and documentation protocols.',
+          },
+          {
+            id: 'quoteCard',
+            href: 'quote-tool.html',
+            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
+            title: 'Generate a Quote',
+            desc: 'Generate professional BTO and resale renovation quotations with real-time pricing and Excel export.',
+          },
+          {
+            id: 'helpQuoteCard',
+            href: 'help-me-quote.html',
+            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/></svg>`,
+            title: 'Help Me Quote',
+            desc: 'Upload a floor plan and answer intake questions.',
+          },
+          {
+            id: 'adminCard',
+            href: 'admin.html',
+            adminOnly: true,
+            icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+            title: 'Admin Dashboard',
+            desc: 'Overview of all designer projects, status tracking, and global management controls.',
+          },
+        ];
+
+        function renderToolCards(isAdmin) {
+          const grid = document.getElementById('toolGrid');
+          grid.innerHTML = TOOL_ORDER
+            .filter(t => !t.adminOnly || isAdmin)
+            .map(t => `
+              <a href="${t.href}" class="card" id="${t.id}"${t.onclick ? ` onclick="${t.onclick}"` : ''}>
+                <div class="card-icon">${t.icon}</div>
+                <h3>${t.title}</h3>
+                <p>${t.desc}</p>
+              </a>`)
+            .join('');
+        }
+
         async function loadUserData(user) {
             const { data: profile } = await _supabase
                 .from('profiles')
@@ -768,14 +756,12 @@
                 .eq('id', user.id)
                 .single();
 
+            const isAdmin = profile?.role === 'admin';
             if (profile) {
                 userNameEl.textContent = profile.full_name;
-                userRoleEl.textContent = profile.role === 'admin' ? 'Administrator' : 'Designer';
-                if (profile.role === 'admin') {
-                    adminCard.style.display = 'flex';
-                    document.getElementById('leadsCard').style.display = 'flex';
-                }
+                userRoleEl.textContent = isAdmin ? 'Administrator' : 'Designer';
             }
+            renderToolCards(isAdmin);
 
             fetchProjects(user.id);
             fetchQuotes(user.id);
