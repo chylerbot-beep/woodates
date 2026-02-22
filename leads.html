@@ -867,7 +867,7 @@
 
   <div class="edit-banner" id="edit-banner">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    Editing mode is on — click any cell to edit. Changes are local only.
+    Editing mode is on — milestone cells switch to dropdowns (YES / NO / PENDING / PLANNED / NA), auto-saving to Supabase on change.
   </div>
 
   <div class="filters">
@@ -888,27 +888,27 @@
     <table class="w-table" id="prog-table">
       <thead>
         <tr>
-          <th>A · #</th>
-          <th>B · Date</th>
-          <th>C · Source</th>
-          <th>D · Phone</th>
-          <th>E · Type</th>
-          <th>F · Name</th>
+          <th style="width:40px">#</th>
+          <th>Date</th>
+          <th>Source</th>
+          <th>Phone</th>
+          <th>Type</th>
+          <th>Name</th>
           <th>Current Status</th>
-          <th>G · Responsive?</th>
-          <th>H · GC Created</th>
-          <th>I · PM</th>
-          <th>J · 1st Meet</th>
-          <th>K · 2D</th>
-          <th>L · Quotation</th>
-          <th>M · 2nd Meet</th>
-          <th>N · Revised 2D</th>
-          <th>O · Revised Quot.</th>
-          <th>P · Site Visit</th>
-          <th>Q · Comments</th>
-          <th>R · 1st Deposit</th>
-          <th>S · 2nd Deposit</th>
-          <th>T · Final Status</th>
+          <th>Comments</th>
+          <th style="width:95px">Responsive?</th>
+          <th style="width:95px">GC Created</th>
+          <th style="width:90px">PM</th>
+          <th style="width:95px">1st Meet</th>
+          <th style="width:72px">2D</th>
+          <th style="width:95px">1st Quote</th>
+          <th style="width:95px">2nd Meet</th>
+          <th style="width:95px">Revised 2D</th>
+          <th style="width:105px">Revised Quote</th>
+          <th style="width:95px">Site Visit</th>
+          <th style="width:95px">1st Deposit</th>
+          <th style="width:95px">2nd Deposit</th>
+          <th>Final Status</th>
         </tr>
       </thead>
       <tbody id="prog-tbody"></tbody>
@@ -1023,7 +1023,7 @@
     </div>
     <div class="edit-banner" id="wdt-edit-banner">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Editing mode is on — click any cell to edit. Changes are local only.
+      Editing mode is on — milestone cells switch to dropdowns (YES / NO / PENDING / PLANNED / NA), auto-saving to Supabase on change.
     </div>
     <div class="filters">
       <input class="search-box" type="text" placeholder="Search by name, phone, PM, status…" oninput="filterWdtProgression()" id="wdt-prog-search">
@@ -1041,7 +1041,7 @@
       <table class="w-table" id="wdt-prog-table">
         <thead>
           <tr>
-            <th>#</th>
+            <th style="width:40px">#</th>
             <th>Date</th>
             <th>Phone</th>
             <th>Type</th>
@@ -1050,17 +1050,17 @@
             <th>Current Stage</th>
             <th>Comments</th>
             <th>PM</th>
-            <th>Responsive?</th>
-            <th>GC Created</th>
-            <th>1st Meet</th>
-            <th>2D</th>
-            <th>1st Quote</th>
-            <th>2nd Meet</th>
-            <th>Revised 2D</th>
-            <th>Revised Quote</th>
-            <th>Site Visit</th>
-            <th>1st Deposit</th>
-            <th>2nd Deposit</th>
+            <th style="width:95px">Responsive?</th>
+            <th style="width:95px">GC Created</th>
+            <th style="width:95px">1st Meet</th>
+            <th style="width:72px">2D</th>
+            <th style="width:95px">1st Quote</th>
+            <th style="width:95px">2nd Meet</th>
+            <th style="width:95px">Revised 2D</th>
+            <th style="width:105px">Revised Quote</th>
+            <th style="width:95px">Site Visit</th>
+            <th style="width:95px">1st Deposit</th>
+            <th style="width:95px">2nd Deposit</th>
           </tr>
         </thead>
         <tbody id="wdt-prog-tbody"></tbody>
@@ -1482,7 +1482,14 @@ function goToProgression(name) {
 }
 
 function activeCard(r) {
-  const pct = getProgress(r.stage);
+  const steps = PIPELINE_STEPS.map((field, i) => {
+    const v = r[field];
+    let bg;
+    if (!v || v==='NO' || v==='NA')              bg = 'var(--border)';
+    else if (v==='PENDING'||v==='PLANNED'||v==='SCHEDULED') bg = 'var(--keyco)';
+    else                                          bg = 'var(--signed)';
+    return `<span title="${PIPELINE_STAGES[i]}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${bg};margin:0 1px;flex-shrink:0"></span>`;
+  }).join('');
   return `<div class="card active-card" onclick="goToProgression('${esc(r.Name)}')" style="cursor:pointer">
     <div class="card-name">${esc(r.Name)}</div>
     <div class="card-meta">
@@ -1490,8 +1497,8 @@ function activeCard(r) {
       ${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:''}
       <span class="tag">${esc(r.stage)}</span>
     </div>
+    <div style="display:flex;align-items:center;margin:7px 0 4px;flex-wrap:wrap">${steps}</div>
     <div class="card-phone">${r.Phone}</div>
-    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
     ${r.Comments?`<div class="card-comment">${esc(r.Comments)}</div>`:''}
     <div class="card-date">${r.Date}</div>
   </div>`;
@@ -1568,35 +1575,59 @@ function filterProgression() {
   renderProgression(progFiltered);
 }
 
+function chylerDropdown(field, value, rowId) {
+  const opts = ['YES','NO','PENDING','PLANNED','NA'];
+  const sel = (v) => v===value ? 'selected' : '';
+  return `<select onchange="chylerCellChange(this,'${field}',${rowId})"
+    style="border:1px solid var(--border);border-radius:5px;padding:4px 6px;
+      font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--white);
+      color:var(--dark);cursor:pointer;min-width:80px">
+    <option value="" ${sel('')}>—</option>
+    ${opts.map(o=>`<option value="${o}" ${sel(o)}>${o}</option>`).join('')}
+  </select>`;
+}
+function chylerCellChange(el, field, rowId) {
+  const val = el.value || null;
+  const row = CHYLER_DATA.find(r=>r.id===rowId);
+  if(row) row[field] = val;
+  supabaseUpdateCell('chyler_leads', rowId, field, val, CHYLER_COL_MAP);
+}
+
 function renderProgression(data) {
-  const editable = editMode ? 'contenteditable="true"' : '';
   const blur = editMode ? `onblur="supabaseUpdateCell('chyler_leads',+this.closest('tr').dataset.id,this.dataset.field,this.textContent.trim(),CHYLER_COL_MAP)"` : '';
+
+  function stepCell(r, field) {
+    if(editMode) return chylerDropdown(field, r[field], r.id);
+    return cellVal(r[field]);
+  }
+
   document.getElementById('prog-tbody').innerHTML = data.map(r => {
-    const st=r['FINAL STATUS'];
-    const stClass=st==='LONG KEY COLLECTION'?'LONG':st;
-    const stLabel=st==='LONG KEY COLLECTION'?'Key Collection':st;
+    const ed = editMode ? 'contenteditable="true"' : '';
+    const st = r['FINAL STATUS'];
+    const stClass = st==='LONG KEY COLLECTION' ? 'LONG' : st;
+    const stLabel = st==='LONG KEY COLLECTION' ? 'Key Collection' : st;
     return `<tr data-id="${r.id||''}">
-      <td ${editable} data-field="Number" style="color:var(--muted);font-size:0.78rem">${esc(r.Number)}</td>
-      <td ${editable} data-field="Date" ${blur} style="color:var(--muted);font-size:0.78rem;white-space:nowrap">${esc(r.Date)}</td>
-      <td ${editable} data-field="Source" ${blur} style="font-size:0.78rem">${esc(r.Source)}</td>
-      <td ${editable} data-field="Phone" ${blur} style="color:var(--muted);font-size:0.78rem">${r.Phone}</td>
-      <td ${editable} data-field="Type" ${blur}>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'—'}</td>
-      <td ${editable} data-field="Name" ${blur} style="font-weight:600">${esc(r.Name)}</td>
-      <td>${st==='ACTIVE' ? `<span class="tag stage-tag">${esc(r.stage||'—')}</span>` : '<span style="color:#CCC">—</span>'}</td>
-      <td ${editable} data-field="Responsive?" ${blur}>${cellVal(r['Responsive?'])}</td>
-      <td ${editable} data-field="GC created" ${blur}>${cellVal(r['GC created'])}</td>
-      <td ${editable} data-field="PM" ${blur}>${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:'<span style="color:#CCC">—</span>'}</td>
-      <td ${editable} data-field="1st meet" ${blur}>${cellVal(r['1st meet'])}</td>
-      <td ${editable} data-field="2D" ${blur}>${cellVal(r['2D'])}</td>
-      <td ${editable} data-field="Quotation" ${blur}>${cellVal(r['Quotation'])}</td>
-      <td ${editable} data-field="2nd meet" ${blur}>${cellVal(r['2nd meet'])}</td>
-      <td ${editable} data-field="Revised 2D" ${blur}>${cellVal(r['Revised 2D'])}</td>
-      <td ${editable} data-field="Revised Quotation" ${blur}>${cellVal(r['Revised Quotation'])}</td>
-      <td ${editable} data-field="Site visit" ${blur}>${cellVal(r['Site visit'])}</td>
-      <td ${editable} data-field="Comments" ${blur} style="font-size:0.75rem;color:var(--muted);max-width:200px;white-space:normal">${esc(r.Comments)||'<span style="color:#CCC">—</span>'}</td>
-      <td ${editable} data-field="1st Deposit" ${blur}>${cellVal(r['1st Deposit'])}</td>
-      <td ${editable} data-field="2nd Deposit" ${blur}>${cellVal(r['2nd Deposit'])}</td>
-      <td ${editable} data-field="FINAL STATUS" ${blur}><span class="status-badge ${stClass}">${stLabel}</span></td>
+      <td ${ed} data-field="Number" style="color:var(--muted);font-size:0.78rem">${esc(r.Number)}</td>
+      <td ${ed} data-field="Date" ${blur} style="color:var(--muted);font-size:0.78rem;white-space:nowrap">${esc(r.Date)}</td>
+      <td ${ed} data-field="Source" ${blur} style="font-size:0.78rem">${esc(r.Source)}</td>
+      <td ${ed} data-field="Phone" ${blur} style="color:var(--muted);font-size:0.78rem">${r.Phone}</td>
+      <td ${ed} data-field="Type" ${blur}>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'—'}</td>
+      <td ${ed} data-field="Name" ${blur} style="font-weight:600">${esc(r.Name)}</td>
+      <td>${st==='ACTIVE'?`<span class="tag stage-tag">${esc(r.stage||'—')}</span>`:'<span style="color:#CCC">—</span>'}</td>
+      <td ${ed} data-field="Comments" ${blur} style="font-size:0.75rem;color:var(--muted);max-width:200px;white-space:normal">${esc(r.Comments)||'<span style="color:#CCC">—</span>'}</td>
+      <td style="padding:6px 8px">${stepCell(r,'Responsive?')}</td>
+      <td style="padding:6px 8px">${stepCell(r,'GC created')}</td>
+      <td ${ed} data-field="PM" ${blur}>${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:'<span style="color:#CCC">—</span>'}</td>
+      <td style="padding:6px 8px">${stepCell(r,'1st meet')}</td>
+      <td style="padding:6px 8px">${stepCell(r,'2D')}</td>
+      <td style="padding:6px 8px">${stepCell(r,'Quotation')}</td>
+      <td style="padding:6px 8px">${stepCell(r,'2nd meet')}</td>
+      <td style="padding:6px 8px">${stepCell(r,'Revised 2D')}</td>
+      <td style="padding:6px 8px">${stepCell(r,'Revised Quotation')}</td>
+      <td style="padding:6px 8px">${stepCell(r,'Site visit')}</td>
+      <td style="padding:6px 8px">${stepCell(r,'1st Deposit')}</td>
+      <td style="padding:6px 8px">${stepCell(r,'2nd Deposit')}</td>
+      <td ${ed} data-field="FINAL STATUS" ${blur}><span class="status-badge ${stClass}">${stLabel}</span></td>
     </tr>`;
   }).join('');
 }
@@ -1889,8 +1920,13 @@ const WDT_DATA = [
   {Date:'06 Feb 2026',Number:8,Phone:'87481853',Type:null,Name:'Vanessa Lee','Responsive?':'YES','GC created':null,PM:'SHELA','1st meet':null,'2D':null,'Quotation':null,'2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
 ];
 
-// WDT_MASTER is derived live from WDT_DATA — never hardcoded separately
-const WDT_MASTER = WDT_DATA.map(r => ({ Phone: String(r.Phone||''), Name: r.Name, Type: r.Type||'' }));
+const WDT_MASTER = [
+  {Phone:'82239275',Name:'Amanda',Type:'BTO'},
+  {Phone:'94380776',Name:'Cindy',Type:'Resale'},
+  {Phone:'97711317',Name:'Alistaire',Type:'BTO'},
+  {Phone:'97646935',Name:'Quanyou',Type:'EC'},
+  {Phone:'90110159',Name:'Erlie',Type:'Condo'},
+];
 
 // Derive status from data
 function getWdtStatus(r) {
@@ -2041,7 +2077,6 @@ function wdtCard(r, cls) {
     <div style="display:flex;gap:0;align-items:center;margin:6px 0 4px;flex-wrap:wrap">${steps}</div>
     <div class="card-phone">${r.Phone||'—'}</div>
     ${r.Comments?`<div class="card-comment">${esc(r.Comments)}</div>`:''}
-    <div class="progress-bar"><div class="progress-fill" style="width:${prog}%"></div></div>
     <div class="card-date">${r.Date||''}</div>
   </div>`;
 }
@@ -2156,10 +2191,6 @@ function toggleWdtEditMode() {
 
 // ── WDT MASTER ──
 function initWdtMaster() {
-  // Re-sync WDT_MASTER from WDT_DATA (in case Supabase replaced WDT_DATA after boot)
-  WDT_MASTER.length = 0;
-  WDT_DATA.forEach(r => WDT_MASTER.push({ Phone: String(r.Phone||''), Name: r.Name, Type: r.Type||'' }));
-  wdtMasterFiltered = [...WDT_MASTER];
   const types = [...new Set(WDT_MASTER.map(r=>r.Type).filter(Boolean))].sort();
   types.forEach(t=>{
     const o=document.createElement('option'); o.value=t; o.textContent=t;
@@ -2199,7 +2230,7 @@ function saveWdtRow() {
   const name = document.getElementById('wdt-new-name').value.trim();
   if(!name){document.getElementById('wdt-new-name').focus();return;}
   const maxNum = Math.max(...WDT_DATA.map(r=>r.Number||0));
-  const newRow = {
+  WDT_DATA.push({
     Date:document.getElementById('wdt-new-date').value,
     Number:maxNum+1,
     Phone:document.getElementById('wdt-new-phone').value,
@@ -2212,21 +2243,11 @@ function saveWdtRow() {
     Comments:document.getElementById('wdt-new-comments').value||null,
     '1st Deposit':null,'2nd Deposit':null,
     Status:document.getElementById('wdt-new-status').value,
-  };
-  WDT_DATA.push(newRow);
-  // ── Also add to master list ──
-  WDT_MASTER.push({ Phone: String(newRow.Phone||''), Name: newRow.Name, Type: newRow.Type||'' });
+  });
   closeWdtModal();
   renderWdtPipeline(WDT_DATA);
   renderWdtProgression(WDT_DATA);
-  renderWdtMaster(WDT_MASTER);
-  supabaseInsertWdt(newRow).then(id => { if(id) newRow.id = id; });
-  // Flash new row in master list
-  setTimeout(()=>{
-    const rows = document.querySelectorAll('#wdt-master-tbody tr');
-    const last = rows[rows.length-1];
-    if(last){ last.style.background='#EEF6F0'; last.scrollIntoView({behavior:'smooth',block:'nearest'}); setTimeout(()=>{last.style.background='';},2000); }
-  },80);
+  supabaseInsertWdt(WDT_DATA[WDT_DATA.length-1]).then(id => { if(id) WDT_DATA[WDT_DATA.length-1].id = id; });
 }
 document.getElementById('wdt-row-modal').addEventListener('click',function(e){if(e.target===this)closeWdtModal();});
 
