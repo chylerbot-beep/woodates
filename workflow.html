@@ -1165,7 +1165,7 @@
       if (projectId) {
         await loadProjectData();
       } else {
-        alert('No project ID found');
+        showToast('No project ID found');
         window.location.href = 'index.html';
       }
     }
@@ -1178,7 +1178,7 @@
         .single();
 
       if (!project || error) {
-        alert('Project not found.');
+        showToast('Project not found.');
         window.location.href = 'index.html';
         return;
       }
@@ -1197,7 +1197,7 @@
       const isOwner = project.user_id === currentUser.id;
 
       if (!isOwner && !isAdmin) {
-        alert('You do not have permission to view this project');
+        showToast('You do not have permission to view this project');
         window.location.href = 'index.html';
         return;
       }
@@ -1554,6 +1554,25 @@
 
     init();
   </script>
+<script>
+
+// ── Toast notification ──────────────────────────────
+function showToast(msg, type='error') {
+  let t = document.getElementById('_app_toast');
+  if(!t) {
+    t = document.createElement('div');
+    t.id = '_app_toast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;padding:12px 24px;border-radius:8px;font-family:DM Sans,sans-serif;font-size:0.85rem;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.15);transition:opacity 0.4s;pointer-events:none';
+    document.body.appendChild(t);
+  }
+  const cols = {error:['#FEE2E2','#991B1B'], success:['#D1FAE5','#065F46'], info:['#EBF3FB','#1D4ED8']};
+  const [bg, color] = cols[type]||cols.error;
+  t.style.background=bg; t.style.color=color;
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._hide); t._hide=setTimeout(()=>{ t.style.opacity='0'; },4000);
+}
+
+</script>
 </body>
 
 </html>
