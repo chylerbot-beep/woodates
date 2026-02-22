@@ -737,6 +737,8 @@
     <div class="sub-tab active" onclick="switchSubTab('pipeline', this)">Pipeline</div>
     <div class="sub-tab" onclick="switchSubTab('progression', this)">Progression</div>
     <div class="sub-tab" onclick="switchSubTab('masterlist', this)">Master List</div>
+    <div class="sub-tab" onclick="switchSubTab('woodates', this)">Woodates Leads</div>
+    <div class="sub-tab" onclick="switchSubTab('woodates-signed', this)">Woodates Signed</div>
   </div>
 </header>
 
@@ -928,6 +930,275 @@
       </thead>
       <tbody id="master-tbody"></tbody>
     </table>
+  </div>
+</div>
+
+<!-- ══ WOODATES LEADS PAGE ══ -->
+<div class="page" id="page-woodates">
+  <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+    <div>
+      <div class="page-title">Woodates Company Leads</div>
+      <div class="page-subtitle">Pipeline tracking — As of 2 Feb 2026</div>
+    </div>
+  </div>
+
+  <!-- Sub-view tabs within Woodates -->
+  <div style="display:flex;gap:0;border-bottom:1px solid var(--border-light);margin-bottom:24px">
+    <div class="sub-tab active" id="wdt-tab-pipeline" style="font-size:0.75rem" onclick="switchWdtView('pipeline',this)">Pipeline</div>
+    <div class="sub-tab" id="wdt-tab-progression" style="font-size:0.75rem" onclick="switchWdtView('progression',this)">Progression</div>
+    <div class="sub-tab" id="wdt-tab-master" style="font-size:0.75rem" onclick="switchWdtView('master',this)">Master List</div>
+  </div>
+
+  <!-- ── WDT PIPELINE VIEW ── -->
+  <div id="wdt-view-pipeline">
+    <div class="status-filter-row">
+      <div class="status-filter-pill sf-all selected" onclick="setWdtPipelineFilter('ALL',this)"><span class="pill-count" id="wdt-pill-all"></span>All</div>
+      <div class="status-filter-pill sf-active" onclick="setWdtPipelineFilter('ACTIVE',this)"><span class="pill-count" id="wdt-pill-active"></span>Active</div>
+      <div class="status-filter-pill sf-signed" onclick="setWdtPipelineFilter('SIGNED',this)"><span class="pill-count" id="wdt-pill-signed"></span>Signed</div>
+      <div class="status-filter-pill sf-lapsed" onclick="setWdtPipelineFilter('LAPSED',this)"><span class="pill-count" id="wdt-pill-lapsed"></span>Lapsed</div>
+    </div>
+    <div class="filters">
+      <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterWdtPipeline()" id="wdt-pipeline-search">
+      <select class="filter-select" onchange="filterWdtPipeline()" id="wdt-pipeline-pm-filter">
+        <option value="">All PMs</option>
+      </select>
+      <select class="filter-select" onchange="filterWdtPipeline()" id="wdt-pipeline-type-filter">
+        <option value="">All Types</option>
+      </select>
+    </div>
+    <div id="wdt-section-active">
+      <div class="section-header">
+        <div class="section-label">
+          <div class="section-dot" style="background:var(--active)"></div>
+          <span class="section-title" style="color:var(--active)">Active Pipeline</span>
+          <span class="section-count" id="wdt-cnt-active"></span>
+        </div>
+      </div>
+      <div class="pipeline-wrap" id="wdt-kanban-active"></div>
+    </div>
+    <div id="wdt-section-signed">
+      <div class="section-header">
+        <div class="section-label">
+          <div class="section-dot" style="background:var(--signed)"></div>
+          <span class="section-title" style="color:var(--signed)">Signed</span>
+          <span class="section-count" id="wdt-cnt-signed"></span>
+        </div>
+        <button class="toggle-btn" onclick="toggleSection('wdt-signed-body',this)">Hide</button>
+      </div>
+      <div class="collapsible-content" id="wdt-signed-body" style="max-height:2000px">
+        <div class="cards-grid" id="wdt-cards-signed"></div>
+      </div>
+    </div>
+    <div id="wdt-section-lapsed">
+      <div class="section-header">
+        <div class="section-label">
+          <div class="section-dot" style="background:var(--lapsed)"></div>
+          <span class="section-title" style="color:var(--lapsed)">Lapsed</span>
+          <span class="section-count" id="wdt-cnt-lapsed"></span>
+        </div>
+        <button class="toggle-btn" onclick="toggleSection('wdt-lapsed-body',this)">Hide</button>
+      </div>
+      <div class="collapsible-content" id="wdt-lapsed-body" style="max-height:9999px">
+        <div class="cards-grid" id="wdt-cards-lapsed"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WDT PROGRESSION VIEW ── -->
+  <div id="wdt-view-progression" style="display:none">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+      <button class="btn-new-row" onclick="openWdtModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New
+      </button>
+      <button class="btn-edit-toggle" id="wdt-edit-toggle-btn" onclick="toggleWdtEditMode()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit
+      </button>
+    </div>
+    <div class="edit-banner" id="wdt-edit-banner">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Editing mode is on — click any cell to edit. Changes are local only.
+    </div>
+    <div class="filters">
+      <input class="search-box" type="text" placeholder="Search by name, phone, PM, status…" oninput="filterWdtProgression()" id="wdt-prog-search">
+      <select class="filter-select" onchange="filterWdtProgression()" id="wdt-prog-status-filter">
+        <option value="">All Statuses</option>
+        <option value="ACTIVE">Active</option>
+        <option value="SIGNED">Signed</option>
+        <option value="LAPSED">Lapsed</option>
+      </select>
+      <select class="filter-select" onchange="filterWdtProgression()" id="wdt-prog-pm-filter">
+        <option value="">All PMs</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table class="w-table" id="wdt-prog-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Phone</th>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Responsive?</th>
+            <th>GC Created</th>
+            <th>PM</th>
+            <th>1st Meet</th>
+            <th>2D</th>
+            <th>Quotation</th>
+            <th>2nd Meet</th>
+            <th>Revised 2D</th>
+            <th>Revised Quot.</th>
+            <th>Site Visit</th>
+            <th>Comments</th>
+            <th>1st Deposit</th>
+            <th>2nd Deposit</th>
+          </tr>
+        </thead>
+        <tbody id="wdt-prog-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── WDT MASTER VIEW ── -->
+  <div id="wdt-view-master" style="display:none">
+    <div class="filters">
+      <input class="search-box" type="text" placeholder="Search by name, phone, property type…" oninput="filterWdtMaster()" id="wdt-master-search">
+      <select class="filter-select" onchange="filterWdtMaster()" id="wdt-master-type-filter">
+        <option value="">All Property Types</option>
+      </select>
+    </div>
+    <div class="table-wrap" style="max-width:600px">
+      <table class="w-table">
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Property Type</th>
+          </tr>
+        </thead>
+        <tbody id="wdt-master-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WOODATES SIGNED PAGE ══ -->
+<div class="page" id="page-woodates-signed">
+  <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:28px">
+    <div>
+      <div class="page-title">Chyler × Woodates Signed</div>
+      <div class="page-subtitle">Signed clients — deposit tracking</div>
+    </div>
+    <button class="btn-new-row" onclick="openSignedModal()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Client
+    </button>
+  </div>
+
+  <div class="stat-row" id="signed-stat-row"></div>
+
+  <div class="table-wrap" style="max-width:700px">
+    <table class="w-table">
+      <thead>
+        <tr>
+          <th style="width:40px">#</th>
+          <th>Year</th>
+          <th>Name</th>
+          <th>Deposit 1</th>
+          <th>Deposit 2</th>
+        </tr>
+      </thead>
+      <tbody id="signed-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ WDT ADD ROW MODAL ══ -->
+<div class="modal-overlay" id="wdt-row-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeWdtModal()">✕</button>
+    <div class="modal-title">Add Woodates Lead</div>
+    <div class="modal-grid">
+      <div class="modal-field">
+        <label>Date</label>
+        <input type="text" id="wdt-new-date" placeholder="e.g. 20 Feb 2026">
+      </div>
+      <div class="modal-field">
+        <label>Phone</label>
+        <input type="text" id="wdt-new-phone" placeholder="e.g. 91234567">
+      </div>
+      <div class="modal-field">
+        <label>Property Type</label>
+        <select id="wdt-new-type">
+          <option value="">—</option>
+          <option>BTO</option><option>Resale</option><option>EC</option><option>Condo</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Name</label>
+        <input type="text" id="wdt-new-name" placeholder="Client name">
+      </div>
+      <div class="modal-field">
+        <label>PM</label>
+        <input type="text" id="wdt-new-pm" placeholder="e.g. QUEENIE">
+      </div>
+      <div class="modal-field">
+        <label>Status</label>
+        <select id="wdt-new-status">
+          <option value="ACTIVE">Active</option>
+          <option value="SIGNED">Signed</option>
+          <option value="LAPSED">Lapsed</option>
+        </select>
+      </div>
+      <div class="modal-field span-2">
+        <label>Comments</label>
+        <input type="text" id="wdt-new-comments" placeholder="Optional notes">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeWdtModal()">Cancel</button>
+      <button class="btn-modal-save" onclick="saveWdtRow()">Add Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SIGNED ADD MODAL ══ -->
+<div class="modal-overlay" id="signed-add-modal">
+  <div class="modal-box" style="max-width:420px">
+    <button class="modal-close" onclick="closeSignedModal()">✕</button>
+    <div class="modal-title">Add Signed Client</div>
+    <div class="modal-grid">
+      <div class="modal-field">
+        <label>Year</label>
+        <input type="number" id="signed-new-year" value="2026" min="2020" max="2030">
+      </div>
+      <div class="modal-field">
+        <label>Name</label>
+        <input type="text" id="signed-new-name" placeholder="Client name">
+      </div>
+      <div class="modal-field">
+        <label>Deposit 1</label>
+        <select id="signed-new-dep1">
+          <option value="">—</option>
+          <option>PAID</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Deposit 2</label>
+        <select id="signed-new-dep2">
+          <option value="">—</option>
+          <option>PAID</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeSignedModal()">Cancel</button>
+      <button class="btn-modal-save" onclick="saveSignedRow()">Add Client</button>
+    </div>
   </div>
 </div>
 
@@ -1494,8 +1765,9 @@ function renderMaster(data) {
 // ── NAV ──
 function switchSubTab(tab, el) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('page-'+tab).classList.add('active');
+  document.querySelectorAll('.sub-nav .sub-tab').forEach(t=>t.classList.remove('active'));
+  const pageId = tab === 'woodates' ? 'page-woodates' : tab === 'woodates-signed' ? 'page-woodates-signed' : 'page-'+tab;
+  document.getElementById(pageId).classList.add('active');
   el.classList.add('active');
 }
 
@@ -1561,9 +1833,371 @@ function saveNewRow() {
 // Close modal on overlay click
 document.getElementById('new-row-modal').addEventListener('click', function(e){ if(e.target===this) closeNewRowModal(); });
 
-initPipeline();
-initProgression();
-initMaster();
+// ══════════════════════════════════════
+// WOODATES LEADS DATA & LOGIC
+// ══════════════════════════════════════
+const WDT_DATA = [
+  {Date:'04 Jan 2026',Number:1,Phone:'82239275',Type:'BTO',Name:'Amanda','Responsive?':'YES','GC created':'YES',PM:'QUEENIE','1st meet':'YES','2D':'YES','Quotation':'YES','2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+  {Date:'22 Jan 2026',Number:2,Phone:'94380776',Type:'Resale',Name:'Cindy','Responsive?':'YES','GC created':'YES',PM:'DANIEL','1st meet':'YES','2D':'YES','Quotation':'YES','2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+  {Date:'03 Jan 2026',Number:3,Phone:'97711317',Type:'BTO',Name:'Alistaire','Responsive?':'YES','GC created':'YES',PM:'PENGFEI','1st meet':'YES','2D':'YES','Quotation':'YES','2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+  {Date:'23 Jan 2026',Number:4,Phone:'97646935',Type:'EC',Name:'Quanyou','Responsive?':'YES','GC created':'YES',PM:'DANIEL','1st meet':'YES','2D':'PENDING','Quotation':'PENDING','2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+  {Date:'18 Jan 2026',Number:5,Phone:'90110159',Type:'Condo',Name:'Erlie','Responsive?':'YES','GC created':'YES',PM:'QUEENIE','1st meet':'YES','2D':'PENDING','Quotation':'PENDING','2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+  {Date:'31 Jan 2026',Number:6,Phone:'81866558',Type:'BTO',Name:'Sam','Responsive?':'YES','GC created':'YES',PM:'QUEENIE','1st meet':'YES','2D':'PENDING','Quotation':'PENDING','2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+  {Date:'09 Feb 2026',Number:7,Phone:'81687415',Type:null,Name:'Deepak','Responsive?':'YES','GC created':null,PM:null,'1st meet':null,'2D':null,'Quotation':null,'2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+  {Date:'06 Feb 2026',Number:8,Phone:'87481853',Type:null,Name:'Vanessa Lee','Responsive?':'YES','GC created':null,PM:'SHELA','1st meet':null,'2D':null,'Quotation':null,'2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+];
+
+const WDT_MASTER = [
+  {Phone:'82239275',Name:'Amanda',Type:'BTO'},
+  {Phone:'94380776',Name:'Cindy',Type:'Resale'},
+  {Phone:'97711317',Name:'Alistaire',Type:'BTO'},
+  {Phone:'97646935',Name:'Quanyou',Type:'EC'},
+  {Phone:'90110159',Name:'Erlie',Type:'Condo'},
+];
+
+// Derive status from data
+function getWdtStatus(r) {
+  if(r.Status) return r.Status;
+  if(r['1st Deposit']) return 'SIGNED';
+  if(r['Responsive?']==='YES') return 'ACTIVE';
+  return 'ACTIVE';
+}
+
+// Derive stage
+function getWdtStage(r) {
+  if(r['2nd Deposit']) return '2nd Deposit';
+  if(r['1st Deposit']) return '1st Deposit';
+  if(r['Site visit'] && r['Site visit']!=='NO') return 'Site Visit';
+  if(r['Revised Quotation']) return 'Revised Quotation';
+  if(r['Revised 2D']) return 'Revised 2D';
+  if(r['2nd meet'] && r['2nd meet']!=='NO') return '2nd Meeting';
+  if(r['Quotation'] && r['Quotation']!=='PENDING') return 'Quotation';
+  if(r['Quotation']) return 'Quotation (Pending)';
+  if(r['2D'] && r['2D']!=='PENDING') return '2D';
+  if(r['2D']) return '2D (Pending)';
+  if(r['1st meet'] && r['1st meet']!=='NO') return '1st Meeting';
+  if(r['GC created']) return 'GC Created';
+  if(r['Responsive?']==='YES') return 'Responsive';
+  return 'New Lead';
+}
+
+let wdtCurrentFilter = 'ALL';
+let wdtEditMode = false;
+let wdtProgFiltered = [...WDT_DATA];
+let wdtMasterFiltered = [...WDT_MASTER];
+let wdtCurrentView = 'pipeline';
+
+function switchWdtView(view, el) {
+  wdtCurrentView = view;
+  document.querySelectorAll('#page-woodates .sub-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('wdt-view-pipeline').style.display = view==='pipeline'?'block':'none';
+  document.getElementById('wdt-view-progression').style.display = view==='progression'?'block':'none';
+  document.getElementById('wdt-view-master').style.display = view==='master'?'block':'none';
+}
+
+// ── WDT PIPELINE ──
+function initWdtPipeline() {
+  const pms = [...new Set(WDT_DATA.map(r=>r.PM).filter(Boolean))].sort();
+  pms.forEach(pm => {
+    const o=document.createElement('option'); o.value=pm; o.textContent=pm;
+    document.getElementById('wdt-pipeline-pm-filter').appendChild(o);
+  });
+  const types = [...new Set(WDT_DATA.map(r=>r.Type).filter(Boolean))].sort();
+  types.forEach(t => {
+    const o=document.createElement('option'); o.value=t; o.textContent=t;
+    document.getElementById('wdt-pipeline-type-filter').appendChild(o);
+  });
+  renderWdtPipeline(WDT_DATA);
+}
+
+function setWdtPipelineFilter(status, el) {
+  wdtCurrentFilter = status;
+  document.querySelectorAll('#wdt-view-pipeline .status-filter-pill').forEach(p=>p.classList.remove('selected'));
+  el.classList.add('selected');
+  filterWdtPipeline();
+}
+
+function filterWdtPipeline() {
+  const q = (document.getElementById('wdt-pipeline-search').value||'').toLowerCase();
+  const pm = document.getElementById('wdt-pipeline-pm-filter').value;
+  const type = document.getElementById('wdt-pipeline-type-filter').value;
+  let data = WDT_DATA.filter(r => {
+    const status = getWdtStatus(r);
+    if(wdtCurrentFilter!=='ALL' && status!==wdtCurrentFilter) return false;
+    if(pm && r.PM!==pm) return false;
+    if(type && r.Type!==type) return false;
+    if(q && ![r.Name,r.Phone,r.PM,r.Type].some(v=>v&&String(v).toLowerCase().includes(q))) return false;
+    return true;
+  });
+  renderWdtPipeline(data);
+}
+
+function renderWdtPipeline(data) {
+  const active = data.filter(r=>getWdtStatus(r)==='ACTIVE');
+  const signed = data.filter(r=>getWdtStatus(r)==='SIGNED');
+  const lapsed = data.filter(r=>getWdtStatus(r)==='LAPSED');
+
+  document.getElementById('wdt-pill-all').textContent = WDT_DATA.length;
+  document.getElementById('wdt-pill-active').textContent = WDT_DATA.filter(r=>getWdtStatus(r)==='ACTIVE').length;
+  document.getElementById('wdt-pill-signed').textContent = WDT_DATA.filter(r=>getWdtStatus(r)==='SIGNED').length;
+  document.getElementById('wdt-pill-lapsed').textContent = WDT_DATA.filter(r=>getWdtStatus(r)==='LAPSED').length;
+
+  document.getElementById('wdt-cnt-active').textContent = active.length;
+  document.getElementById('wdt-cnt-signed').textContent = signed.length;
+  document.getElementById('wdt-cnt-lapsed').textContent = lapsed.length;
+
+  // Build kanban for active
+  const stages = ['New Lead','Responsive','GC Created','1st Meeting','2D','Quotation','2nd Meeting','Revised 2D','Revised Quotation','Site Visit','1st Deposit','2nd Deposit'];
+  const stageOrder = {};
+  stages.forEach((s,i)=>stageOrder[s]=i);
+  const byStage = {};
+  stages.forEach(s=>byStage[s]=[]);
+  active.forEach(r=>{ const s=getWdtStage(r).replace(' (Pending)',''); (byStage[s]||(byStage['New Lead'])).push(r); });
+  document.getElementById('wdt-kanban-active').innerHTML = stages.filter(s=>byStage[s]&&byStage[s].length).map(s=>`
+    <div class="stage-col">
+      <div class="stage-col-header"><span class="stage-num">${byStage[s].length}</span>${s}</div>
+      ${byStage[s].map(r=>wdtCard(r,'active-card')).join('')}
+    </div>`).join('');
+
+  document.getElementById('wdt-cards-signed').innerHTML = signed.map(r=>wdtCard(r,'signed-card')).join('');
+  document.getElementById('wdt-cards-lapsed').innerHTML = lapsed.map(r=>wdtCard(r,'lapsed-card')).join('');
+
+  document.getElementById('wdt-section-active').style.display = active.length?'block':'none';
+  document.getElementById('wdt-section-signed').style.display = signed.length?'block':'none';
+  document.getElementById('wdt-section-lapsed').style.display = lapsed.length?'block':'none';
+}
+
+function wdtCard(r, cls) {
+  const stage = getWdtStage(r);
+  const stageOrder = {'New Lead':0,'Responsive':1,'GC Created':2,'1st Meeting':3,'2D':4,'Quotation':5,'2nd Meeting':6,'Revised 2D':7,'Revised Quotation':8,'Site Visit':9,'1st Deposit':10,'2nd Deposit':11};
+  const prog = Math.round(((stageOrder[stage.replace(' (Pending)','')]||0)/11)*100);
+  return `<div class="card ${cls}">
+    <div class="card-name">${esc(r.Name)}</div>
+    <div class="card-meta">
+      ${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}
+      ${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:''}
+      <span class="tag stage-tag">${esc(stage)}</span>
+    </div>
+    <div class="card-phone">${r.Phone||'—'}</div>
+    ${r.Comments?`<div class="card-comment">${esc(r.Comments)}</div>`:''}
+    <div class="progress-bar"><div class="progress-fill" style="width:${prog}%"></div></div>
+    <div class="card-date">${r.Date||''}</div>
+  </div>`;
+}
+
+// ── WDT PROGRESSION ──
+function initWdtProgression() {
+  const pms = [...new Set(WDT_DATA.map(r=>r.PM).filter(Boolean))].sort();
+  pms.forEach(pm => {
+    const o=document.createElement('option'); o.value=pm; o.textContent=pm;
+    document.getElementById('wdt-prog-pm-filter').appendChild(o);
+  });
+  renderWdtProgression(WDT_DATA);
+}
+
+function filterWdtProgression() {
+  const q = (document.getElementById('wdt-prog-search').value||'').toLowerCase();
+  const status = document.getElementById('wdt-prog-status-filter').value;
+  const pm = document.getElementById('wdt-prog-pm-filter').value;
+  wdtProgFiltered = WDT_DATA.filter(r => {
+    if(status && getWdtStatus(r)!==status) return false;
+    if(pm && r.PM!==pm) return false;
+    if(q && ![r.Name,r.Phone,r.PM,r.Type,r.Status].some(v=>v&&String(v).toLowerCase().includes(q))) return false;
+    return true;
+  });
+  renderWdtProgression(wdtProgFiltered);
+}
+
+function renderWdtProgression(data) {
+  const ceAttr = wdtEditMode ? 'contenteditable="true"' : '';
+  document.getElementById('wdt-prog-tbody').innerHTML = data.map((r,i)=>{
+    const status = getWdtStatus(r);
+    return `<tr>
+      <td style="color:var(--muted);font-size:0.75rem">${r.Number}</td>
+      <td ${ceAttr}>${esc(r.Date)||''}</td>
+      <td ${ceAttr}>${r.Phone||''}</td>
+      <td>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'<span style="color:#CCC">—</span>'}</td>
+      <td style="font-weight:600" ${ceAttr}>${esc(r.Name)}</td>
+      <td><span class="status-badge ${status}">${status}</span></td>
+      <td>${cellVal(r['Responsive?'])}</td>
+      <td>${cellVal(r['GC created'])}</td>
+      <td>${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:'<span style="color:#CCC">—</span>'}</td>
+      <td>${cellVal(r['1st meet'])}</td>
+      <td>${cellVal(r['2D'])}</td>
+      <td>${cellVal(r['Quotation'])}</td>
+      <td>${cellVal(r['2nd meet'])}</td>
+      <td>${cellVal(r['Revised 2D'])}</td>
+      <td>${cellVal(r['Revised Quotation'])}</td>
+      <td>${cellVal(r['Site visit'])}</td>
+      <td style="max-width:180px;white-space:normal;font-size:0.75rem;color:var(--muted)" ${ceAttr}>${esc(r.Comments)||''}</td>
+      <td>${cellVal(r['1st Deposit'])}</td>
+      <td>${cellVal(r['2nd Deposit'])}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleWdtEditMode() {
+  wdtEditMode = !wdtEditMode;
+  const btn = document.getElementById('wdt-edit-toggle-btn');
+  const banner = document.getElementById('wdt-edit-banner');
+  btn.classList.toggle('active', wdtEditMode);
+  banner.classList.toggle('visible', wdtEditMode);
+  renderWdtProgression(wdtProgFiltered.length ? wdtProgFiltered : WDT_DATA);
+}
+
+// ── WDT MASTER ──
+function initWdtMaster() {
+  const types = [...new Set(WDT_MASTER.map(r=>r.Type).filter(Boolean))].sort();
+  types.forEach(t=>{
+    const o=document.createElement('option'); o.value=t; o.textContent=t;
+    document.getElementById('wdt-master-type-filter').appendChild(o);
+  });
+  renderWdtMaster(WDT_MASTER);
+}
+
+function filterWdtMaster() {
+  const q = (document.getElementById('wdt-master-search').value||'').toLowerCase();
+  const type = document.getElementById('wdt-master-type-filter').value;
+  wdtMasterFiltered = WDT_MASTER.filter(r=>{
+    const matchQ = !q||[r.Name,r.Phone,r.Type].some(v=>v&&String(v).toLowerCase().includes(q));
+    return matchQ&&(!type||r.Type===type);
+  });
+  renderWdtMaster(wdtMasterFiltered);
+}
+
+function renderWdtMaster(data) {
+  document.getElementById('wdt-master-tbody').innerHTML = data.map((r,i)=>`
+    <tr>
+      <td style="color:var(--muted);font-size:0.75rem">${i+1}</td>
+      <td style="font-weight:600">${esc(r.Name)}</td>
+      <td style="color:var(--muted);font-size:0.82rem">${r.Phone}</td>
+      <td>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'<span style="color:#CCC">—</span>'}</td>
+    </tr>`).join('');
+}
+
+// ── WDT MODAL ──
+function openWdtModal() {
+  document.getElementById('wdt-row-modal').classList.add('open');
+  const now=new Date(); const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('wdt-new-date').value=`${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+}
+function closeWdtModal() { document.getElementById('wdt-row-modal').classList.remove('open'); }
+function saveWdtRow() {
+  const name = document.getElementById('wdt-new-name').value.trim();
+  if(!name){document.getElementById('wdt-new-name').focus();return;}
+  const maxNum = Math.max(...WDT_DATA.map(r=>r.Number||0));
+  WDT_DATA.push({
+    Date:document.getElementById('wdt-new-date').value,
+    Number:maxNum+1,
+    Phone:document.getElementById('wdt-new-phone').value,
+    Type:document.getElementById('wdt-new-type').value||null,
+    Name:name,
+    'Responsive?':null,'GC created':null,
+    PM:document.getElementById('wdt-new-pm').value||null,
+    '1st meet':null,'2D':null,'Quotation':null,
+    '2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,
+    Comments:document.getElementById('wdt-new-comments').value||null,
+    '1st Deposit':null,'2nd Deposit':null,
+    Status:document.getElementById('wdt-new-status').value,
+  });
+  closeWdtModal();
+  renderWdtPipeline(WDT_DATA);
+  renderWdtProgression(WDT_DATA);
+}
+document.getElementById('wdt-row-modal').addEventListener('click',function(e){if(e.target===this)closeWdtModal();});
+
+// ══════════════════════════════════════
+// WOODATES SIGNED DATA & LOGIC
+// ══════════════════════════════════════
+let SIGNED_DATA = [
+  {Year:2025,Name:'Normal','Deposit 1':'PAID','Deposit 2':'PAID'},
+  {Year:2025,Name:'Christina','Deposit 1':'PAID','Deposit 2':'PAID'},
+  {Year:2025,Name:'Desmond','Deposit 1':'PAID','Deposit 2':'PAID'},
+  {Year:2025,Name:'Stella','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2025,Name:'Snow','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2025,Name:'Edwin','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2025,Name:'Gabby','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2025,Name:'Anthony','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2025,Name:'Shaun','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2025,Name:'Anna','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2026,Name:'Kasim','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2026,Name:'Dominic','Deposit 1':null,'Deposit 2':null},
+  {Year:2026,Name:'Adrian','Deposit 1':null,'Deposit 2':null},
+];
+
+function depositBadge(v) {
+  if(!v) return '<span style="color:#CCC">—</span>';
+  return `<span class="status-badge SIGNED" style="border-radius:6px">✓ ${esc(v)}</span>`;
+}
+
+function renderSigned() {
+  const years = [...new Set(SIGNED_DATA.map(r=>r.Year))].sort();
+  
+  // Stats
+  const total = SIGNED_DATA.length;
+  const both = SIGNED_DATA.filter(r=>r['Deposit 1']&&r['Deposit 2']).length;
+  const one = SIGNED_DATA.filter(r=>r['Deposit 1']&&!r['Deposit 2']).length;
+  const pending = SIGNED_DATA.filter(r=>!r['Deposit 1']).length;
+  document.getElementById('signed-stat-row').innerHTML = `
+    <div class="stat-pill s-total"><span class="count">${total}</span>Total</div>
+    <div class="stat-pill s-signed"><span class="count">${both}</span>Both Deposits</div>
+    <div class="stat-pill s-active"><span class="count">${one}</span>Deposit 1 Only</div>
+    <div class="stat-pill s-lapsed"><span class="count">${pending}</span>Pending</div>
+  `;
+
+  let html = '';
+  let idx = 1;
+  years.forEach(year => {
+    const group = SIGNED_DATA.filter(r=>r.Year===year);
+    html += `<tr><td colspan="5" class="master-section-header signed-header">${year}</td></tr>`;
+    group.forEach(r => {
+      html += `<tr>
+        <td style="color:var(--muted);font-size:0.75rem">${idx++}</td>
+        <td style="color:var(--muted);font-size:0.8rem">${r.Year}</td>
+        <td style="font-weight:600">${esc(r.Name)}</td>
+        <td>${depositBadge(r['Deposit 1'])}</td>
+        <td>${depositBadge(r['Deposit 2'])}</td>
+      </tr>`;
+    });
+  });
+  document.getElementById('signed-tbody').innerHTML = html;
+}
+
+function openSignedModal() {
+  document.getElementById('signed-new-year').value = new Date().getFullYear();
+  document.getElementById('signed-new-name').value = '';
+  document.getElementById('signed-new-dep1').value = '';
+  document.getElementById('signed-new-dep2').value = '';
+  document.getElementById('signed-add-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('signed-new-name').focus(),100);
+}
+function closeSignedModal() { document.getElementById('signed-add-modal').classList.remove('open'); }
+function saveSignedRow() {
+  const name = document.getElementById('signed-new-name').value.trim();
+  if(!name){document.getElementById('signed-new-name').focus();return;}
+  SIGNED_DATA.push({
+    Year:parseInt(document.getElementById('signed-new-year').value)||new Date().getFullYear(),
+    Name:name,
+    'Deposit 1':document.getElementById('signed-new-dep1').value||null,
+    'Deposit 2':document.getElementById('signed-new-dep2').value||null,
+  });
+  closeSignedModal();
+  renderSigned();
+  setTimeout(()=>{
+    const rows=document.querySelectorAll('#signed-tbody tr:not(.master-section-header)');
+    const last=rows[rows.length-1];
+    if(last){last.style.background='#EEF6F0';last.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{last.style.background='';},2000);}
+  },80);
+}
+document.getElementById('signed-add-modal').addEventListener('click',function(e){if(e.target===this)closeSignedModal();});
+
+// ── INIT ALL ──
+initWdtPipeline();
+initWdtProgression();
+initWdtMaster();
+renderSigned();
+
 </script>
 </body>
 </html>
