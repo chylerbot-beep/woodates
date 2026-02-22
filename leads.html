@@ -98,14 +98,11 @@
     position: sticky; top: 0; z-index: 200;
     box-shadow: var(--shadow-sm);
   }
-  /* Row 1: brand + home button */
   .header-top {
-    padding: 14px 40px;
+    padding: 20px 40px 0;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    border-bottom: 1px solid var(--border-light);
+    align-items: flex-end;
+    gap: 32px;
   }
   .brand p {
     font-size: 0.7rem;
@@ -122,35 +119,34 @@
     line-height: 1;
   }
 
-  /* Row 2: main-nav (Chyler / Woodates / Signed) */
+  /* ── MAIN NAV ── */
   .main-nav {
     display: flex;
     gap: 0;
-    padding: 0 40px;
-    background: var(--cream-dark);
-    border-bottom: 1px solid var(--border);
+    flex: 1;
+    padding-bottom: 0;
   }
   .main-nav-tab {
-    padding: 11px 22px;
-    font-size: 0.8rem;
-    font-weight: 700;
+    padding: 14px 22px;
+    font-size: 0.82rem;
+    font-weight: 600;
     color: var(--muted);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    letter-spacing: 0.03em;
     border-bottom: 2px solid transparent;
     white-space: nowrap;
     cursor: pointer;
     transition: all 0.2s;
   }
-  .main-nav-tab:hover { color: var(--dark); background: rgba(0,0,0,0.03); }
-  .main-nav-tab.active { color: var(--active); border-bottom-color: var(--active); background: var(--white); }
+  .main-nav-tab:hover { color: var(--dark); }
+  .main-nav-tab.active { color: var(--dark); border-bottom-color: var(--active); }
 
-  /* Row 3: sub-tabs (Pipeline / Progression / Master List) */
+  /* ── SUB TABS ── */
   .sub-nav {
     display: flex;
     gap: 0;
     padding: 0 40px;
     background: var(--white);
+    border-top: 1px solid var(--border-light);
   }
   .sub-tab {
     padding: 10px 20px;
@@ -168,9 +164,11 @@
   .sub-tab.active { color: var(--active); border-bottom-color: var(--active); }
 
   .header-actions {
+    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 10px;
+    padding-bottom: 14px;
   }
   .btn-outline {
     border: 1px solid var(--border);
@@ -586,11 +584,11 @@
 
   /* ── MOBILE IMPROVEMENTS ── */
   @media (max-width: 768px) {
-    .header-top { padding: 12px 16px; }
+    .header-top { padding: 14px 16px 0; flex-wrap: wrap; gap: 12px; }
     .brand h1 { font-size: 1.4rem; }
-    .main-nav { padding: 0 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; scrollbar-width: none; }
+    .main-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; scrollbar-width: none; }
     .main-nav::-webkit-scrollbar { display: none; }
-    .main-nav-tab { padding: 10px 16px; font-size: 0.75rem; }
+    .main-nav-tab { padding: 12px 16px; font-size: 0.78rem; }
     .sub-nav { padding: 0 16px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     .sub-nav::-webkit-scrollbar { display: none; }
     .sub-tab { padding: 10px 14px; font-size: 0.72rem; white-space: nowrap; }
@@ -605,6 +603,7 @@
     .stat-pill { padding: 8px 12px; font-size: 0.78rem; }
     .stat-pill .count { font-size: 1.1rem; }
     .cards-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+    .header-actions { padding-bottom: 12px; }
     /* Progression page header on mobile */
     #page-progression .page-header { flex-direction: column; align-items: stretch; }
     #page-progression .page-header > div:last-child { flex-wrap: wrap; }
@@ -618,13 +617,28 @@
     .w-table td, .w-table th { padding: 10px 12px; font-size: 0.8rem; }
   }
   @media (max-width: 480px) {
-    .header-top { padding: 10px 14px; }
+    .header-top { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px 16px 0; }
+    .brand { flex: 1; }
     .brand h1 { font-size: 1.25rem; }
-    /* main-nav and sub-nav are already full-width rows — just tighten padding */
-    .main-nav { padding: 0 12px; }
-    .main-nav-tab { padding: 9px 12px; font-size: 0.72rem; flex-shrink: 0; }
-    .sub-nav { padding: 0 12px; }
-    .sub-tab { padding: 9px 12px; font-size: 0.7rem; }
+    /* Make main-nav scrollable on small screens instead of hiding it */
+    .main-nav {
+      width: 100%;
+      order: 3;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      flex-wrap: nowrap;
+      scrollbar-width: none;
+      border-top: 1px solid var(--border-light);
+      padding-top: 0;
+    }
+    .main-nav::-webkit-scrollbar { display: none; }
+    .main-nav-tab {
+      padding: 10px 14px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .header-actions { padding-bottom: 8px; order: 2; }
     .status-filter-row { gap: 6px; }
     .status-filter-pill { padding: 6px 12px; font-size: 0.72rem; }
     .page { padding: 16px 12px; }
@@ -746,23 +760,20 @@
 </div>
 
 <header>
-  <!-- Row 1: Brand + Home -->
   <div class="header-top">
     <div class="brand">
       <p>Woodates</p>
       <h1>Leads</h1>
     </div>
+    <div class="main-nav">
+      <div class="main-nav-tab active" onclick="switchMainNav('chyler', this)">Chyler Leads</div>
+      <div class="main-nav-tab" onclick="switchMainNav('woodates', this)">Woodates Leads</div>
+      <div class="main-nav-tab" onclick="switchMainNav('signed', this)">Chyler Signed</div>
+    </div>
     <div class="header-actions">
       <a href="index.html" class="btn-outline">← Home</a>
     </div>
   </div>
-  <!-- Row 2: Main section tabs -->
-  <div class="main-nav">
-    <div class="main-nav-tab active" onclick="switchMainNav('chyler', this)">Chyler Leads</div>
-    <div class="main-nav-tab" onclick="switchMainNav('woodates', this)">Woodates Leads</div>
-    <div class="main-nav-tab" onclick="switchMainNav('signed', this)">Chyler Signed</div>
-  </div>
-  <!-- Row 3: Sub-view tabs -->
   <div class="sub-nav" id="sub-nav-chyler">
     <div class="sub-tab active" onclick="switchSubTab('pipeline', this)">Pipeline</div>
     <div class="sub-tab" onclick="switchSubTab('progression', this)">Progression</div>
@@ -782,17 +793,6 @@
     <div class="page-title">Active Pipeline</div>
     <div class="page-subtitle">Kanban view — As of 11 Feb 2026</div>
   </div>
-  <div class="filters" style="margin-bottom:16px">
-    <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterPipeline()" id="pipeline-search">
-    <div style="display:flex;gap:8px;flex:1;min-width:0">
-      <select class="filter-select" style="flex:1" onchange="filterPipeline()" id="pipeline-pm-filter">
-        <option value="">All PMs</option>
-      </select>
-      <select class="filter-select" style="flex:1" onchange="filterPipeline()" id="pipeline-type-filter">
-        <option value="">All Types</option>
-      </select>
-    </div>
-  </div>
   <div class="status-filter-row">
     <div class="status-filter-pill sf-all selected" onclick="setPipelineFilter('ALL', this)"><span class="pill-count" id="pill-count-all"></span>All</div>
     <div class="status-filter-pill sf-active" onclick="setPipelineFilter('ACTIVE', this)"><span class="pill-count" id="pill-count-active"></span>Active</div>
@@ -800,6 +800,15 @@
     <div class="status-filter-pill sf-lapsed" onclick="setPipelineFilter('LAPSED', this)"><span class="pill-count" id="pill-count-lapsed"></span>Lapsed</div>
     <div class="status-filter-pill sf-keyco" onclick="setPipelineFilter('KEYCO', this)"><span class="pill-count" id="pill-count-keyco"></span>Key Collection</div>
     <div class="status-filter-pill sf-reachout" onclick="setPipelineFilter('REACHOUT', this)">🔔 Reach Out</div>
+  </div>
+  <div class="filters">
+    <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterPipeline()" id="pipeline-search">
+    <select class="filter-select" onchange="filterPipeline()" id="pipeline-pm-filter">
+      <option value="">All PMs</option>
+    </select>
+    <select class="filter-select" onchange="filterPipeline()" id="pipeline-type-filter">
+      <option value="">All Types</option>
+    </select>
   </div>
 
   <!-- REACH OUT SECTION -->
@@ -914,27 +923,27 @@
     <table class="w-table" id="prog-table">
       <thead>
         <tr>
-          <th>A · #</th>
-          <th>B · Date</th>
-          <th>C · Source</th>
-          <th>D · Phone</th>
-          <th>E · Type</th>
-          <th>F · Name</th>
+          <th>#</th>
+          <th>Date</th>
+          <th>Source</th>
+          <th>Phone</th>
+          <th>Type</th>
+          <th>Name</th>
           <th>Current Status</th>
-          <th>G · Responsive?</th>
-          <th>H · GC Created</th>
-          <th>I · PM</th>
-          <th>J · 1st Meet</th>
-          <th>K · 2D</th>
-          <th>L · Quotation</th>
-          <th>M · 2nd Meet</th>
-          <th>N · Revised 2D</th>
-          <th>O · Revised Quot.</th>
-          <th>P · Site Visit</th>
-          <th>Q · Comments</th>
-          <th>R · 1st Deposit</th>
-          <th>S · 2nd Deposit</th>
-          <th>T · Final Status</th>
+          <th>Comments</th>
+          <th>Responsive?</th>
+          <th>GC Created</th>
+          <th>PM</th>
+          <th>1st Meet</th>
+          <th>2D</th>
+          <th>Quotation</th>
+          <th>2nd Meet</th>
+          <th>Revised 2D</th>
+          <th>Revised Quot.</th>
+          <th>Site Visit</th>
+          <th>1st Deposit</th>
+          <th>2nd Deposit</th>
+          <th>Final Status</th>
         </tr>
       </thead>
       <tbody id="prog-tbody"></tbody>
@@ -982,22 +991,20 @@
 
   <!-- ── WDT PIPELINE VIEW ── -->
   <div id="wdt-view-pipeline">
-    <div class="filters" style="margin-bottom:16px">
-      <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterWdtPipeline()" id="wdt-pipeline-search">
-      <div style="display:flex;gap:8px;flex:1;min-width:0">
-        <select class="filter-select" style="flex:1" onchange="filterWdtPipeline()" id="wdt-pipeline-pm-filter">
-          <option value="">All PMs</option>
-        </select>
-        <select class="filter-select" style="flex:1" onchange="filterWdtPipeline()" id="wdt-pipeline-type-filter">
-          <option value="">All Types</option>
-        </select>
-      </div>
-    </div>
     <div class="status-filter-row">
       <div class="status-filter-pill sf-all selected" onclick="setWdtPipelineFilter('ALL',this)"><span class="pill-count" id="wdt-pill-all"></span>All</div>
       <div class="status-filter-pill sf-active" onclick="setWdtPipelineFilter('ACTIVE',this)"><span class="pill-count" id="wdt-pill-active"></span>Active</div>
       <div class="status-filter-pill sf-signed" onclick="setWdtPipelineFilter('SIGNED',this)"><span class="pill-count" id="wdt-pill-signed"></span>Signed</div>
       <div class="status-filter-pill sf-lapsed" onclick="setWdtPipelineFilter('LAPSED',this)"><span class="pill-count" id="wdt-pill-lapsed"></span>Lapsed</div>
+    </div>
+    <div class="filters">
+      <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterWdtPipeline()" id="wdt-pipeline-search">
+      <select class="filter-select" onchange="filterWdtPipeline()" id="wdt-pipeline-pm-filter">
+        <option value="">All PMs</option>
+      </select>
+      <select class="filter-select" onchange="filterWdtPipeline()" id="wdt-pipeline-type-filter">
+        <option value="">All Types</option>
+      </select>
     </div>
     <div id="wdt-section-active">
       <div class="section-header">
@@ -1606,35 +1613,65 @@ function filterProgression() {
   renderProgression(progFiltered);
 }
 
+function chylerDropdown(field, value, rowId) {
+  const opts = ['YES','NO','PENDING','PLANNED','NA'];
+  const sel = (v) => v === value ? 'selected' : '';
+  return `<select class="wdt-cell-select"
+    onchange="chylerCellChange(this,'${field}',${rowId})"
+    style="border:1px solid var(--border);border-radius:5px;padding:4px 6px;
+      font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--white);
+      color:var(--dark);cursor:pointer;min-width:80px">
+    <option value="" ${sel('')}>—</option>
+    ${opts.map(o=>`<option value="${o}" ${sel(o)}>${o}</option>`).join('')}
+  </select>`;
+}
+
+function chylerCellChange(el, field, rowId) {
+  const val = el.value || null;
+  const row = CHYLER_DATA.find(r => r.id === rowId);
+  if (row) row[field] = val;
+  supabaseUpdateCell('chyler_leads', rowId, field, val, CHYLER_COL_MAP);
+}
+
+// Fields that get dropdowns in edit mode (milestone columns)
+const CHYLER_STEP_FIELDS = ['Responsive?','GC created','1st meet','2D','Quotation','2nd meet','Revised 2D','Revised Quotation','Site visit','1st Deposit','2nd Deposit'];
+
 function renderProgression(data) {
-  const editable = editMode ? 'contenteditable="true"' : '';
   const blur = editMode ? `onblur="supabaseUpdateCell('chyler_leads',+this.closest('tr').dataset.id,this.dataset.field,this.textContent.trim(),CHYLER_COL_MAP)"` : '';
+
+  function stepCell(r, field) {
+    const v = r[field];
+    if (editMode) return chylerDropdown(field, v, r.id);
+    return cellVal(v);
+  }
+
   document.getElementById('prog-tbody').innerHTML = data.map(r => {
     const st=r['FINAL STATUS'];
     const stClass=st==='LONG KEY COLLECTION'?'LONG':st;
     const stLabel=st==='LONG KEY COLLECTION'?'Key Collection':st;
+    const editable = editMode ? 'contenteditable="true"' : '';
     return `<tr data-id="${r.id||''}">
-      <td ${editable} data-field="Number" style="color:var(--muted);font-size:0.78rem">${esc(r.Number)}</td>
-      <td ${editable} data-field="Date" ${blur} style="color:var(--muted);font-size:0.78rem;white-space:nowrap">${esc(r.Date)}</td>
-      <td ${editable} data-field="Source" ${blur} style="font-size:0.78rem">${esc(r.Source)}</td>
-      <td ${editable} data-field="Phone" ${blur} style="color:var(--muted);font-size:0.78rem">${r.Phone}</td>
-      <td ${editable} data-field="Type" ${blur}>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'—'}</td>
-      <td ${editable} data-field="Name" ${blur} style="font-weight:600">${esc(r.Name)}</td>
+      <td style="color:var(--muted);font-size:0.78rem">${esc(r.Number)}</td>
+      <td ${editMode?`contenteditable="true" data-field="Date" ${blur}`:''} style="color:var(--muted);font-size:0.78rem;white-space:nowrap">${esc(r.Date)}</td>
+      <td ${editMode?`contenteditable="true" data-field="Source" ${blur}`:''} style="font-size:0.78rem">${esc(r.Source)}</td>
+      <td ${editMode?`contenteditable="true" data-field="Phone" ${blur}`:''} style="color:var(--muted);font-size:0.78rem">${r.Phone}</td>
+      <td>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'—'}</td>
+      <td ${editMode?`contenteditable="true" data-field="Name" ${blur}`:''} style="font-weight:600">${esc(r.Name)}</td>
       <td>${st==='ACTIVE' ? `<span class="tag stage-tag">${esc(r.stage||'—')}</span>` : '<span style="color:#CCC">—</span>'}</td>
-      <td ${editable} data-field="Responsive?" ${blur}>${cellVal(r['Responsive?'])}</td>
-      <td ${editable} data-field="GC created" ${blur}>${cellVal(r['GC created'])}</td>
-      <td ${editable} data-field="PM" ${blur}>${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:'<span style="color:#CCC">—</span>'}</td>
-      <td ${editable} data-field="1st meet" ${blur}>${cellVal(r['1st meet'])}</td>
-      <td ${editable} data-field="2D" ${blur}>${cellVal(r['2D'])}</td>
-      <td ${editable} data-field="Quotation" ${blur}>${cellVal(r['Quotation'])}</td>
-      <td ${editable} data-field="2nd meet" ${blur}>${cellVal(r['2nd meet'])}</td>
-      <td ${editable} data-field="Revised 2D" ${blur}>${cellVal(r['Revised 2D'])}</td>
-      <td ${editable} data-field="Revised Quotation" ${blur}>${cellVal(r['Revised Quotation'])}</td>
-      <td ${editable} data-field="Site visit" ${blur}>${cellVal(r['Site visit'])}</td>
-      <td ${editable} data-field="Comments" ${blur} style="font-size:0.75rem;color:var(--muted);max-width:200px;white-space:normal">${esc(r.Comments)||'<span style="color:#CCC">—</span>'}</td>
-      <td ${editable} data-field="1st Deposit" ${blur}>${cellVal(r['1st Deposit'])}</td>
-      <td ${editable} data-field="2nd Deposit" ${blur}>${cellVal(r['2nd Deposit'])}</td>
-      <td ${editable} data-field="FINAL STATUS" ${blur}><span class="status-badge ${stClass}">${stLabel}</span></td>
+      <td ${editMode?`contenteditable="true" data-field="Comments" ${blur}`:''} style="font-size:0.75rem;color:var(--muted);max-width:200px;white-space:normal">${esc(r.Comments)||'<span style="color:#CCC">—</span>'}</td>
+      <td>${stepCell(r,'Responsive?')}</td>
+      <td>${stepCell(r,'GC created')}</td>
+      <td ${editMode?`contenteditable="true" data-field="PM" ${blur}`:''}>${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:'<span style="color:#CCC">—</span>'}</td>
+      <td>${stepCell(r,'1st meet')}</td>
+      <td>${stepCell(r,'2D')}</td>
+      <td>${stepCell(r,'Quotation')}</td>
+      <td>${stepCell(r,'2nd meet')}</td>
+      <td>${stepCell(r,'Revised 2D')}</td>
+      <td>${stepCell(r,'Revised Quotation')}</td>
+      <td>${stepCell(r,'Site visit')}</td>
+      <td>${stepCell(r,'1st Deposit')}</td>
+      <td>${stepCell(r,'2nd Deposit')}</td>
+      <td><span class="status-badge ${stClass}">${stLabel}</span></td>
     </tr>`;
   }).join('');
 }
