@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx-js-style/1.2.0/xlsx.bundle.js"></script>
     <script>
         // Fallback to jsDelivr if cdnjs fails
@@ -607,6 +608,24 @@
 </head>
 
 <body>
+  <!-- Auth checking overlay -->
+  <div id="auth-checking" style="position:fixed;inset:0;background:#F9F6F1;display:flex;align-items:center;justify-content:center;z-index:9999;font-family:'DM Sans',sans-serif;font-size:1rem;color:#888">Checking access…</div>
+  <div id="access-denied" style="position:fixed;inset:0;background:#F9F6F1;display:none;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;font-family:'DM Sans',sans-serif">
+    <div style="font-size:1.1rem;font-weight:600;color:#333">Access denied</div>
+    <a href="index.html" style="color:#B8975A;font-size:0.9rem">← Back to login</a>
+  </div>
+
+  <script>
+  (async function() {
+    const { createClient } = supabase;
+    const _sb = createClient('https://ilytehukqrkwpupdpkgo.supabase.co','sb_publishable_tNMpLdZaqm0e-El_LP4kKg_fhfj-ARF');
+    const { data: { session } } = await _sb.auth.getSession();
+    if (!session) { document.getElementById('auth-checking').style.display='none'; document.getElementById('access-denied').style.display='flex'; return; }
+    const { data: profile } = await _sb.from('profiles').select('role').eq('id', session.user.id).single();
+    if (!profile || profile.role !== 'admin') { document.getElementById('auth-checking').style.display='none'; document.getElementById('access-denied').style.display='flex'; return; }
+    document.getElementById('auth-checking').style.display = 'none';
+  })();
+  </script>
 
     <header class="app-header no-print">
       <div>
@@ -1350,14 +1369,13 @@
 
 
         function downloadExcel() {
-            console.log("Download Excel initiated...");
+            // Download Excel
             try {
                 // Use xlsx-js-style (supports cell.s styling). Falls back to XLSX if needed.
                 const XL = (typeof XLSXStyle !== 'undefined') ? XLSXStyle : (typeof XLSX !== 'undefined' ? XLSX : null);
-                console.log("Excel Library detected:", XL ? "Yes" : "No");
 
                 if (!XL) {
-                    alert('Excel library is still loading or could not be reached. Please wait a few seconds and try again. If it still fails, your internet connection might be blocking the library, or you may be offline.');
+                    showToast('Excel library is still loading. Please wait a few seconds and try again.');
                     return;
                 }
 
@@ -1616,7 +1634,7 @@
                 XL.writeFile(wb, filename, { bookType: 'xlsx' });
             } catch (err) {
                 console.error('Excel export error:', err);
-                alert('Could not generate Excel file: ' + err.message);
+                showToast('Could not generate Excel file: ' + err.message);
             }
         }
 
@@ -1673,6 +1691,23 @@
         initTabs();
         renderItemList();
         updateSummary();
+    
+// ── Toast notification (replaces alert) ──
+function showToast(msg, type='error') {
+  let t = document.getElementById('_app_toast');
+  if(!t) {
+    t = document.createElement('div');
+    t.id = '_app_toast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;padding:12px 24px;border-radius:8px;font-family:DM Sans,sans-serif;font-size:0.85rem;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.15);transition:opacity 0.4s;pointer-events:none';
+    document.body.appendChild(t);
+  }
+  const colors = {error:'#FEE2E2:#991B1B', success:'#D1FAE5:#065F46', info:'#EBF3FB:#1D4ED8'};
+  const [bg, color] = (colors[type]||colors.error).split(':');
+  t.style.background = bg; t.style.color = color;
+  t.textContent = msg; t.style.opacity = '1';
+  clearTimeout(t._hide); t._hide = setTimeout(()=>{ t.style.opacity='0'; }, 4000);
+}
+
     </script>
 
 </body>
