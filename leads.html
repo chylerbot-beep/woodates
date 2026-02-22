@@ -867,7 +867,7 @@
 
   <div class="edit-banner" id="edit-banner">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    Editing mode is on — milestone cells switch to dropdowns (YES / NO / PENDING / PLANNED / NA), auto-saving to Supabase on change.
+    Editing mode is on — click any cell to edit. Changes are local only.
   </div>
 
   <div class="filters">
@@ -888,27 +888,27 @@
     <table class="w-table" id="prog-table">
       <thead>
         <tr>
-          <th style="width:40px">#</th>
-          <th>Date</th>
-          <th>Source</th>
-          <th>Phone</th>
-          <th>Type</th>
-          <th>Name</th>
+          <th>A · #</th>
+          <th>B · Date</th>
+          <th>C · Source</th>
+          <th>D · Phone</th>
+          <th>E · Type</th>
+          <th>F · Name</th>
           <th>Current Status</th>
-          <th>Comments</th>
-          <th style="width:95px">Responsive?</th>
-          <th style="width:95px">GC Created</th>
-          <th style="width:90px">PM</th>
-          <th style="width:95px">1st Meet</th>
-          <th style="width:72px">2D</th>
-          <th style="width:95px">1st Quote</th>
-          <th style="width:95px">2nd Meet</th>
-          <th style="width:95px">Revised 2D</th>
-          <th style="width:105px">Revised Quote</th>
-          <th style="width:95px">Site Visit</th>
-          <th style="width:95px">1st Deposit</th>
-          <th style="width:95px">2nd Deposit</th>
-          <th>Final Status</th>
+          <th>G · Responsive?</th>
+          <th>H · GC Created</th>
+          <th>I · PM</th>
+          <th>J · 1st Meet</th>
+          <th>K · 2D</th>
+          <th>L · Quotation</th>
+          <th>M · 2nd Meet</th>
+          <th>N · Revised 2D</th>
+          <th>O · Revised Quot.</th>
+          <th>P · Site Visit</th>
+          <th>Q · Comments</th>
+          <th>R · 1st Deposit</th>
+          <th>S · 2nd Deposit</th>
+          <th>T · Final Status</th>
         </tr>
       </thead>
       <tbody id="prog-tbody"></tbody>
@@ -1023,7 +1023,7 @@
     </div>
     <div class="edit-banner" id="wdt-edit-banner">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Editing mode is on — milestone cells switch to dropdowns (YES / NO / PENDING / PLANNED / NA), auto-saving to Supabase on change.
+      Editing mode is on — click any cell to edit. Changes are local only.
     </div>
     <div class="filters">
       <input class="search-box" type="text" placeholder="Search by name, phone, PM, status…" oninput="filterWdtProgression()" id="wdt-prog-search">
@@ -1041,7 +1041,7 @@
       <table class="w-table" id="wdt-prog-table">
         <thead>
           <tr>
-            <th style="width:40px">#</th>
+            <th>#</th>
             <th>Date</th>
             <th>Phone</th>
             <th>Type</th>
@@ -1050,17 +1050,17 @@
             <th>Current Stage</th>
             <th>Comments</th>
             <th>PM</th>
-            <th style="width:95px">Responsive?</th>
-            <th style="width:95px">GC Created</th>
-            <th style="width:95px">1st Meet</th>
-            <th style="width:72px">2D</th>
-            <th style="width:95px">1st Quote</th>
-            <th style="width:95px">2nd Meet</th>
-            <th style="width:95px">Revised 2D</th>
-            <th style="width:105px">Revised Quote</th>
-            <th style="width:95px">Site Visit</th>
-            <th style="width:95px">1st Deposit</th>
-            <th style="width:95px">2nd Deposit</th>
+            <th>Responsive?</th>
+            <th>GC Created</th>
+            <th>1st Meet</th>
+            <th>2D</th>
+            <th>1st Quote</th>
+            <th>2nd Meet</th>
+            <th>Revised 2D</th>
+            <th>Revised Quote</th>
+            <th>Site Visit</th>
+            <th>1st Deposit</th>
+            <th>2nd Deposit</th>
           </tr>
         </thead>
         <tbody id="wdt-prog-tbody"></tbody>
@@ -1482,14 +1482,7 @@ function goToProgression(name) {
 }
 
 function activeCard(r) {
-  const steps = PIPELINE_STEPS.map((field, i) => {
-    const v = r[field];
-    let bg;
-    if (!v || v==='NO' || v==='NA')              bg = 'var(--border)';
-    else if (v==='PENDING'||v==='PLANNED'||v==='SCHEDULED') bg = 'var(--keyco)';
-    else                                          bg = 'var(--signed)';
-    return `<span title="${PIPELINE_STAGES[i]}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${bg};margin:0 1px;flex-shrink:0"></span>`;
-  }).join('');
+  const pct = getProgress(r.stage);
   return `<div class="card active-card" onclick="goToProgression('${esc(r.Name)}')" style="cursor:pointer">
     <div class="card-name">${esc(r.Name)}</div>
     <div class="card-meta">
@@ -1497,8 +1490,8 @@ function activeCard(r) {
       ${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:''}
       <span class="tag">${esc(r.stage)}</span>
     </div>
-    <div style="display:flex;align-items:center;margin:7px 0 4px;flex-wrap:wrap">${steps}</div>
     <div class="card-phone">${r.Phone}</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
     ${r.Comments?`<div class="card-comment">${esc(r.Comments)}</div>`:''}
     <div class="card-date">${r.Date}</div>
   </div>`;
@@ -1575,59 +1568,35 @@ function filterProgression() {
   renderProgression(progFiltered);
 }
 
-function chylerDropdown(field, value, rowId) {
-  const opts = ['YES','NO','PENDING','PLANNED','NA'];
-  const sel = (v) => v===value ? 'selected' : '';
-  return `<select onchange="chylerCellChange(this,'${field}',${rowId})"
-    style="border:1px solid var(--border);border-radius:5px;padding:4px 6px;
-      font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--white);
-      color:var(--dark);cursor:pointer;min-width:80px">
-    <option value="" ${sel('')}>—</option>
-    ${opts.map(o=>`<option value="${o}" ${sel(o)}>${o}</option>`).join('')}
-  </select>`;
-}
-function chylerCellChange(el, field, rowId) {
-  const val = el.value || null;
-  const row = CHYLER_DATA.find(r=>r.id===rowId);
-  if(row) row[field] = val;
-  supabaseUpdateCell('chyler_leads', rowId, field, val, CHYLER_COL_MAP);
-}
-
 function renderProgression(data) {
+  const editable = editMode ? 'contenteditable="true"' : '';
   const blur = editMode ? `onblur="supabaseUpdateCell('chyler_leads',+this.closest('tr').dataset.id,this.dataset.field,this.textContent.trim(),CHYLER_COL_MAP)"` : '';
-
-  function stepCell(r, field) {
-    if(editMode) return chylerDropdown(field, r[field], r.id);
-    return cellVal(r[field]);
-  }
-
   document.getElementById('prog-tbody').innerHTML = data.map(r => {
-    const ed = editMode ? 'contenteditable="true"' : '';
-    const st = r['FINAL STATUS'];
-    const stClass = st==='LONG KEY COLLECTION' ? 'LONG' : st;
-    const stLabel = st==='LONG KEY COLLECTION' ? 'Key Collection' : st;
+    const st=r['FINAL STATUS'];
+    const stClass=st==='LONG KEY COLLECTION'?'LONG':st;
+    const stLabel=st==='LONG KEY COLLECTION'?'Key Collection':st;
     return `<tr data-id="${r.id||''}">
-      <td ${ed} data-field="Number" style="color:var(--muted);font-size:0.78rem">${esc(r.Number)}</td>
-      <td ${ed} data-field="Date" ${blur} style="color:var(--muted);font-size:0.78rem;white-space:nowrap">${esc(r.Date)}</td>
-      <td ${ed} data-field="Source" ${blur} style="font-size:0.78rem">${esc(r.Source)}</td>
-      <td ${ed} data-field="Phone" ${blur} style="color:var(--muted);font-size:0.78rem">${r.Phone}</td>
-      <td ${ed} data-field="Type" ${blur}>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'—'}</td>
-      <td ${ed} data-field="Name" ${blur} style="font-weight:600">${esc(r.Name)}</td>
-      <td>${st==='ACTIVE'?`<span class="tag stage-tag">${esc(r.stage||'—')}</span>`:'<span style="color:#CCC">—</span>'}</td>
-      <td ${ed} data-field="Comments" ${blur} style="font-size:0.75rem;color:var(--muted);max-width:200px;white-space:normal">${esc(r.Comments)||'<span style="color:#CCC">—</span>'}</td>
-      <td style="padding:6px 8px">${stepCell(r,'Responsive?')}</td>
-      <td style="padding:6px 8px">${stepCell(r,'GC created')}</td>
-      <td ${ed} data-field="PM" ${blur}>${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:'<span style="color:#CCC">—</span>'}</td>
-      <td style="padding:6px 8px">${stepCell(r,'1st meet')}</td>
-      <td style="padding:6px 8px">${stepCell(r,'2D')}</td>
-      <td style="padding:6px 8px">${stepCell(r,'Quotation')}</td>
-      <td style="padding:6px 8px">${stepCell(r,'2nd meet')}</td>
-      <td style="padding:6px 8px">${stepCell(r,'Revised 2D')}</td>
-      <td style="padding:6px 8px">${stepCell(r,'Revised Quotation')}</td>
-      <td style="padding:6px 8px">${stepCell(r,'Site visit')}</td>
-      <td style="padding:6px 8px">${stepCell(r,'1st Deposit')}</td>
-      <td style="padding:6px 8px">${stepCell(r,'2nd Deposit')}</td>
-      <td ${ed} data-field="FINAL STATUS" ${blur}><span class="status-badge ${stClass}">${stLabel}</span></td>
+      <td ${editable} data-field="Number" style="color:var(--muted);font-size:0.78rem">${esc(r.Number)}</td>
+      <td ${editable} data-field="Date" ${blur} style="color:var(--muted);font-size:0.78rem;white-space:nowrap">${esc(r.Date)}</td>
+      <td ${editable} data-field="Source" ${blur} style="font-size:0.78rem">${esc(r.Source)}</td>
+      <td ${editable} data-field="Phone" ${blur} style="color:var(--muted);font-size:0.78rem">${r.Phone}</td>
+      <td ${editable} data-field="Type" ${blur}>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'—'}</td>
+      <td ${editable} data-field="Name" ${blur} style="font-weight:600">${esc(r.Name)}</td>
+      <td>${st==='ACTIVE' ? `<span class="tag stage-tag">${esc(r.stage||'—')}</span>` : '<span style="color:#CCC">—</span>'}</td>
+      <td ${editable} data-field="Responsive?" ${blur}>${cellVal(r['Responsive?'])}</td>
+      <td ${editable} data-field="GC created" ${blur}>${cellVal(r['GC created'])}</td>
+      <td ${editable} data-field="PM" ${blur}>${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:'<span style="color:#CCC">—</span>'}</td>
+      <td ${editable} data-field="1st meet" ${blur}>${cellVal(r['1st meet'])}</td>
+      <td ${editable} data-field="2D" ${blur}>${cellVal(r['2D'])}</td>
+      <td ${editable} data-field="Quotation" ${blur}>${cellVal(r['Quotation'])}</td>
+      <td ${editable} data-field="2nd meet" ${blur}>${cellVal(r['2nd meet'])}</td>
+      <td ${editable} data-field="Revised 2D" ${blur}>${cellVal(r['Revised 2D'])}</td>
+      <td ${editable} data-field="Revised Quotation" ${blur}>${cellVal(r['Revised Quotation'])}</td>
+      <td ${editable} data-field="Site visit" ${blur}>${cellVal(r['Site visit'])}</td>
+      <td ${editable} data-field="Comments" ${blur} style="font-size:0.75rem;color:var(--muted);max-width:200px;white-space:normal">${esc(r.Comments)||'<span style="color:#CCC">—</span>'}</td>
+      <td ${editable} data-field="1st Deposit" ${blur}>${cellVal(r['1st Deposit'])}</td>
+      <td ${editable} data-field="2nd Deposit" ${blur}>${cellVal(r['2nd Deposit'])}</td>
+      <td ${editable} data-field="FINAL STATUS" ${blur}><span class="status-badge ${stClass}">${stLabel}</span></td>
     </tr>`;
   }).join('');
 }
@@ -2050,24 +2019,51 @@ function renderWdtPipeline(data) {
   document.getElementById('wdt-section-lapsed').style.display = lapsed.length?'block':'none';
 }
 
+function goToWdtProgression(name) {
+  // Switch to Woodates Leads section
+  document.querySelectorAll('.main-nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.main-nav-tab')[1].classList.add('active');
+  document.getElementById('sub-nav-chyler').style.display='none';
+  document.getElementById('sub-nav-woodates').style.display='flex';
+  document.getElementById('sub-nav-signed').style.display='none';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-woodates').classList.add('active');
+  // Switch to progression sub-tab
+  const tabs = document.querySelectorAll('#sub-nav-woodates .sub-tab');
+  tabs.forEach(t=>t.classList.remove('active'));
+  tabs.forEach(t=>{ if(t.getAttribute('data-view')==='progression') t.classList.add('active'); });
+  switchWdtView('progression', document.querySelector('#sub-nav-woodates .sub-tab[data-view="progression"]'));
+  // Scroll to the matching row
+  setTimeout(() => {
+    const rows = document.querySelectorAll('#wdt-prog-tbody tr');
+    for(const row of rows) {
+      const nameCell = row.querySelector('td:nth-child(5)');
+      if(nameCell && nameCell.textContent.trim() === name) {
+        row.style.background = '#FFF8EE';
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => { row.style.background = ''; }, 2500);
+        break;
+      }
+    }
+  }, 80);
+}
+
 function wdtCard(r, cls) {
   const stage = getWdtStage(r);
-  // Find current step index for progress bar
   const cleanStage = stage.replace(' (Pending)','');
-  const stepIdx = WDT_STEPS.findIndex(s=>s.label===cleanStage);
-  const prog = stepIdx >= 0 ? Math.round(((stepIdx+1)/WDT_STEPS.length)*100) : 0;
+  const clickable = cls === 'active-card';
 
   // Build mini step indicators
-  const steps = WDT_STEPS.map((s,i) => {
+  const steps = WDT_STEPS.map((s) => {
     const v = r[s.key];
-    let dot = '';
-    if(!v || v==='NO' || v==='NA') dot = `<span title="${s.label}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--border);margin:0 1px;flex-shrink:0"></span>`;
-    else if(v==='PENDING'||v==='PLANNED') dot = `<span title="${s.label}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--keyco);margin:0 1px;flex-shrink:0"></span>`;
-    else dot = `<span title="${s.label}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--signed);margin:0 1px;flex-shrink:0"></span>`;
-    return dot;
+    let bg;
+    if(!v || v==='NO' || v==='NA')              bg = 'var(--border)';
+    else if(v==='PENDING'||v==='PLANNED')        bg = 'var(--keyco)';
+    else                                         bg = 'var(--signed)';
+    return `<span title="${s.label}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${bg};margin:0 1px;flex-shrink:0"></span>`;
   }).join('');
 
-  return `<div class="card ${cls}">
+  return `<div class="card ${cls}"${clickable ? ` onclick="goToWdtProgression('${esc(r.Name)}')" style="cursor:pointer"` : ''}>
     <div class="card-name">${esc(r.Name)}</div>
     <div class="card-meta">
       ${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}
