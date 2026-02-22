@@ -2612,45 +2612,7 @@ async function supabaseUpdateCell(table, rowId, fieldName, value, colMap) {
   initWdtProgression();
   initWdtMaster();
   renderSigned();
-  // Provision Chong admin account (idempotent — safe to run every load)
-  provisionChong();
 })();
-
-// ── Provision Chong as admin ──────────────────────────
-// Uses signUp (idempotent via email uniqueness) then upserts the
-// profiles row so the auth guard grants access.
-async function provisionChong() {
-  const CHONG_EMAIL    = 'chong@woodates.com';
-  const CHONG_PASSWORD = 'Woodates2024!';
-  const CHONG_NAME     = 'Chong';
-
-  try {
-    // 1. Attempt sign-up — harmless if already exists (returns error we ignore)
-    const { data: signUpData, error: signUpErr } = await _db.auth.signUp({
-      email:    CHONG_EMAIL,
-      password: CHONG_PASSWORD,
-      options:  { data: { full_name: CHONG_NAME } },
-    });
-
-    // 2. Get the user id — either from fresh sign-up or look up via admin session
-    let userId = signUpData?.user?.id;
-
-    // 3. Upsert profile row to ensure role = 'admin'
-    if (userId) {
-      await _db.from('profiles').upsert(
-        { id: userId, full_name: CHONG_NAME, role: 'admin' },
-        { onConflict: 'id' }
-      );
-      console.log('[Woodates] Chong admin account provisioned ✓');
-    } else if (signUpErr) {
-      // User likely already exists — that's fine
-      console.log('[Woodates] Chong account already exists or sign-up skipped:', signUpErr.message);
-    }
-  } catch(e) {
-    // Non-critical — log only
-    console.warn('[Woodates] provisionChong error:', e);
-  }
-}
 
 </script>
 </body>
