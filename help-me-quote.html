@@ -384,6 +384,25 @@
             font-size: 0.82rem;
             border-top: 1px solid var(--border);
         }
+
+        /* ── MOBILE ── */
+        @media (max-width: 768px) {
+            .app-header { padding: 16px 20px; }
+            .app-header h1 { font-size: 1.2rem; }
+            main { padding: 24px 16px 48px; }
+            .page-title { font-size: 1.6rem; }
+            .card { padding: 20px 20px; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+        }
+        @media (max-width: 480px) {
+            .app-header { padding: 12px 14px; }
+            .app-header h1 { font-size: 1.1rem; }
+            main { padding: 16px 12px 40px; }
+            .page-title { font-size: 1.4rem; }
+            .card { padding: 16px; }
+            .btn-home { padding: 6px 10px; font-size: 0.75rem; }
+            input[type="text"], select, textarea { font-size: 0.9rem; }
+        }
     </style>
 </head>
 <body>
