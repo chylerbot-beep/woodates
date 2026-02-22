@@ -623,13 +623,16 @@
   </div>
 
   <script>
+  // Expose _sb and currentUserId globally so quote save functions can use them
+  let _sb, _currentUserId;
   (async function() {
     const { createClient } = supabase;
-    const _sb = createClient('https://ilytehukqrkwpupdpkgo.supabase.co','sb_publishable_tNMpLdZaqm0e-El_LP4kKg_fhfj-ARF');
+    _sb = createClient('https://ilytehukqrkwpupdpkgo.supabase.co','sb_publishable_tNMpLdZaqm0e-El_LP4kKg_fhfj-ARF');
     const { data: { session } } = await _sb.auth.getSession();
     if (!session) { document.getElementById('auth-checking').style.display='none'; document.getElementById('access-denied').style.display='flex'; return; }
     const { data: profile } = await _sb.from('profiles').select('role').eq('id', session.user.id).single();
     if (!profile || profile.role !== 'admin') { document.getElementById('auth-checking').style.display='none'; document.getElementById('access-denied').style.display='flex'; return; }
+    _currentUserId = session.user.id;
     document.getElementById('auth-checking').style.display = 'none';
   })();
   </script>
@@ -726,6 +729,10 @@
                         <button class="btn btn-secondary" onclick="downloadExcel()"
                             style="display:inline-flex;align-items:center;gap:0.5rem;">
                             📊 Download Excel
+                        </button>
+                        <button class="btn" onclick="saveQuoteToSupabase()"
+                            style="display:inline-flex;align-items:center;gap:0.5rem;background:#4A7C59;border-color:#4A7C59;">
+                            💾 Save to Portal
                         </button>
                     </div>
                     <div style="margin-top: 1.5rem;">
@@ -1663,6 +1670,8 @@
 
             if (n === 3) {
                 document.getElementById('printable-quote').innerHTML = generateQuoteHTML();
+                // Auto-save quote to Supabase when previewing
+                saveQuoteToSupabase();
             }
 
             // Update UI
@@ -1676,6 +1685,73 @@
             });
 
             window.scrollTo(0, 0);
+        }
+
+        // ── Save quote to Supabase ─────────────────────────────
+        let _quoteSavedId = null; // track the DB row id for updates
+
+        async function saveQuoteToSupabase() {
+            if (!_sb || !_currentUserId) return; // auth not ready
+            try {
+                // Calculate current total
+                let subtotal = PRELIMS.reduce((s,p) => s + (typeof p.amount==='number' ? p.amount : 0), 0);
+                Object.keys(state.selections).forEach(code => {
+                    const item = DATABASE.find(i => i.code === code);
+                    if (item) subtotal += calcLineTotal(item, state.selections[code]);
+                });
+                const gst = state.gstEnabled ? subtotal * 0.09 : 0;
+                const total = subtotal + gst;
+
+                const payload = {
+                    user_id: _currentUserId,
+                    quote_number: state.quoteId,
+                    client_name: state.client.name || '',
+                    address: state.client.address || '',
+                    flat_type: state.client.flatType || '',
+                    selections: state.selections,
+                    gst_enabled: state.gstEnabled,
+                    subtotal: subtotal,
+                    gst: gst,
+                    total: total,
+                    quote_date: state.quoteDate,
+                    updated_at: new Date().toISOString(),
+                };
+
+                let result;
+                if (_quoteSavedId) {
+                    // Update existing record
+                    result = await _sb.from('quotes').update(payload).eq('id', _quoteSavedId).select().single();
+                } else {
+                    // Insert new record
+                    result = await _sb.from('quotes').insert([payload]).select().single();
+                    if (result.data) _quoteSavedId = result.data.id;
+                }
+
+                if (result.error) throw result.error;
+                showSaveStatus('Quote saved to portal ✓', 'success');
+            } catch(err) {
+                console.error('Quote save error:', err);
+                showSaveStatus('Save failed — check connection', 'error');
+            }
+        }
+
+        function showSaveStatus(msg, type) {
+            let el = document.getElementById('_quote_save_status');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = '_quote_save_status';
+                el.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;padding:10px 18px;border-radius:8px;font-size:0.78rem;font-family:DM Sans,sans-serif;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.12);transition:opacity 0.4s;display:flex;align-items:center;gap:8px;';
+                document.body.appendChild(el);
+            }
+            const styles = {
+                success: { bg:'#D1FAE5', color:'#065F46', border:'#6EE7B7' },
+                error:   { bg:'#FEE2E2', color:'#991B1B', border:'#FCA5A5' },
+                saving:  { bg:'#FEF3C7', color:'#92400E', border:'#FCD34D' },
+            };
+            const s = styles[type] || styles.saving;
+            el.style.background = s.bg; el.style.color = s.color; el.style.border = `1px solid ${s.border}`;
+            el.textContent = msg; el.style.opacity = '1';
+            if (type !== 'saving') { clearTimeout(el._t); el._t = setTimeout(()=>{ el.style.opacity='0'; }, 3500); }
         }
 
         function resetQuote() {
@@ -1694,10 +1770,53 @@
             goToStep(2);
         };
 
+        // ── Load quote from Supabase if quote_id in URL ──────
+        async function loadQuoteFromSupabase() {
+            const params = new URLSearchParams(window.location.search);
+            const qid = params.get('quote_id');
+            if (!qid || !_sb) return false;
+
+            try {
+                const { data, error } = await _sb.from('quotes').select('*').eq('id', qid).single();
+                if (error || !data) return false;
+
+                _quoteSavedId = data.id;
+                state.quoteId = data.quote_number || state.quoteId;
+                state.quoteDate = data.quote_date || state.quoteDate;
+                state.client = {
+                    name: data.client_name || '',
+                    address: data.address || '',
+                    flatType: data.flat_type || '4-Room HDB',
+                };
+                state.selections = data.selections || {};
+                state.gstEnabled = data.gst_enabled !== undefined ? data.gst_enabled : true;
+
+                // Pre-fill step 1 fields
+                document.getElementById('clientName').value = state.client.name;
+                document.getElementById('projectAddress').value = state.client.address;
+                document.getElementById('flatType').value = state.client.flatType;
+
+                // Re-render step 2 with loaded selections
+                renderItemList();
+                toggleGST(state.gstEnabled);
+                updateSummary();
+
+                showSaveStatus('Quote loaded from portal ✓', 'success');
+                return true;
+            } catch(err) {
+                console.error('Quote load error:', err);
+                return false;
+            }
+        }
+
         // Start App
         initTabs();
         renderItemList();
         updateSummary();
+
+        // Load from Supabase if opened via quote_id URL param
+        // Wait briefly for _sb to be initialised by the auth block
+        setTimeout(async () => { await loadQuoteFromSupabase(); }, 800);
     
 // ── Toast notification (replaces alert) ──
 function showToast(msg, type='error') {
