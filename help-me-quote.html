@@ -821,7 +821,7 @@
         const file = e.target.files[0];
         if (!file) return;
         if (file.size > 10 * 1024 * 1024) {
-            alert('File too large. Please upload a file under 10MB.');
+            showToast('File too large. Please upload a file under 10MB.');
             return;
         }
         selectedFile = file;
@@ -948,7 +948,7 @@
 
         try {
             const { data: { user } } = await _supabase.auth.getUser();
-            if (!user) { alert('Session expired. Please log in again.'); window.location.href = 'index.html'; return; }
+            if (!user) { showToast('Session expired. Please log in again.'); window.location.href = 'index.html'; return; }
 
             // Upload floor plan to Supabase Storage
             let floorPlanUrl = null;
@@ -1013,7 +1013,7 @@
 
         } catch (err) {
             console.error(err);
-            alert('Something went wrong: ' + (err.message || 'Unknown error'));
+            showToast('Something went wrong: ' + (err.message || 'Unknown error'));
             btn.disabled = false;
             btn.textContent = 'Submit Quote Request';
         }
@@ -1026,6 +1026,25 @@
     }
 
     init();
+</script>
+<script>
+
+// ── Toast notification ──────────────────────────────
+function showToast(msg, type='error') {
+  let t = document.getElementById('_app_toast');
+  if(!t) {
+    t = document.createElement('div');
+    t.id = '_app_toast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;padding:12px 24px;border-radius:8px;font-family:DM Sans,sans-serif;font-size:0.85rem;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.15);transition:opacity 0.4s;pointer-events:none';
+    document.body.appendChild(t);
+  }
+  const cols = {error:['#FEE2E2','#991B1B'], success:['#D1FAE5','#065F46'], info:['#EBF3FB','#1D4ED8']};
+  const [bg, color] = cols[type]||cols.error;
+  t.style.background=bg; t.style.color=color;
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._hide); t._hide=setTimeout(()=>{ t.style.opacity='0'; },4000);
+}
+
 </script>
 </body>
 </html>
