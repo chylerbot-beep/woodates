@@ -1,664 +1,2649 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Woodates</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&display=swap"
-        rel="stylesheet">
-    <style>
-        :root {
-            --cream: #F5F0E8;
-            --dark: #1A1A18;
-            --accent: #C4956A;
-            --accent-light: #E8D5BF;
-            --border: #D6CEC4;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--cream);
-            color: var(--dark);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            display: none;
-            /* Hidden until role check */
-        }
-
-        header {
-            padding: 30px 40px;
-            background: white;
-            box-shadow: var(--shadow);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .brand h1 {
-            font-family: 'DM Serif Display', serif;
-            font-size: 1.8rem;
-            color: var(--dark);
-        }
-
-        .brand p {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .nav-actions {
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn {
-            border: 1px solid var(--border);
-            padding: 8px 18px;
-            border-radius: 6px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            color: var(--dark);
-            transition: all 0.2s;
-        }
-
-        .btn:hover {
-            background: var(--dark);
-            color: white;
-            border-color: var(--dark);
-        }
-
-        main {
-            flex: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            width: 100%;
-        }
-
-        h2 {
-            font-family: 'DM Serif Display', serif;
-            font-size: 2rem;
-            margin-bottom: 32px;
-        }
-
-        .admin-container {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-        .project-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        .project-table th {
-            background: #F9F7F4;
-            padding: 16px 24px;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #6B5B4E;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .project-table td {
-            padding: 18px 24px;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.9rem;
-            vertical-align: middle;
-        }
-
-        .project-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .project-table tr:hover {
-            background: #FAF8F5;
-        }
-
-        .designer-name {
-            font-weight: 700;
-            color: var(--accent);
-        }
-
-        .project-name {
-            font-weight: 600;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .status-in_progress {
-            background: var(--accent-light);
-            color: var(--accent);
-        }
-
-        .status-completed {
-            background: #DFF0D8;
-            color: #3C763D;
-        }
-
-        .btn-view {
-            color: var(--dark);
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 0.85rem;
-            border-bottom: 2px solid var(--accent);
-            padding-bottom: 2px;
-        }
-
-        .btn-view:hover {
-            color: var(--accent);
-        }
-
-        .status-pending {
-            background: #FFF3CD;
-            color: #856404;
-        }
-
-        .status-completed {
-            background: #DFF0D8;
-            color: #3C763D;
-        }
-
-        .btn-complete {
-            background: #4A7C59;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.78rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: opacity 0.2s;
-            white-space: nowrap;
-        }
-
-        .btn-complete:hover { opacity: 0.85; }
-
-        .btn-dl {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.78rem;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: opacity 0.2s;
-            white-space: nowrap;
-        }
-
-        .btn-dl:hover { opacity: 0.85; }
-
-        .ai-table th, .ai-table td { padding: 14px 20px; }
-
-        .ai-table { font-size: 0.88rem; }
-
-        .answers-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(26,26,24,0.5);
-            backdrop-filter: blur(6px);
-            z-index: 500;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-        }
-
-        .answers-modal.open { display: flex; }
-
-        .modal-box {
-            background: white;
-            border-radius: 12px;
-            max-width: 680px;
-            width: 100%;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 24px;
-            border-bottom: 1px solid #E8E2DA;
-            position: sticky;
-            top: 0;
-            background: white;
-        }
-
-        .modal-header h3 { font-family: 'DM Serif Display', serif; font-size: 1.2rem; }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.4rem;
-            cursor: pointer;
-            color: #9E9590;
-            line-height: 1;
-        }
-
-        .modal-body { padding: 24px; }
-
-        .answer-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px 24px;
-        }
-
-        .answer-item label {
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #9E9590;
-            display: block;
-            margin-bottom: 3px;
-        }
-
-        .answer-item p {
-            font-size: 0.88rem;
-            font-weight: 500;
-            color: var(--dark);
-        }
-
-        .answer-remarks {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #E8E2DA;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            padding: 16px 24px;
-            border-top: 1px solid #E8E2DA;
-            background: #FDFCFA;
-            border-radius: 0 0 12px 12px;
-        }
-
-        .section-divider {
-            font-family: 'DM Serif Display', serif;
-            font-size: 1.5rem;
-            margin: 48px 0 20px;
-        }
-            padding: 60px;
-            text-align: center;
-            color: #9E9590;
-            font-style: italic;
-        }
-
-        footer {
-            padding: 40px 20px;
-            text-align: center;
-            color: #9E9590;
-            font-size: 0.85rem;
-        }
-
-        /* ── MOBILE ── */
-        @media (max-width: 768px) {
-            header { padding: 16px 20px; }
-            .brand h1 { font-size: 1.4rem; }
-            .nav-actions { gap: 8px; }
-            .btn { padding: 7px 12px; font-size: 0.8rem; }
-            main { padding: 24px 16px; }
-            h2 { font-size: 1.5rem; margin-bottom: 20px; }
-            .section-divider { font-size: 1.2rem; margin: 32px 0 14px; }
-            .admin-container { overflow-x: auto; }
-            .project-table { min-width: 600px; }
-            .project-table th, .project-table td { padding: 12px 16px; font-size: 0.85rem; }
-            .answer-grid { grid-template-columns: 1fr; }
-            .modal-actions { flex-wrap: wrap; }
-            .ai-table { min-width: 500px; }
-            .ai-table th, .ai-table td { padding: 10px 14px; font-size: 0.85rem; }
-        }
-        @media (max-width: 480px) {
-            header { flex-wrap: wrap; gap: 10px; }
-            .brand h1 { font-size: 1.25rem; }
-            .nav-actions { flex-wrap: wrap; }
-            main { padding: 16px 12px; }
-            h2 { font-size: 1.3rem; }
-        }
-    </style>
-</head>
-
-<body>
-    <header>
-        <div class="brand">
-            <p>Woodates</p>
-            <h1>Admin Panel</h1>
-        </div>
-        <div class="nav-actions">
-            <a href="index.html" class="btn">← Home</a>
-        </div>
-    </header>
-
-    <main>
-        <h2>Global Project Oversight</h2>
-
-        <div class="admin-container">
-            <table class="project-table">
-                <thead>
-                    <tr>
-                        <th>Designer</th>
-                        <th>Project Name</th>
-                        <th>Client</th>
-                        <th>Status</th>
-                        <th>Last Updated</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="projectsBody">
-                    <tr>
-                        <td colspan="6" class="loading">Fetching project data...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <h2 class="section-divider">AI Quote Requests</h2>
-
-        <div class="admin-container">
-            <table class="project-table ai-table">
-                <thead>
-                    <tr>
-                        <th>Designer</th>
-                        <th>Client</th>
-                        <th>Floor Plan</th>
-                        <th>Submitted</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="aiQuotesBody">
-                    <tr><td colspan="6" class="loading">Fetching AI quote requests...</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Answers Modal -->
-        <div class="answers-modal" id="answersModal">
-            <div class="modal-box">
-                <div class="modal-header">
-                    <h3 id="modalClientName">Intake Answers</h3>
-                    <button class="modal-close" onclick="closeModal()">×</button>
-                </div>
-                <div class="modal-body">
-                    <div class="answer-grid" id="answerGrid"></div>
-                    <div class="answer-remarks" id="answerRemarks" style="display:none;">
-                        <label style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#9E9590;display:block;margin-bottom:6px;">Remarks</label>
-                        <p id="remarksText" style="font-size:0.88rem;line-height:1.6;"></p>
-                    </div>
-                </div>
-                <div class="modal-actions">
-                    <a id="modalFloorPlanLink" href="#" target="_blank" class="btn-dl">⬇ Download Floor Plan</a>
-                    <button id="modalCompleteBtn" class="btn-complete" onclick="markComplete(null)">✓ Mark Complete</button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <footer>
-        &copy; 2025 Woodates Design &amp; Build Pte Ltd. All rights reserved.
-    </footer>
-
-    <script>
-        const { createClient } = supabase;
-        const _supabase = createClient(
-            'https://ilytehukqrkwpupdpkgo.supabase.co',
-            'sb_publishable_tNMpLdZaqm0e-El_LP4kKg_fhfj-ARF'
-        );
-
-        const projectsBody = document.getElementById('projectsBody');
-
-        async function init() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            // Check admin role
-            const { data: profile } = await _supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', session.user.id)
-                .single();
-
-            if (!profile || profile.role !== 'admin') {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            document.body.style.display = 'flex';
-            fetchAllProjects();
-            fetchAiQuoteRequests();
-        }
-
-        async function fetchAllProjects() {
-            const { data: projects, error } = await _supabase
-                .from('projects')
-                .select('*, profiles(full_name)')
-                .order('updated_at', { ascending: false });
-
-            if (error) {
-                projectsBody.innerHTML = '<tr><td colspan="6" class="no-data">Error loading projects.</td></tr>';
-                return;
-            }
-
-            if (!projects || projects.length === 0) {
-                projectsBody.innerHTML = '<tr><td colspan="6" class="no-data">No projects found in the system.</td></tr>';
-                return;
-            }
-
-            projectsBody.innerHTML = projects.map(p => {
-                const date = new Date(p.updated_at).toLocaleDateString('en-SG', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric'
-                });
-                const status = p.status || 'in_progress';
-                const designerName = p.profiles ? p.profiles.full_name : 'Unknown';
-
-                return `
-                    <tr>
-                        <td class="designer-name">${designerName}</td>
-                        <td class="project-name">${p.project_name || 'Untitled'}</td>
-                        <td>${p.client_name || '&mdash;'}</td>
-                        <td><span class="status-badge status-${status}">${status.replace('_', ' ')}</span></td>
-                        <td>${date}</td>
-                        <td><a href="workflow.html?project_id=${p.id}&readonly=true" class="btn-view">View Only</a></td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // ── AI QUOTE REQUESTS ─────────────────────────────────────────────
-        let currentRequestId = null;
-
-        async function fetchAiQuoteRequests() {
-            const body = document.getElementById('aiQuotesBody');
-            const { data: requests, error } = await _supabase
-                .from('ai_quote_requests')
-                .select('*, profiles(full_name)')
-                .order('created_at', { ascending: false });
-
-            if (error || !requests || requests.length === 0) {
-                body.innerHTML = '<tr><td colspan="6" class="no-data">No AI quote requests yet.</td></tr>';
-                return;
-            }
-
-            body.innerHTML = requests.map(r => {
-                const date = new Date(r.created_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
-                const status = r.status || 'pending';
-                const designer = r.profiles?.full_name || 'Unknown';
-                const floorPlanCell = r.floor_plan_url
-                    ? `<a href="${r.floor_plan_url}" target="_blank" class="btn-dl" style="font-size:0.75rem;padding:4px 10px;">⬇ Download</a>`
-                    : '<span style="color:#9E9590;font-size:0.85rem;">—</span>';
-
-                return `
-                    <tr id="aiq-admin-${r.id}">
-                        <td class="designer-name">${designer}</td>
-                        <td style="font-weight:500;">${r.client_name || '—'}</td>
-                        <td>${floorPlanCell}</td>
-                        <td style="font-size:0.82rem;color:#9E9590;">${date}</td>
-                        <td><span class="status-badge status-${status}">${status}</span></td>
-                        <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                            <button class="btn-dl" style="font-size:0.75rem;padding:5px 10px;" onclick="openModal('${r.id}')">View Answers</button>
-                            ${status !== 'completed' ? `<button class="btn-complete" style="font-size:0.75rem;padding:5px 10px;" onclick="markComplete('${r.id}')">✓ Complete</button>` : ''}
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function openModal(id) {
-            currentRequestId = id;
-            // Fetch the request data
-            _supabase.from('ai_quote_requests').select('*').eq('id', id).single().then(({ data: r }) => {
-                if (!r) return;
-                document.getElementById('modalClientName').textContent = `${r.client_name || 'Client'} — Intake Answers`;
-
-                const a = r.answers || {};
-                const fields = [
-                    ['Unit Type', a.unit_type],
-                    ['OCS Opted Out', a.ocs_opted_out],
-                    ['Flooring Material', a.flooring_material],
-                    ['Flooring Area', a.flooring_area_sqft ? a.flooring_area_sqft + ' sqft' : null],
-                    ['Hack Walls', a.hack_walls],
-                    ['Hack Walls Detail', a.hack_walls_desc],
-                    ['Hack Bi-fold', a.hack_bifold],
-                    ['Remove Doors', a.remove_doors],
-                    ['Remove Doors Detail', a.remove_doors_desc],
-                    ['Countertop', a.countertop],
-                    ['Backsplash', a.backsplash],
-                    ['Cement Base', a.cement_base],
-                    ['Kerb Master Bath', a.kerb_master],
-                    ['Kerb Common Bath', a.kerb_common],
-                    ['Wardrobe Master', a.wardrobe_master],
-                    ['Wardrobe Bed 2', a.wardrobe_bed2],
-                    ['Wardrobe Bed 3', a.wardrobe_bed3],
-                    ['False Ceiling', a.false_ceiling],
-                    ['Ceiling Area', a.ceiling_area_sqft ? a.ceiling_area_sqft + ' sqft' : null],
-                    ['Cove Lighting', a.cove_lighting],
-                    ['Bedroom Doors', a.bedroom_doors],
-                    ['Toilet Doors', a.toilet_doors],
-                ];
-
-                document.getElementById('answerGrid').innerHTML = fields
-                    .filter(([, v]) => v != null && v !== '')
-                    .map(([label, val]) => `
-                        <div class="answer-item">
-                            <label>${label}</label>
-                            <p>${val}</p>
-                        </div>
-                    `).join('');
-
-                const remarksEl = document.getElementById('answerRemarks');
-                if (a.remarks) {
-                    document.getElementById('remarksText').textContent = a.remarks;
-                    remarksEl.style.display = 'block';
-                } else {
-                    remarksEl.style.display = 'none';
-                }
-
-                const floorLink = document.getElementById('modalFloorPlanLink');
-                if (r.floor_plan_url) {
-                    floorLink.href = r.floor_plan_url;
-                    floorLink.style.display = 'inline-block';
-                } else {
-                    floorLink.style.display = 'none';
-                }
-
-                document.getElementById('modalCompleteBtn').onclick = () => markComplete(r.id);
-                document.getElementById('modalCompleteBtn').style.display = r.status === 'completed' ? 'none' : 'inline-block';
-
-                document.getElementById('answersModal').classList.add('open');
-            });
-        }
-
-        function closeModal() {
-            document.getElementById('answersModal').classList.remove('open');
-            currentRequestId = null;
-        }
-
-        // Close modal on backdrop click
-        document.getElementById('answersModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
-
-        async function markComplete(id) {
-            const targetId = id || currentRequestId;
-            if (!targetId) return;
-            if (!confirm('Mark this AI quote request as complete? The designer will see it as completed.')) return;
-
-            const { error } = await _supabase
-                .from('ai_quote_requests')
-                .update({ status: 'completed' })
-                .eq('id', targetId);
-
-            if (error) { showToast('Error updating status.'); return; }
-
-            // Refresh the table
-            fetchAiQuoteRequests();
-            closeModal();
-        }
-
-        init();
-    </script>
-<script>
-
-// ── Toast notification ──────────────────────────────
-function showToast(msg, type='error') {
-  let t = document.getElementById('_app_toast');
-  if(!t) {
-    t = document.createElement('div');
-    t.id = '_app_toast';
-    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;padding:12px 24px;border-radius:8px;font-family:DM Sans,sans-serif;font-size:0.85rem;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.15);transition:opacity 0.4s;pointer-events:none';
-    document.body.appendChild(t);
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leads | Woodates</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --cream-dark: #EDE8DF;
+    --white: #FFFFFF;
+    --dark: #1A1A18;
+    --dark-mid: #3D3B36;
+    --muted: #8A8278;
+    --border: #D6CEC4;
+    --border-light: #E8E2D9;
+    --shadow: 0 4px 20px rgba(0,0,0,0.06);
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+
+    --active: #C4956A;
+    --active-bg: #FAF3EC;
+    --active-border: #E8C9A8;
+
+    --signed: #5A8A6A;
+    --signed-bg: #EEF6F0;
+    --signed-border: #B2D4BB;
+
+    --lapsed: #B05A5A;
+    --lapsed-bg: #F8EDED;
+    --lapsed-border: #DCAFAF;
+
+    --keyco: #7A6A3A;
+    --keyco-bg: #F7F2E4;
+    --keyco-border: #D4C48A;
   }
-  const cols = {error:['#FEE2E2','#991B1B'], success:['#D1FAE5','#065F46'], info:['#EBF3FB','#1D4ED8']};
-  const [bg, color] = cols[type]||cols.error;
-  t.style.background=bg; t.style.color=color;
-  t.textContent=msg; t.style.opacity='1';
-  clearTimeout(t._hide); t._hide=setTimeout(()=>{ t.style.opacity='0'; },4000);
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--cream); color: var(--dark); font-family: 'DM Sans', sans-serif; min-height: 100vh; display: none; }
+
+  /* ── AUTH GUARD OVERLAY ── */
+  #auth-checking {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    background: var(--cream);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 14px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  #auth-checking p { color: var(--muted); font-size: 0.9rem; }
+  .auth-spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--active);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #access-denied {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--cream);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    font-family: 'DM Sans', sans-serif;
+    text-align: center;
+    padding: 24px;
+  }
+  #access-denied h2 { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--dark); }
+  #access-denied p { color: var(--muted); font-size: 0.9rem; max-width: 360px; }
+  #access-denied a {
+    margin-top: 8px;
+    display: inline-block;
+    padding: 10px 24px;
+    background: var(--active);
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+  }
+  #access-denied a:hover { background: var(--dark); }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 200;
+    box-shadow: var(--shadow-sm);
+  }
+  .header-top {
+    padding: 20px 40px 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 32px;
+  }
+  .brand p {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--active);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .brand h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.7rem;
+    color: var(--dark);
+    line-height: 1;
+  }
+
+  /* ── MAIN NAV ── */
+  .main-nav {
+    display: flex;
+    gap: 0;
+    flex: 1;
+    padding-bottom: 0;
+  }
+  .main-nav-tab {
+    padding: 14px 22px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .main-nav-tab:hover { color: var(--dark); }
+  .main-nav-tab.active { color: var(--dark); border-bottom-color: var(--active); }
+
+  /* ── SUB TABS ── */
+  .sub-nav {
+    display: flex;
+    gap: 0;
+    padding: 0 40px;
+    background: var(--white);
+    border-top: 1px solid var(--border-light);
+  }
+  .sub-tab {
+    padding: 10px 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .sub-tab:hover { color: var(--dark); }
+  .sub-tab.active { color: var(--active); border-bottom-color: var(--active); }
+
+  .header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 14px;
+  }
+  .btn-outline {
+    border: 1px solid var(--border);
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--dark);
+    background: transparent;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { background: var(--dark); color: white; border-color: var(--dark); }
+
+  /* ── PAGES ── */
+  .page { display: none; padding: 36px 40px; max-width: 1600px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* ── PAGE HEADER ── */
+  .page-header { margin-bottom: 28px; }
+  .page-title { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--dark); }
+  .page-subtitle { color: var(--muted); font-size: 0.82rem; margin-top: 4px; letter-spacing: 0.02em; }
+
+  /* ── STAT PILLS ── */
+  .stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+  .stat-pill {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .stat-pill .count {
+    font-size: 1.3rem;
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    line-height: 1;
+  }
+  .stat-pill.s-active { background: var(--active-bg); border-color: var(--active-border); color: var(--active); }
+  .stat-pill.s-signed { background: var(--signed-bg); border-color: var(--signed-border); color: var(--signed); }
+  .stat-pill.s-lapsed { background: var(--lapsed-bg); border-color: var(--lapsed-border); color: var(--lapsed); }
+  .stat-pill.s-keyco  { background: var(--keyco-bg);  border-color: var(--keyco-border);  color: var(--keyco); }
+  .stat-pill.s-total  { background: var(--cream-dark); border-color: var(--border); color: var(--muted); }
+
+  /* ── FILTERS ── */
+  .filters { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
+  .search-box, .filter-select {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 14px;
+    color: var(--dark);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box { flex: 1; min-width: 200px; }
+  .search-box::placeholder { color: var(--muted); }
+  .search-box:focus, .filter-select:focus { border-color: var(--active); }
+  .filter-select { cursor: pointer; }
+
+  /* ── SECTION HEADERS ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 32px 0 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .section-label { display: flex; align-items: center; gap: 10px; }
+  .section-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .section-count {
+    font-size: 0.72rem;
+    background: var(--cream-dark);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-weight: 600;
+  }
+  .toggle-btn {
+    font-size: 0.75rem;
+    color: var(--muted);
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 14px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .toggle-btn:hover { color: var(--dark); border-color: var(--dark); }
+
+  /* ── KANBAN ── */
+  .pipeline-wrap { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 10px; }
+  .stage-col { min-width: 210px; max-width: 230px; flex-shrink: 0; }
+  .stage-col-header {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background: var(--cream-dark);
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid var(--border-light);
+  }
+  .stage-col-header .stage-num {
+    color: var(--active);
+    font-size: 1.3rem;
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+  }
+  .card:hover { border-color: var(--active-border); box-shadow: var(--shadow); transform: translateY(-1px); }
+
+  .card.active-card  { border-left: 3px solid var(--active); }
+  .card.signed-card  { border-left: 3px solid var(--signed); background: var(--signed-bg); }
+  .card.lapsed-card  { border-left: 3px solid var(--lapsed); opacity: 0.8; }
+  .card.keyco-card   { border-left: 3px solid var(--keyco); background: var(--keyco-bg); }
+
+  .card-name { font-size: 0.9rem; font-weight: 700; color: var(--dark); margin-bottom: 8px; }
+  .card-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+
+  .tag {
+    font-size: 0.68rem;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 600;
+    background: var(--cream-dark);
+    color: var(--muted);
+    border: 1px solid var(--border-light);
+  }
+  .tag.type-tag { background: var(--active-bg); color: var(--active); border-color: var(--active-border); }
+  .tag.pm-tag   { background: #F0EDF8; color: #7A5FA0; border-color: #D8CEED; }
+  .tag.stage-tag { background: #EBF3FB; color: #3A6EA8; border-color: #B8D4EE; font-size: 0.68rem; }
+
+  .card-phone { font-size: 0.75rem; color: var(--muted); }
+  .card-comment {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 8px;
+    font-style: italic;
+    border-top: 1px solid var(--border-light);
+    padding-top: 8px;
+    line-height: 1.5;
+  }
+  .card-date { font-size: 0.68rem; color: #B0A89A; margin-top: 5px; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar { height: 3px; background: var(--border-light); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--active-border), var(--active)); border-radius: 2px; transition: width 0.4s; }
+
+  /* ── GRID ── */
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+
+  /* ── COLLAPSIBLE ── */
+  .collapsible-content { overflow: hidden; transition: max-height 0.4s ease; }
+  .collapsible-content.collapsed { max-height: 0 !important; }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    background: var(--white);
+    border-radius: 12px;
+    overflow: auto;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    max-height: calc(100vh - 300px);
+  }
+  .w-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; text-align: left; }
+  .w-table th {
+    background: #F9F7F4;
+    padding: 12px 14px;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6B5B4E;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .w-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .w-table tr:last-child td { border-bottom: none; }
+  .w-table tr:hover td { background: #FAF8F5; }
+
+  /* Editable table cells */
+  .w-table td[contenteditable="true"] {
+    outline: none;
+    cursor: text;
+  }
+  .w-table td[contenteditable="true"]:focus {
+    background: #FFFBF5;
+    box-shadow: inset 0 0 0 2px var(--active-border);
+    border-radius: 4px;
+  }
+  .edit-mode .w-table td[contenteditable="true"] {
+    background: rgba(196,149,106,0.04);
+  }
+
+  /* Edit mode banner */
+  .edit-banner {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--active-bg);
+    border: 1px solid var(--active-border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.8rem;
+    color: var(--active);
+    font-weight: 600;
+  }
+  .edit-banner.visible { display: flex; }
+  .edit-banner svg { flex-shrink: 0; }
+
+  /* Edit toggle button styling */
+  .btn-edit-toggle {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--border);
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--dark);
+    background: var(--white);
+    transition: all 0.2s;
+  }
+  .btn-edit-toggle.active {
+    background: var(--active);
+    border-color: var(--active);
+    color: white;
+  }
+  .btn-edit-toggle:hover:not(.active) { background: var(--cream-dark); }
+
+  /* Download button */
+  .btn-download {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--signed-border);
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--signed);
+    background: var(--signed-bg);
+    transition: all 0.2s;
+  }
+  .btn-download:hover { background: var(--signed); color: white; border-color: var(--signed); }
+
+  /* ── STATUS BADGES ── */
+  .status-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .status-badge.ACTIVE { background: var(--active-bg); color: var(--active); border-color: var(--active-border); }
+  .status-badge.SIGNED { background: var(--signed-bg); color: var(--signed); border-color: var(--signed-border); }
+  .status-badge.LAPSED { background: var(--lapsed-bg); color: var(--lapsed); border-color: var(--lapsed-border); }
+  .status-badge.LONG   { background: var(--keyco-bg);  color: var(--keyco);  border-color: var(--keyco-border); }
+
+  .check { color: var(--signed); font-weight: 700; }
+  .cross { color: var(--lapsed); }
+
+  /* ── Conditional formatting for YES/NO/PENDING ── */
+  .cell-yes { color: var(--signed); font-weight: 700; }
+  .cell-no { color: var(--lapsed); }
+  .cell-pending { color: var(--keyco); font-style: italic; font-size: 0.75rem; }
+  .cell-scheduled { color: #5A7AAA; font-weight: 600; font-size: 0.75rem; }
+
+  /* ── Master list section headers ── */
+  .master-section-header {
+    padding: 8px 14px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .master-section-header.active-header { background: var(--active-bg); color: var(--active); }
+  .master-section-header.signed-header { background: var(--signed-bg); color: var(--signed); }
+  .master-section-header.lapsed-header { background: var(--lapsed-bg); color: var(--lapsed); }
+  .master-section-header.keyco-header  { background: var(--keyco-bg);  color: var(--keyco); }
+
+  /* ── PILL COUNT (number shown inside filter pill) ── */
+  .pill-count {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    line-height: 1;
+    margin-right: 7px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .status-filter-pill .pill-count { opacity: 0.85; }
+  .status-filter-pill.selected .pill-count,
+  .status-filter-pill:hover .pill-count { opacity: 1; }
+
+  /* ── PIPELINE STATUS FILTER PILLS ── */
+  .status-filter-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .status-filter-pill {
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 1.5px solid;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .status-filter-pill.sf-all { background: var(--cream-dark); border-color: var(--border); color: var(--muted); }
+  .status-filter-pill.sf-all.selected,
+  .status-filter-pill.sf-all:hover { background: var(--dark); border-color: var(--dark); color: white; }
+  .status-filter-pill.sf-active { background: var(--active-bg); border-color: var(--active-border); color: var(--active); }
+  .status-filter-pill.sf-active.selected,
+  .status-filter-pill.sf-active:hover { background: var(--active); border-color: var(--active); color: white; }
+  .status-filter-pill.sf-signed { background: var(--signed-bg); border-color: var(--signed-border); color: var(--signed); }
+  .status-filter-pill.sf-signed.selected,
+  .status-filter-pill.sf-signed:hover { background: var(--signed); border-color: var(--signed); color: white; }
+  .status-filter-pill.sf-lapsed { background: var(--lapsed-bg); border-color: var(--lapsed-border); color: var(--lapsed); }
+  .status-filter-pill.sf-lapsed.selected,
+  .status-filter-pill.sf-lapsed:hover { background: var(--lapsed); border-color: var(--lapsed); color: white; }
+  .status-filter-pill.sf-keyco { background: var(--keyco-bg); border-color: var(--keyco-border); color: var(--keyco); }
+  .status-filter-pill.sf-keyco.selected,
+  .status-filter-pill.sf-keyco:hover { background: var(--keyco); border-color: var(--keyco); color: white; }
+  .status-filter-pill.sf-reachout { background: #EEF0FB; border-color: #B8BEEC; color: #4A55A2; }
+  .status-filter-pill.sf-reachout.selected,
+  .status-filter-pill.sf-reachout:hover { background: #4A55A2; border-color: #4A55A2; color: white; }
+
+  /* ── REACH OUT CARD ── */
+  .card.reachout-card { border-left: 3px solid #4A55A2; background: #EEF0FB; }
+  .reachout-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: #4A55A2;
+    color: white;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+
+  /* ── NEW ROW BUTTON ── */
+  .btn-new-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--active-border);
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--active);
+    background: var(--active-bg);
+    transition: all 0.2s;
+  }
+  .btn-new-row:hover { background: var(--active); color: white; border-color: var(--active); }
+
+  /* ── MOBILE IMPROVEMENTS ── */
+  @media (max-width: 768px) {
+    .header-top { padding: 14px 16px 0; flex-wrap: wrap; gap: 12px; }
+    .brand h1 { font-size: 1.4rem; }
+    .main-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; scrollbar-width: none; }
+    .main-nav::-webkit-scrollbar { display: none; }
+    .main-nav-tab { padding: 12px 16px; font-size: 0.78rem; }
+    .sub-nav { padding: 0 16px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .sub-nav::-webkit-scrollbar { display: none; }
+    .sub-tab { padding: 10px 14px; font-size: 0.72rem; white-space: nowrap; }
+    .page { padding: 20px 16px; }
+    .page-title { font-size: 1.5rem; }
+    .pipeline-wrap { gap: 10px; }
+    .stage-col { min-width: 180px; }
+    .filters { gap: 8px; }
+    .search-box { min-width: 0; flex: 1; }
+    .filter-select { font-size: 0.82rem; }
+    .stat-row { gap: 8px; }
+    .stat-pill { padding: 8px 12px; font-size: 0.78rem; }
+    .stat-pill .count { font-size: 1.1rem; }
+    .cards-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+    .header-actions { padding-bottom: 12px; }
+    /* Progression page header on mobile */
+    #page-progression .page-header { flex-direction: column; align-items: stretch; }
+    #page-progression .page-header > div:last-child { flex-wrap: wrap; }
+    /* Table wrap full width on mobile */
+    .table-wrap { max-height: calc(100vh - 260px); }
+    /* New modal fields */
+    .modal-overlay { padding: 16px; }
+    .modal-box { padding: 20px; }
+    .modal-grid { grid-template-columns: 1fr !important; }
+    /* Larger touch targets for table cells */
+    .w-table td, .w-table th { padding: 10px 12px; font-size: 0.8rem; }
+  }
+  @media (max-width: 480px) {
+    .header-top { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px 16px 0; }
+    .brand { flex: 1; }
+    .brand h1 { font-size: 1.25rem; }
+    /* Make main-nav scrollable on small screens instead of hiding it */
+    .main-nav {
+      width: 100%;
+      order: 3;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      flex-wrap: nowrap;
+      scrollbar-width: none;
+      border-top: 1px solid var(--border-light);
+      padding-top: 0;
+    }
+    .main-nav::-webkit-scrollbar { display: none; }
+    .main-nav-tab {
+      padding: 10px 14px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .header-actions { padding-bottom: 8px; order: 2; }
+    .status-filter-row { gap: 6px; }
+    .status-filter-pill { padding: 6px 12px; font-size: 0.72rem; }
+    .page { padding: 16px 12px; }
+    .page-title { font-size: 1.3rem; }
+    .page-subtitle { font-size: 0.8rem; }
+    .card-name { font-size: 0.88rem; }
+    .card-comment { font-size: 0.75rem; }
+    .section-title { font-size: 0.7rem; }
+    .stat-pill { font-size: 0.75rem; padding: 7px 10px; }
+    .filters { flex-direction: column; }
+    .search-box { min-width: 100%; }
+    .btn-edit-toggle, .btn-download, .btn-new-row { padding: 8px 14px; font-size: 0.8rem; }
+  }
+
+  /* ── ADD ROW MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 28px;
+    width: 100%;
+    max-width: 640px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    position: relative;
+  }
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--dark);
+    margin-bottom: 20px;
+  }
+  .modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .modal-field { display: flex; flex-direction: column; gap: 5px; }
+  .modal-field label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .modal-field input, .modal-field select {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 12px;
+    color: var(--dark);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .modal-field input:focus, .modal-field select:focus { border-color: var(--active); background: var(--white); }
+  .modal-field.span-2 { grid-column: span 2; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-modal-cancel {
+    border: 1px solid var(--border);
+    padding: 9px 20px;
+    border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+  .btn-modal-cancel:hover { background: var(--cream-dark); color: var(--dark); }
+  .btn-modal-save {
+    border: none;
+    padding: 9px 24px;
+    border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: var(--active);
+    color: white;
+    transition: all 0.2s;
+  }
+  .btn-modal-save:hover { background: var(--dark); }
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 18px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 1.3rem;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--dark); }
+</style>
+</head>
+<body>
+
+<!-- Auth checking overlay -->
+<div id="auth-checking">
+  <div class="auth-spinner"></div>
+  <p>Verifying access…</p>
+</div>
+
+<!-- Access denied screen -->
+<div id="access-denied">
+  <h2>Access Restricted</h2>
+  <p>This page is only available to Woodates administrators. Please log in with an admin account.</p>
+  <a href="index.html">← Back to Portal</a>
+</div>
+
+<header>
+  <div class="header-top">
+    <div class="brand">
+      <p>Woodates</p>
+      <h1>Leads</h1>
+    </div>
+    <div class="main-nav">
+      <div class="main-nav-tab active" onclick="switchMainNav('chyler', this)">Chyler Leads</div>
+      <div class="main-nav-tab" onclick="switchMainNav('woodates', this)">Woodates Leads</div>
+      <div class="main-nav-tab" onclick="switchMainNav('signed', this)">Chyler Signed</div>
+    </div>
+    <div class="header-actions">
+      <a href="index.html" class="btn-outline">← Home</a>
+    </div>
+  </div>
+  <div class="sub-nav" id="sub-nav-chyler">
+    <div class="sub-tab active" onclick="switchSubTab('pipeline', this)">Pipeline</div>
+    <div class="sub-tab" onclick="switchSubTab('progression', this)">Progression</div>
+    <div class="sub-tab" onclick="switchSubTab('masterlist', this)">Master List</div>
+  </div>
+  <div class="sub-nav" id="sub-nav-woodates" style="display:none">
+    <div class="sub-tab active" data-view="pipeline" onclick="switchWdtView('pipeline', this)">Pipeline</div>
+    <div class="sub-tab" data-view="progression" onclick="switchWdtView('progression', this)">Progression</div>
+    <div class="sub-tab" data-view="master" onclick="switchWdtView('master', this)">Master List</div>
+  </div>
+  <div class="sub-nav" id="sub-nav-signed" style="display:none"></div>
+</header>
+
+<!-- ══ PIPELINE PAGE ══ -->
+<div class="page active" id="page-pipeline">
+  <div class="page-header">
+    <div class="page-title">Active Pipeline</div>
+    <div class="page-subtitle">Kanban view — As of 11 Feb 2026</div>
+  </div>
+  <div class="status-filter-row">
+    <div class="status-filter-pill sf-all selected" onclick="setPipelineFilter('ALL', this)"><span class="pill-count" id="pill-count-all"></span>All</div>
+    <div class="status-filter-pill sf-active" onclick="setPipelineFilter('ACTIVE', this)"><span class="pill-count" id="pill-count-active"></span>Active</div>
+    <div class="status-filter-pill sf-signed" onclick="setPipelineFilter('SIGNED', this)"><span class="pill-count" id="pill-count-signed"></span>Signed</div>
+    <div class="status-filter-pill sf-lapsed" onclick="setPipelineFilter('LAPSED', this)"><span class="pill-count" id="pill-count-lapsed"></span>Lapsed</div>
+    <div class="status-filter-pill sf-keyco" onclick="setPipelineFilter('KEYCO', this)"><span class="pill-count" id="pill-count-keyco"></span>Key Collection</div>
+    <div class="status-filter-pill sf-reachout" onclick="setPipelineFilter('REACHOUT', this)">🔔 Reach Out</div>
+  </div>
+  <div class="filters">
+    <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterPipeline()" id="pipeline-search">
+    <select class="filter-select" onchange="filterPipeline()" id="pipeline-pm-filter">
+      <option value="">All PMs</option>
+    </select>
+    <select class="filter-select" onchange="filterPipeline()" id="pipeline-type-filter">
+      <option value="">All Types</option>
+    </select>
+  </div>
+
+  <!-- REACH OUT SECTION -->
+  <div id="section-reachout" style="display:none">
+    <div class="section-header">
+      <div class="section-label">
+        <div class="section-dot" style="background:#4A55A2"></div>
+        <span class="section-title" style="color:#4A55A2">Reach Out Now</span>
+        <span class="section-count" id="cnt-reachout"></span>
+      </div>
+    </div>
+    <div class="cards-grid" id="cards-reachout"></div>
+  </div>
+
+  <div id="section-active">
+  <div class="section-header">
+    <div class="section-label">
+      <div class="section-dot" style="background:var(--active)"></div>
+      <span class="section-title" style="color:var(--active)">Active Pipeline</span>
+      <span class="section-count" id="cnt-active"></span>
+    </div>
+  </div>
+  <div class="pipeline-wrap" id="kanban-active"></div>
+  </div>
+
+  <div id="section-keyco">
+  <div class="section-header">
+    <div class="section-label">
+      <div class="section-dot" style="background:var(--keyco)"></div>
+      <span class="section-title" style="color:var(--keyco)">Long Key Collection</span>
+      <span class="section-count" id="cnt-keyco"></span>
+    </div>
+    <button class="toggle-btn" onclick="toggleSection('keyco-body', this)">Hide</button>
+  </div>
+  <div class="collapsible-content" id="keyco-body" style="max-height:2000px">
+    <div class="cards-grid" id="cards-keyco"></div>
+  </div>
+  </div>
+
+  <div id="section-signed">
+  <div class="section-header">
+    <div class="section-label">
+      <div class="section-dot" style="background:var(--signed)"></div>
+      <span class="section-title" style="color:var(--signed)">Signed</span>
+      <span class="section-count" id="cnt-signed-pipeline"></span>
+    </div>
+    <button class="toggle-btn" onclick="toggleSection('signed-body-pipeline', this)">Hide</button>
+  </div>
+  <div class="collapsible-content" id="signed-body-pipeline" style="max-height:2000px">
+    <div class="cards-grid" id="cards-signed-pipeline"></div>
+  </div>
+  </div>
+
+  <div id="section-lapsed">
+  <div class="section-header">
+    <div class="section-label">
+      <div class="section-dot" style="background:var(--lapsed)"></div>
+      <span class="section-title" style="color:var(--lapsed)">Lapsed</span>
+      <span class="section-count" id="cnt-lapsed"></span>
+    </div>
+    <button class="toggle-btn" onclick="toggleSection('lapsed-body', this)">Hide</button>
+  </div>
+  <div class="collapsible-content" id="lapsed-body" style="max-height:9999px">
+    <div class="cards-grid" id="cards-lapsed"></div>
+  </div>
+  </div>
+</div>
+
+<!-- ══ PROGRESSION PAGE ══ -->
+<div class="page" id="page-progression">
+  <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div>
+      <div class="page-title">Progression</div>
+      <div class="page-subtitle">Full pipeline tracking — all columns A–T</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn-new-row" onclick="openNewRowModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New
+      </button>
+      <button class="btn-edit-toggle" id="edit-toggle-btn" onclick="toggleEditMode()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit
+      </button>
+      <button class="btn-download" onclick="downloadExcel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Excel
+      </button>
+    </div>
+  </div>
+
+  <div class="edit-banner" id="edit-banner">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Editing mode is on — click any cell to edit. Changes are local only.
+  </div>
+
+  <div class="filters">
+    <input class="search-box" type="text" placeholder="Search by name, phone, PM, status…" oninput="filterProgression()" id="prog-search">
+    <select class="filter-select" onchange="filterProgression()" id="prog-status-filter">
+      <option value="">All Statuses</option>
+      <option value="ACTIVE">Active</option>
+      <option value="SIGNED">Signed</option>
+      <option value="LAPSED">Lapsed</option>
+      <option value="LONG KEY COLLECTION">Long Key Collection</option>
+    </select>
+    <select class="filter-select" onchange="filterProgression()" id="prog-pm-filter">
+      <option value="">All PMs</option>
+    </select>
+  </div>
+
+  <div class="table-wrap" id="prog-table-wrap">
+    <table class="w-table" id="prog-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Source</th>
+          <th>Phone</th>
+          <th>Type</th>
+          <th>Name</th>
+          <th>Current Status</th>
+          <th>Comments</th>
+          <th>Responsive?</th>
+          <th>GC Created</th>
+          <th>PM</th>
+          <th>1st Meet</th>
+          <th>2D</th>
+          <th>Quotation</th>
+          <th>2nd Meet</th>
+          <th>Revised 2D</th>
+          <th>Revised Quot.</th>
+          <th>Site Visit</th>
+          <th>1st Deposit</th>
+          <th>2nd Deposit</th>
+          <th>Final Status</th>
+        </tr>
+      </thead>
+      <tbody id="prog-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ MASTER LIST PAGE ══ -->
+<div class="page" id="page-masterlist">
+  <div class="page-header">
+    <div class="page-title">Master List</div>
+    <div class="page-subtitle">91 leads — As of 11 Feb 2026</div>
+  </div>
+  <div class="filters">
+    <input class="search-box" type="text" placeholder="Search by name, phone, property type…" oninput="filterMaster()" id="master-search">
+    <select class="filter-select" onchange="filterMaster()" id="master-type-filter">
+      <option value="">All Property Types</option>
+    </select>
+  </div>
+  <div class="table-wrap" style="max-width:600px">
+    <table class="w-table" id="master-table">
+      <thead>
+        <tr>
+          <th style="width:40px">#</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Property Type</th>
+        </tr>
+      </thead>
+      <tbody id="master-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ WOODATES LEADS PAGE ══ -->
+<div class="page" id="page-woodates">
+  <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+    <div>
+      <div class="page-title">Woodates Company Leads</div>
+      <div class="page-subtitle">Pipeline tracking — As of 2 Feb 2026</div>
+    </div>
+  </div>
+
+  <!-- Sub-view tabs within Woodates are now in the main header sub-nav -->
+
+  <!-- ── WDT PIPELINE VIEW ── -->
+  <div id="wdt-view-pipeline">
+    <div class="status-filter-row">
+      <div class="status-filter-pill sf-all selected" onclick="setWdtPipelineFilter('ALL',this)"><span class="pill-count" id="wdt-pill-all"></span>All</div>
+      <div class="status-filter-pill sf-active" onclick="setWdtPipelineFilter('ACTIVE',this)"><span class="pill-count" id="wdt-pill-active"></span>Active</div>
+      <div class="status-filter-pill sf-signed" onclick="setWdtPipelineFilter('SIGNED',this)"><span class="pill-count" id="wdt-pill-signed"></span>Signed</div>
+      <div class="status-filter-pill sf-lapsed" onclick="setWdtPipelineFilter('LAPSED',this)"><span class="pill-count" id="wdt-pill-lapsed"></span>Lapsed</div>
+    </div>
+    <div class="filters">
+      <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterWdtPipeline()" id="wdt-pipeline-search">
+      <select class="filter-select" onchange="filterWdtPipeline()" id="wdt-pipeline-pm-filter">
+        <option value="">All PMs</option>
+      </select>
+      <select class="filter-select" onchange="filterWdtPipeline()" id="wdt-pipeline-type-filter">
+        <option value="">All Types</option>
+      </select>
+    </div>
+    <div id="wdt-section-active">
+      <div class="section-header">
+        <div class="section-label">
+          <div class="section-dot" style="background:var(--active)"></div>
+          <span class="section-title" style="color:var(--active)">Active Pipeline</span>
+          <span class="section-count" id="wdt-cnt-active"></span>
+        </div>
+      </div>
+      <div class="pipeline-wrap" id="wdt-kanban-active"></div>
+    </div>
+    <div id="wdt-section-signed">
+      <div class="section-header">
+        <div class="section-label">
+          <div class="section-dot" style="background:var(--signed)"></div>
+          <span class="section-title" style="color:var(--signed)">Signed</span>
+          <span class="section-count" id="wdt-cnt-signed"></span>
+        </div>
+        <button class="toggle-btn" onclick="toggleSection('wdt-signed-body',this)">Hide</button>
+      </div>
+      <div class="collapsible-content" id="wdt-signed-body" style="max-height:2000px">
+        <div class="cards-grid" id="wdt-cards-signed"></div>
+      </div>
+    </div>
+    <div id="wdt-section-lapsed">
+      <div class="section-header">
+        <div class="section-label">
+          <div class="section-dot" style="background:var(--lapsed)"></div>
+          <span class="section-title" style="color:var(--lapsed)">Lapsed</span>
+          <span class="section-count" id="wdt-cnt-lapsed"></span>
+        </div>
+        <button class="toggle-btn" onclick="toggleSection('wdt-lapsed-body',this)">Hide</button>
+      </div>
+      <div class="collapsible-content" id="wdt-lapsed-body" style="max-height:9999px">
+        <div class="cards-grid" id="wdt-cards-lapsed"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WDT PROGRESSION VIEW ── -->
+  <div id="wdt-view-progression" style="display:none">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+      <button class="btn-new-row" onclick="openWdtModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New
+      </button>
+      <button class="btn-edit-toggle" id="wdt-edit-toggle-btn" onclick="toggleWdtEditMode()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit
+      </button>
+      <button class="btn-download" onclick="downloadWdtExcel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Excel
+      </button>
+    </div>
+    <div class="edit-banner" id="wdt-edit-banner">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Editing mode is on — click any cell to edit. Changes are local only.
+    </div>
+    <div class="filters">
+      <input class="search-box" type="text" placeholder="Search by name, phone, PM, status…" oninput="filterWdtProgression()" id="wdt-prog-search">
+      <select class="filter-select" onchange="filterWdtProgression()" id="wdt-prog-status-filter">
+        <option value="">All Statuses</option>
+        <option value="ACTIVE">Active</option>
+        <option value="SIGNED">Signed</option>
+        <option value="LAPSED">Lapsed</option>
+      </select>
+      <select class="filter-select" onchange="filterWdtProgression()" id="wdt-prog-pm-filter">
+        <option value="">All PMs</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table class="w-table" id="wdt-prog-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Phone</th>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Current Stage</th>
+            <th>Comments</th>
+            <th>PM</th>
+            <th>Responsive?</th>
+            <th>GC Created</th>
+            <th>1st Meet</th>
+            <th>2D</th>
+            <th>1st Quote</th>
+            <th>2nd Meet</th>
+            <th>Revised 2D</th>
+            <th>Revised Quote</th>
+            <th>Site Visit</th>
+            <th>1st Deposit</th>
+            <th>2nd Deposit</th>
+          </tr>
+        </thead>
+        <tbody id="wdt-prog-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── WDT MASTER VIEW ── -->
+  <div id="wdt-view-master" style="display:none">
+    <div class="filters">
+      <input class="search-box" type="text" placeholder="Search by name, phone, property type…" oninput="filterWdtMaster()" id="wdt-master-search">
+      <select class="filter-select" onchange="filterWdtMaster()" id="wdt-master-type-filter">
+        <option value="">All Property Types</option>
+      </select>
+    </div>
+    <div class="table-wrap" style="max-width:600px">
+      <table class="w-table">
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Property Type</th>
+          </tr>
+        </thead>
+        <tbody id="wdt-master-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WOODATES SIGNED PAGE ══ -->
+<div class="page" id="page-woodates-signed">
+  <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:28px">
+    <div>
+      <div class="page-title">Chyler × Woodates Signed</div>
+      <div class="page-subtitle">Signed clients — deposit tracking</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn-download" onclick="downloadSignedExcel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Excel
+      </button>
+      <button class="btn-new-row" onclick="openSignedModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Client
+      </button>
+    </div>
+  </div>
+
+  <div class="stat-row" id="signed-stat-row"></div>
+
+  <div class="table-wrap" style="max-width:700px">
+    <table class="w-table">
+      <thead>
+        <tr>
+          <th style="width:40px">#</th>
+          <th>Year</th>
+          <th>Name</th>
+          <th>Deposit 1</th>
+          <th>Deposit 2</th>
+        </tr>
+      </thead>
+      <tbody id="signed-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ WDT ADD ROW MODAL ══ -->
+<div class="modal-overlay" id="wdt-row-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeWdtModal()">✕</button>
+    <div class="modal-title">Add Woodates Lead</div>
+    <div class="modal-grid">
+      <div class="modal-field">
+        <label>Date</label>
+        <input type="text" id="wdt-new-date" placeholder="e.g. 20 Feb 2026">
+      </div>
+      <div class="modal-field">
+        <label>Phone</label>
+        <input type="text" id="wdt-new-phone" placeholder="e.g. 91234567">
+      </div>
+      <div class="modal-field">
+        <label>Property Type</label>
+        <select id="wdt-new-type">
+          <option value="">—</option>
+          <option>BTO</option><option>Resale</option><option>EC</option><option>Condo</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Name</label>
+        <input type="text" id="wdt-new-name" placeholder="Client name">
+      </div>
+      <div class="modal-field">
+        <label>PM</label>
+        <input type="text" id="wdt-new-pm" placeholder="e.g. QUEENIE">
+      </div>
+      <div class="modal-field">
+        <label>Status</label>
+        <select id="wdt-new-status">
+          <option value="ACTIVE">Active</option>
+          <option value="SIGNED">Signed</option>
+          <option value="LAPSED">Lapsed</option>
+        </select>
+      </div>
+      <div class="modal-field span-2">
+        <label>Comments</label>
+        <input type="text" id="wdt-new-comments" placeholder="Optional notes">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeWdtModal()">Cancel</button>
+      <button class="btn-modal-save" onclick="saveWdtRow()">Add Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SIGNED ADD MODAL ══ -->
+<div class="modal-overlay" id="signed-add-modal">
+  <div class="modal-box" style="max-width:420px">
+    <button class="modal-close" onclick="closeSignedModal()">✕</button>
+    <div class="modal-title">Add Signed Client</div>
+    <div class="modal-grid">
+      <div class="modal-field">
+        <label>Year</label>
+        <input type="number" id="signed-new-year" value="2026" min="2020" max="2030">
+      </div>
+      <div class="modal-field">
+        <label>Name</label>
+        <input type="text" id="signed-new-name" placeholder="Client name">
+      </div>
+      <div class="modal-field">
+        <label>Deposit 1</label>
+        <select id="signed-new-dep1">
+          <option value="">—</option>
+          <option>PAID</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Deposit 2</label>
+        <select id="signed-new-dep2">
+          <option value="">—</option>
+          <option>PAID</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeSignedModal()">Cancel</button>
+      <button class="btn-modal-save" onclick="saveSignedRow()">Add Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD ROW MODAL ══ -->
+<div class="modal-overlay" id="new-row-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeNewRowModal()">✕</button>
+    <div class="modal-title">Add New Lead</div>
+    <div class="modal-grid">
+      <div class="modal-field">
+        <label>Date</label>
+        <input type="text" id="new-date" placeholder="e.g. 20 Feb 2026">
+      </div>
+      <div class="modal-field">
+        <label>Source</label>
+        <input type="text" id="new-source" placeholder="e.g. Ad">
+      </div>
+      <div class="modal-field">
+        <label>Phone</label>
+        <input type="text" id="new-phone" placeholder="e.g. 91234567">
+      </div>
+      <div class="modal-field">
+        <label>Property Type</label>
+        <select id="new-type">
+          <option value="">— Select —</option>
+          <option>BTO</option>
+          <option>Resale</option>
+          <option>Condo</option>
+          <option>EC</option>
+          <option>Resale</option>
+          <option>Bungalow</option>
+          <option>Current</option>
+        </select>
+      </div>
+      <div class="modal-field span-2">
+        <label>Name *</label>
+        <input type="text" id="new-name" placeholder="Customer name">
+      </div>
+      <div class="modal-field span-2">
+        <label>Comments</label>
+        <input type="text" id="new-comments" placeholder="Any notes…">
+      </div>
+      <div class="modal-field">
+        <label>Final Status</label>
+        <select id="new-status">
+          <option value="ACTIVE">Active</option>
+          <option value="LAPSED">Lapsed</option>
+          <option value="SIGNED">Signed</option>
+          <option value="LONG KEY COLLECTION">Long Key Collection</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Stage</label>
+        <select id="new-stage">
+          <option value="New Lead">New Lead</option>
+          <option value="Responsive">Responsive</option>
+          <option value="GC Created">GC Created</option>
+          <option value="1st Meeting">1st Meeting</option>
+          <option value="2D">2D</option>
+          <option value="Quotation">Quotation</option>
+          <option value="2nd Meeting">2nd Meeting</option>
+          <option value="Revised 2D">Revised 2D</option>
+          <option value="Revised Quotation">Revised Quotation</option>
+          <option value="Site Visit">Site Visit</option>
+          <option value="1st Deposit">1st Deposit</option>
+          <option value="2nd Deposit">2nd Deposit</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeNewRowModal()">Cancel</button>
+      <button class="btn-modal-save" onclick="saveNewRow()">Add Lead</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SUPABASE ADMIN AUTH GUARD ──
+(async function() {
+  const { createClient } = supabase;
+  const _supabase = createClient(
+    'https://ilytehukqrkwpupdpkgo.supabase.co',
+    'sb_publishable_tNMpLdZaqm0e-El_LP4kKg_fhfj-ARF'
+  );
+
+  const authChecking = document.getElementById('auth-checking');
+  const accessDenied = document.getElementById('access-denied');
+
+  try {
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (!session) {
+      authChecking.style.display = 'none';
+      accessDenied.style.display = 'flex';
+      return;
+    }
+    const { data: profile } = await _supabase
+      .from('profiles')
+      .select('role, full_name')
+      .eq('id', session.user.id)
+      .single();
+
+    if (!profile || profile.role !== 'admin') {
+      authChecking.style.display = 'none';
+      accessDenied.style.display = 'flex';
+      return;
+    }
+
+    // Access granted — show the page
+    authChecking.style.display = 'none';
+    document.body.style.display = 'block';
+  } catch(e) {
+    authChecking.style.display = 'none';
+    accessDenied.style.display = 'flex';
+  }
+})();
+
+// ── DATA ──
+const CHYLER_DATA = [{"Date":"01 Jan 2026","Number":2,"Source":"Ad","Phone":91910069,"Type":"Current","Name":"Rose","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"02 Jan 2026","Number":3,"Source":"Ad","Phone":85991413,"Type":"BTO","Name":"Mark","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"04 Jan 2026","Number":5,"Source":"Ad","Phone":96886932,"Type":"Condo","Name":"YQ","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Customer don\u2019t want to provide correct floor plan","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"04 Jan 2026","Number":6,"Source":"Ad","Phone":90119256,"Type":"BTO","Name":"SiMin","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Customer wants 3D render before deposit","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"05 Jan 2026","Number":8,"Source":"Ad","Phone":81185205,"Type":"BTO","Name":"Kasim","Responsive?":"YES","GC created":"YES","PM":"XUEQI","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":"YES","Revised 2D":"YES","Revised Quotation":"YES","Site visit":"NO","Comments":null,"1st Deposit":"YES","2nd Deposit":null,"FINAL STATUS":"SIGNED","stage":"1st Deposit"},{"Date":"05 Jan 2026","Number":9,"Source":"Ad","Phone":92370923,"Type":"Resale","Name":"Hana","Responsive?":"NO","GC created":"YES","PM":"BOSS CHONG","1st meet":"NO","2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Customer change of renovation plans","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"GC Created"},{"Date":"06 Jan 2026","Number":10,"Source":"Ad","Phone":87920605,"Type":"BTO","Name":"WaWa","Responsive?":"YES","GC created":"YES","PM":"QUEENIE","1st meet":"YES","2D":"YES","Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Customer not responsive after preliminary call","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"2D"},{"Date":"06 Jan 2026","Number":11,"Source":"Ad","Phone":88625848,"Type":"BTO","Name":"Yun Wen","Responsive?":"YES","GC created":"YES","PM":"XUEQI","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Customer moved to competitor","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"Quotation"},{"Date":"08 Jan 2026","Number":12,"Source":"Ad","Phone":96874495,"Type":"BTO","Name":"Aletheia","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Customer key collection Q1 2027","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"New Lead"},{"Date":"08 Jan 2026","Number":13,"Source":"Ad","Phone":87211980,"Type":"BTO","Name":"Lucas","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Customer key collection Q1 2028","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"New Lead"},{"Date":"09 Jan 2026","Number":14,"Source":"Ad","Phone":87884799,"Type":"BTO","Name":"Jacky","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"07 Jan 2026","Number":15,"Source":"Ad","Phone":93890756,"Type":"BTO","Name":"MingWei","Responsive?":"NO","GC created":"YES","PM":"XUEQI","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Customer moved to competitor","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"Quotation"},{"Date":"09 Jan 2026","Number":16,"Source":"Ad","Phone":91019940,"Type":"BTO","Name":"Arliana","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Min Spend < $5k","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"11 Jan 2026","Number":17,"Source":"Ad","Phone":87675695,"Type":"BTO","Name":"Ameera","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Customer key collection Q4 2027","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"New Lead"},{"Date":"10 Jan 2026","Number":18,"Source":"Ad","Phone":90886770,"Type":"BTO","Name":"Alan Lau","Responsive?":"YES","GC created":"YES","PM":"PENGFEI","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":"YES","Revised 2D":"YES","Revised Quotation":"YES","Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"Revised Quotation"},{"Date":"11 Jan 2026","Number":19,"Source":"Ad","Phone":81630703,"Type":"Resale","Name":"Mel","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"12 Jan 2026","Number":20,"Source":"Ad","Phone":97231378,"Type":"BTO","Name":"Joanne","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Customer key collection Q4 2026","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"New Lead"},{"Date":"09 Jan 2026","Number":21,"Source":"Ad","Phone":81803560,"Type":"BTO","Name":"Fun","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Customer key collection Q2 2027","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"New Lead"},{"Date":"12 Jan 2026","Number":22,"Source":"Ad","Phone":97938763,"Type":"BTO","Name":"Adrian","Responsive?":"YES","GC created":"YES","PM":"QUEENIE","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"SIGNED","stage":"Quotation"},{"Date":"12 Jan 2026","Number":23,"Source":"Ad","Phone":86535024,"Type":"BTO","Name":"Jasmine","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"SBF, cannot locate floorplan in SingPass","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"07 Jan 2026","Number":24,"Source":"Ad","Phone":97570544,"Type":"Resale","Name":"Teesha","Responsive?":"YES","GC created":null,"PM":"BOSS CHONG","1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Pending partial quotation","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"Responsive"},{"Date":"12 Jan 2026","Number":25,"Source":"Ad","Phone":97479320,"Type":"Resale","Name":"Ily","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"15 Jan 2026","Number":26,"Source":"Ad","Phone":96563892,"Type":"BTO","Name":"Kenneth","Responsive?":"YES","GC created":"YES","PM":"XUEQI","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":"YES","Revised 2D":"YES","Revised Quotation":"YES","Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"Revised Quotation"},{"Date":"15 Jan 2026","Number":27,"Source":"Ad","Phone":96326559,"Type":"BTO","Name":"Joy","Responsive?":"NO","GC created":"YES","PM":"QUEENIE","1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"GC Created"},{"Date":"16 Jan 2026","Number":28,"Source":"Ad","Phone":91594495,"Type":"BTO","Name":"Stefie Chia","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Customer key collection Q4 2026","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"New Lead"},{"Date":"18 Jan 2026","Number":29,"Source":"Ad","Phone":98470470,"Type":"BTO","Name":"Krissy","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Customer key collection Q4 2026","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"New Lead"},{"Date":"11 Jan 2026","Number":30,"Source":"Ad","Phone":87831491,"Type":"Resale","Name":"Esmie","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"15 Jan 2026","Number":31,"Source":"Ad","Phone":98566883,"Type":"BTO","Name":"Eric","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"08 Jan 2026","Number":32,"Source":"Ad","Phone":91849022,"Type":"BTO","Name":"Shawal","Responsive?":"YES","GC created":"YES","PM":"QUEENIE","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Moved to competitor","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"Quotation"},{"Date":"21 Jan 2026","Number":33,"Source":"Ad","Phone":91099209,"Type":"BTO","Name":"William","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"22 Jan 2026","Number":34,"Source":"Ad","Phone":96487166,"Type":"BTO","Name":"Construction","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"20 Jan 2026","Number":35,"Source":"Ad","Phone":81614001,"Type":"BTO","Name":"Aaron","Responsive?":"YES","GC created":"YES","PM":"QUEENIE","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"Quotation"},{"Date":"20 Jan 2026","Number":36,"Source":"Ad","Phone":98310669,"Type":"BTO","Name":"Dominic","Responsive?":"YES","GC created":"YES","PM":"QUEENIE","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":"YES","Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"SIGNED","stage":"2nd Meeting"},{"Date":"20 Jan 2026","Number":37,"Source":"Ad","Phone":91878995,"Type":"BTO","Name":"Yana","Responsive?":"YES","GC created":"YES","PM":"PENGFEI","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"Quotation"},{"Date":"22 Jan 2026","Number":38,"Source":"Ad","Phone":84982194,"Type":"Resale","Name":"LeeKee","Responsive?":"YES","GC created":"YES","PM":"SHAN","1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"GC Created"},{"Date":"25 Jan 2026","Number":39,"Source":"Ad","Phone":87009331,"Type":"BTO","Name":"Doreen","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"23 Jan 2026","Number":40,"Source":"Ad","Phone":83332661,"Type":null,"Name":"Alson","Responsive?":"YES","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"looking for carpenter provider, passed him Chong's number","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"Responsive"},{"Date":"03 Jan 2026","Number":41,"Source":"Ad","Phone":87781660,"Type":"BTO","Name":"Chin Yee","Responsive?":"YES","GC created":"YES","PM":"XUEQI","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":"YES","Revised 2D":"YES","Revised Quotation":"YES","Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"Revised Quotation"},{"Date":"23 Jan 2026","Number":42,"Source":"Ad","Phone":83681815,"Type":"BTO","Name":"Dareios","Responsive?":"NO","GC created":"YES","PM":"XUEQI","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"Quotation"},{"Date":"24 Jan 2026","Number":43,"Source":"Ad","Phone":90309093,"Type":"BTO","Name":"Sky","Responsive?":"YES","GC created":"YES","PM":"QUEENIE","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Moved to competitor","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"Quotation"},{"Date":"26 Jan 2026","Number":44,"Source":"Ad","Phone":91715758,"Type":"BTO","Name":"Timothea","Responsive?":"YES","GC created":"YES","PM":"QUEENIE","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Moved to competitor","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"Quotation"},{"Date":"26 Jan 1900","Number":45,"Source":"Ad","Phone":83288915,"Type":"BTO","Name":"Lysha","Responsive?":"YES","GC created":"YES","PM":"QUEENIE","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":"SCHEDULED","Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"Quotation"},{"Date":"25 Jan 2026","Number":46,"Source":"Ad","Phone":92976611,"Type":"BTO","Name":"FangLing","Responsive?":"YES","GC created":"NO","PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Does not want to join GC. Balia","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"Responsive"},{"Date":"27 Jan 2026","Number":47,"Source":"Ad","Phone":91013901,"Type":"BTO","Name":"Jia Le","Responsive?":"YES","GC created":"YES","PM":"QUEENIE","1st meet":"SCHEDULED","2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Pending floor plan","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"GC Created"},{"Date":"27 Jan 2026","Number":48,"Source":"Ad","Phone":81124522,"Type":"BTO","Name":"Aibo","Responsive?":"YES","GC created":"YES","PM":"QUEENIE","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Pending floor plan","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"Quotation"},{"Date":"28 Jan 2026","Number":49,"Source":"Ad","Phone":96343371,"Type":"BTO","Name":"Qing Hao","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Does not want to join GC. Long key collection","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"New Lead"},{"Date":"28 Jan 2026","Number":50,"Source":"Ad","Phone":87532512,"Type":"Resale","Name":"Hadi","Responsive?":null,"GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"28 Jan 2026","Number":51,"Source":"Ad","Phone":93380868,"Type":"BTO","Name":"Anita","Responsive?":"YES","GC created":"YES","PM":"XUEQI","1st meet":"YES","2D":"PENDING","Quotation":"PENDING","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"1st Meeting"},{"Date":"27 Jan 2026","Number":52,"Source":"Ad","Phone":84245578,"Type":"Resale","Name":"Chandhi","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"28 Jan 2026","Number":53,"Source":"Ad","Phone":97689238,"Type":"BTO","Name":"Chern Yung","Responsive?":"YES","GC created":"YES","PM":"XUEQI","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"Quotation"},{"Date":"29 Jan 2026","Number":54,"Source":"Ad","Phone":84345251,"Type":"Resale","Name":"XY Stella","Responsive?":"YES","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Wants modifications on existing carpentry","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"Responsive"},{"Date":"29 Jan 2026","Number":55,"Source":"Ad","Phone":96188672,"Type":"BTO","Name":"MeiYi","Responsive?":"NO","GC created":"YES","PM":"XUEQI","1st meet":"YES","2D":"YES","Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"2D"},{"Date":"29 Jan 2026","Number":56,"Source":"Ad","Phone":97237771,"Type":"BTO","Name":"Sharena","Responsive?":"YES","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Key collection Q2 2027","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"Responsive"},{"Date":"29 Jan 2026","Number":57,"Source":"Ad","Phone":98796426,"Type":"BTO","Name":"Kelvin","Responsive?":"NO","GC created":"YES","PM":"XUEQI","1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"GC Created"},{"Date":"29 Jan 2026","Number":58,"Source":"Ad","Phone":88428099,"Type":"BTO","Name":"Naz","Responsive?":null,"GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Key Collection Q4 2026","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"New Lead"},{"Date":"30 Jan 2026","Number":59,"Source":"Ad","Phone":98527959,"Type":"BTO","Name":"Charmyne","Responsive?":null,"GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Key Collection Q3 2027","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"New Lead"},{"Date":"30 Jan 2026","Number":60,"Source":"Ad","Phone":91525865,"Type":"Resale","Name":"Javier","Responsive?":null,"GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Less than < 5k","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"31 Jan 2026","Number":61,"Source":"Ad","Phone":96202266,"Type":"BTO","Name":"Rani","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"01 Feb 2026","Number":62,"Source":"Ad","Phone":88698191,"Type":"BTO","Name":"Derek","Responsive?":"YES","GC created":"YES","PM":"QUEENIE","1st meet":"YES","2D":"YES","Quotation":"YES","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"Quotation"},{"Date":"01 Feb 2026","Number":63,"Source":"Ad","Phone":97563961,"Type":"BTO","Name":"Stacey","Responsive?":"YES","GC created":"YES","PM":"XUEQI","1st meet":"YES","2D":"PENDING","Quotation":"PENDING","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"1st Meeting"},{"Date":"01 Feb 2026","Number":64,"Source":"Ad","Phone":90902090,"Type":"BTO","Name":"Joreen","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"01 Feb 2026","Number":65,"Source":"Ad","Phone":98569227,"Type":"BTO","Name":"Zuri (DMZ)","Responsive?":"NO","GC created":"WAITING FOR CUSTOMER ACCEPTANCE","PM":"PENGFEI","1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"No longer wants quote","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"31 Jan 2026","Number":66,"Source":"Ad","Phone":81680355,"Type":"EC","Name":"Zhao Hong","Responsive?":"NO","GC created":"YES","PM":"SHAN","1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"GC Created"},{"Date":"03 Feb 2026","Number":67,"Source":"Ad","Phone":91372718,"Type":"Resale","Name":"Yong","Responsive?":"YES","GC created":"YES","PM":"SHAN","1st meet":"SCHEDULED","2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"GC Created"},{"Date":"04 Feb 2026","Number":68,"Source":"Ad","Phone":97538730,"Type":"Resale","Name":"Shannon","Responsive?":"YES","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Less than < 5k","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"Responsive"},{"Date":"07 Feb 2026","Number":69,"Source":"Ad","Phone":81894282,"Type":"BTO","Name":"Cheryl","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"07 Feb 2026","Number":70,"Source":"Ad","Phone":91812048,"Type":"BTO","Name":"Amanda","Responsive?":"YES","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Key Collection Q4 2026","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"Responsive"},{"Date":"08 Feb 2026","Number":71,"Source":"Ad","Phone":81012346,"Type":"BTO","Name":"Farah","Responsive?":"YES","GC created":"YES","PM":"XUEQI","1st meet":"SCHEDULED","2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"GC Created"},{"Date":"08 Feb 2026","Number":72,"Source":"Ad","Phone":90038355,"Type":"BTO","Name":"Eileen","Responsive?":"NO","GC created":"YES","PM":"XUEQI","1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"GC Created"},{"Date":"07 Feb 2026","Number":73,"Source":"Ad","Phone":97848194,"Type":"EC","Name":"Lorelle","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"06 Feb 2026","Number":74,"Source":"Ad","Phone":92221652,"Type":"BTO","Name":"Emilia","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"08 Feb 2026","Number":75,"Source":"Ad","Phone":91596389,"Type":null,"Name":"Claudia","Responsive?":"YES","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Only asked about coveless light. < 5k","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"Responsive"},{"Date":"08 Feb 2026","Number":76,"Source":"Ad","Phone":81897412,"Type":"BTO","Name":"Benz (Petta)","Responsive?":"YES","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Key Collection Q3 2027","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"Responsive"},{"Date":"09 Feb 2026","Number":77,"Source":"Ad","Phone":90500906,"Type":"BTO","Name":"MHKNNZ (Hasyir)","Responsive?":"YES","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Key Collection Q2 2027","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"Responsive"},{"Date":"07 Feb 2026","Number":78,"Source":"Ad","Phone":90606578,"Type":"BTO","Name":"PK (Ho)","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"\"I'll revert if I'm keen\"","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"05 Feb 2026","Number":79,"Source":"Ad","Phone":92343322,"Type":"BTO","Name":"Solihin (Sol)","Responsive?":"YES","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Key Collection Q1 2027","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"Responsive"},{"Date":"09 Feb 2026","Number":80,"Source":"Ad","Phone":97225780,"Type":"BTO","Name":"Mamat","Responsive?":"YES","GC created":"YES","PM":"XUEQI","1st meet":"SCHEDULED","2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"GC Created"},{"Date":"09 Feb 2026","Number":81,"Source":"Ad","Phone":82890375,"Type":null,"Name":"Peng Phin","Responsive?":"YES","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Only asked about coveless light. < 5k","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"Responsive"},{"Date":"09 Feb 2026","Number":82,"Source":"Ad","Phone":90683398,"Type":"BTO","Name":"Zayd","Responsive?":"YES","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Key Collection Q2 2027","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LONG KEY COLLECTION","stage":"Responsive"},{"Date":"10 Feb 2026","Number":83,"Source":"Ad","Phone":83809889,"Type":"Bungalow","Name":"Ms Vicky","Responsive?":"YES","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":"Pending drawn out floorplan","1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"Responsive"},{"Date":"05 Feb 2026","Number":84,"Source":"Ad","Phone":81769626,"Type":"BTO","Name":"Kelly Ying Fen","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"07 Feb 2026","Number":85,"Source":"Ad","Phone":81894282,"Type":"BTO","Name":"Cheryl","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"02 Feb 2026","Number":86,"Source":"Ad","Phone":86862324,"Type":"Condo","Name":"XiuEr","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"06 Feb 2026","Number":87,"Source":"Ad","Phone":90214856,"Type":"BTO","Name":"JFLim (Jenn Feng)","Responsive?":"YES","GC created":"YES","PM":"XUEQI","1st meet":"SCHEDULED","2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"GC Created"},{"Date":"09 Feb 2026","Number":88,"Source":"Ad","Phone":90288474,"Type":"Condo","Name":"Nisha","Responsive?":"YES","GC created":"YES","PM":"SHAN","1st meet":"YES","2D":"PENDING","Quotation":"PENDING","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"1st Meeting"},{"Date":"07 Feb 2026","Number":89,"Source":"Ad","Phone":98746560,"Type":"BTO","Name":"Raj Krish","Responsive?":"YES","GC created":"YES","PM":"XUEQI","1st meet":"YES","2D":"PENDING","Quotation":"PENDING","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"1st Meeting"},{"Date":"09 Feb 2026","Number":90,"Source":"Ad","Phone":80534066,"Type":"BTO","Name":"Renuga Sarawana","Responsive?":"YES","GC created":"NO","PM":"SHAN","1st meet":null,"2D":"PENDING","Quotation":"PENDING","2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"Responsive"},{"Date":"10 Feb 2026","Number":91,"Source":"Ad","Phone":81335699,"Type":"Resale","Name":"Jimmy Ng","Responsive?":"YES","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"Responsive"},{"Date":"10 Feb 2026","Number":92,"Source":"Ad","Phone":85002588,"Type":"Resale","Name":"Ray","Responsive?":"YES","GC created":"YES","PM":"SHAN","1st meet":"SCHEDULED","2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"GC Created"},{"Date":"08 Feb 2026","Number":93,"Source":"Ad","Phone":81610851,"Type":null,"Name":"Mrs Law","Responsive?":"NO","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"LAPSED","stage":"New Lead"},{"Date":"11 Feb 2026","Number":94,"Source":"Ad","Phone":97453128,"Type":null,"Name":"Cathrine","Responsive?":"YES","GC created":null,"PM":null,"1st meet":null,"2D":null,"Quotation":null,"2nd meet":null,"Revised 2D":null,"Revised Quotation":null,"Site visit":null,"Comments":null,"1st Deposit":null,"2nd Deposit":null,"FINAL STATUS":"ACTIVE","stage":"Responsive"}];
+
+const PIPELINE_STAGES = ['Responsive','GC Created','1st Meeting','2D','Quotation','2nd Meeting','Revised 2D','Revised Quotation','Site Visit','1st Deposit','2nd Deposit'];
+const PIPELINE_STEPS  = ['Responsive?','GC created','1st meet','2D','Quotation','2nd meet','Revised 2D','Revised Quotation','Site visit','1st Deposit','2nd Deposit'];
+const STAGE_ORDER = {'New Lead':0,'Responsive':1,'GC Created':2,'1st Meeting':3,'2D':4,'Quotation':5,'2nd Meeting':6,'Revised 2D':7,'Revised Quotation':8,'Site Visit':9,'1st Deposit':10,'2nd Deposit':11};
+
+let editMode = false;
+let currentPipelineFilter = 'ALL';
+
+function getProgress(stage) { return Math.round(((STAGE_ORDER[stage]||0)/11)*100); }
+function esc(s) { if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function cellVal(v) {
+  if(v===null||v===undefined||v==='') return '<span style="color:#CCC">—</span>';
+  const u = String(v).toUpperCase();
+  if(u==='YES') return `<span class="cell-yes">✓ YES</span>`;
+  if(u==='NO') return `<span class="cell-no">✗ NO</span>`;
+  if(u==='PENDING') return `<span class="cell-pending">Pending</span>`;
+  if(u==='SCHEDULED') return `<span class="cell-scheduled">Scheduled</span>`;
+  return esc(v);
 }
+
+// Parse key collection quarter from comments string
+function parseKeyCollectionQuarter(comments) {
+  if(!comments) return null;
+  const m = comments.match(/Q([1-4])\s+(\d{4})/i);
+  if(!m) return null;
+  return { q: parseInt(m[1]), year: parseInt(m[2]) };
+}
+
+// Is it now 1 quarter before the given Q/year?
+function isReachOutNow(kc) {
+  if(!kc) return false;
+  const now = new Date();
+  const nowQ = Math.floor(now.getMonth() / 3) + 1;
+  const nowYear = now.getFullYear();
+  // One quarter before
+  let targetQ = kc.q - 1;
+  let targetYear = kc.year;
+  if(targetQ === 0) { targetQ = 4; targetYear -= 1; }
+  return nowQ === targetQ && nowYear === targetYear;
+}
+
+// ── PIPELINE FILTER ──
+let pipelineFiltered = [...CHYLER_DATA];
+
+function setPipelineFilter(status, el) {
+  currentPipelineFilter = status;
+  document.querySelectorAll('.status-filter-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  applyPipelineSectionVisibility();
+}
+
+function applyPipelineSectionVisibility() {
+  const f = currentPipelineFilter;
+  const sections = {
+    'section-reachout': f === 'ALL' || f === 'REACHOUT',
+    'section-active':   f === 'ALL' || f === 'ACTIVE',
+    'section-signed':   f === 'ALL' || f === 'SIGNED',
+    'section-lapsed':   f === 'ALL' || f === 'LAPSED',
+    'section-keyco':    f === 'ALL' || f === 'KEYCO',
+  };
+  Object.entries(sections).forEach(([id, show]) => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = show ? '' : 'none';
+  });
+}
+
+function initPipeline() {
+  const pms = [...new Set(CHYLER_DATA.map(r=>r.PM).filter(Boolean))].sort();
+  pms.forEach(pm => {
+    const o=document.createElement('option'); o.value=pm; o.textContent=pm;
+    document.getElementById('pipeline-pm-filter').appendChild(o);
+  });
+  const types = [...new Set(CHYLER_DATA.map(r=>r.Type).filter(Boolean))].sort();
+  types.forEach(t => {
+    const o=document.createElement('option'); o.value=t; o.textContent=t;
+    document.getElementById('pipeline-type-filter').appendChild(o);
+  });
+  renderPipeline(CHYLER_DATA);
+}
+
+function filterPipeline() {
+  const q = document.getElementById('pipeline-search').value.toLowerCase();
+  const pm = document.getElementById('pipeline-pm-filter').value;
+  const type = document.getElementById('pipeline-type-filter').value;
+  renderPipeline(CHYLER_DATA.filter(r => {
+    const matchQ = !q || [r.Name, r.Phone+'', r.PM, r.Comments, r.Type].some(v=>v&&v.toLowerCase().includes(q));
+    return matchQ && (!pm||r.PM===pm) && (!type||r.Type===type);
+  }));
+}
+
+function renderPipeline(data) {
+  const active=data.filter(r=>r['FINAL STATUS']==='ACTIVE');
+  const signed=data.filter(r=>r['FINAL STATUS']==='SIGNED');
+  const lapsed=data.filter(r=>r['FINAL STATUS']==='LAPSED');
+  const keyco =data.filter(r=>r['FINAL STATUS']==='LONG KEY COLLECTION');
+
+  // Reach out: Long Key Collection customers whose key collection is next quarter
+  const reachout = keyco.filter(r => {
+    const kc = parseKeyCollectionQuarter(r.Comments);
+    return isReachOutNow(kc);
+  });
+
+  document.getElementById('pill-count-all').textContent    = data.length;
+  document.getElementById('pill-count-active').textContent = active.length;
+  document.getElementById('pill-count-signed').textContent = signed.length;
+  document.getElementById('pill-count-lapsed').textContent = lapsed.length;
+  document.getElementById('pill-count-keyco').textContent  = keyco.length;
+  document.getElementById('cnt-active').textContent = active.length;
+  document.getElementById('cnt-keyco').textContent  = keyco.length;
+  document.getElementById('cnt-signed-pipeline').textContent = signed.length;
+  document.getElementById('cnt-lapsed').textContent = lapsed.length;
+  document.getElementById('cnt-reachout').textContent = reachout.length;
+
+  const kanban = document.getElementById('kanban-active');
+  const stageGroups = {}; PIPELINE_STAGES.forEach(s=>stageGroups[s]=[]); stageGroups['New Lead']=[];
+  active.forEach(r=>{ const s=r.stage||'New Lead'; if(!stageGroups[s]) stageGroups[s]=[]; stageGroups[s].push(r); });
+  kanban.innerHTML = Object.entries(stageGroups).filter(([,a])=>a.length>0).map(([stage,leads])=>`
+    <div class="stage-col">
+      <div class="stage-col-header"><span class="stage-num">${leads.length}</span>${stage}</div>
+      ${leads.map(r=>activeCard(r)).join('')}
+    </div>`).join('');
+
+  document.getElementById('cards-reachout').innerHTML = reachout.map(r=>reachoutCard(r)).join('');
+  document.getElementById('cards-keyco').innerHTML = keyco.map(r=>keycoCard(r)).join('');
+  document.getElementById('cards-signed-pipeline').innerHTML = signed.map(r=>miniSignedCard(r)).join('');
+  document.getElementById('cards-lapsed').innerHTML = lapsed.map(r=>lapsedCard(r)).join('');
+
+  applyPipelineSectionVisibility();
+}
+
+function goToProgression(name) {
+  // Switch to Chyler Leads section first
+  document.querySelectorAll('.main-nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.main-nav-tab')[0].classList.add('active');
+  document.getElementById('sub-nav-chyler').style.display='flex';
+  document.getElementById('sub-nav-woodates').style.display='none';
+  document.getElementById('sub-nav-signed').style.display='none';
+  // Switch to progression tab
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#sub-nav-chyler .sub-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-progression').classList.add('active');
+  document.querySelectorAll('#sub-nav-chyler .sub-tab').forEach(t=>{ if(t.textContent.trim()==='Progression') t.classList.add('active'); });
+  // Scroll to row
+  setTimeout(() => {
+    const rows = document.querySelectorAll('#prog-tbody tr');
+    for(const row of rows) {
+      const nameCell = row.querySelector('td:nth-child(6)');
+      if(nameCell && nameCell.textContent.trim() === name) {
+        row.style.background = '#FFF8EE';
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => { row.style.background = ''; }, 2500);
+        break;
+      }
+    }
+  }, 80);
+}
+
+function activeCard(r) {
+  const pct = getProgress(r.stage);
+  return `<div class="card active-card" onclick="goToProgression('${esc(r.Name)}')" style="cursor:pointer">
+    <div class="card-name">${esc(r.Name)}</div>
+    <div class="card-meta">
+      ${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}
+      ${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:''}
+      <span class="tag">${esc(r.stage)}</span>
+    </div>
+    <div class="card-phone">${r.Phone}</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    ${r.Comments?`<div class="card-comment">${esc(r.Comments)}</div>`:''}
+    <div class="card-date">${r.Date}</div>
+  </div>`;
+}
+function reachoutCard(r) {
+  const kc = parseKeyCollectionQuarter(r.Comments);
+  const kcStr = kc ? `Q${kc.q} ${kc.year}` : '';
+  return `<div class="card reachout-card" onclick="goToProgression('${esc(r.Name)}')" style="cursor:pointer">
+    <div class="reachout-badge">🔔 Reach Out Now</div>
+    <div class="card-name">${esc(r.Name)}</div>
+    <div class="card-meta">${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}</div>
+    <div class="card-phone">${r.Phone}</div>
+    ${kcStr?`<div class="card-date" style="color:#4A55A2;font-weight:600">Key Collection: ${kcStr}</div>`:''}
+    ${r.Comments?`<div class="card-comment">${esc(r.Comments)}</div>`:''}
+    <div class="card-date">${r.Date}</div>
+  </div>`;
+}
+function keycoCard(r) {
+  const kc = parseKeyCollectionQuarter(r.Comments);
+  const kcStr = kc ? `Q${kc.q} ${kc.year}` : '';
+  return `<div class="card keyco-card" onclick="goToProgression('${esc(r.Name)}')" style="cursor:pointer">
+    <div class="card-name">${esc(r.Name)}</div>
+    <div class="card-meta">${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}</div>
+    <div class="card-phone">${r.Phone}</div>
+    ${kcStr?`<div class="card-date" style="font-weight:600;color:var(--keyco)">Key Collection: ${kcStr}</div>`:''}
+    ${r.Comments?`<div class="card-comment">${esc(r.Comments)}</div>`:''}
+    <div class="card-date">${r.Date}</div>
+  </div>`;
+}
+function miniSignedCard(r) {
+  return `<div class="card signed-card" onclick="goToProgression('${esc(r.Name)}')" style="cursor:pointer">
+    <div class="card-name">${esc(r.Name)}</div>
+    <div class="card-meta">
+      ${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}
+      ${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:''}
+    </div>
+    <div class="card-phone">${r.Phone}</div>
+    <div class="card-date">${r.Date}</div>
+  </div>`;
+}
+function lapsedCard(r) {
+  return `<div class="card lapsed-card" onclick="goToProgression('${esc(r.Name)}')" style="cursor:pointer">
+    <div class="card-name">${esc(r.Name)}</div>
+    <div class="card-meta">
+      ${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}
+      <span class="tag">${esc(r.stage)}</span>
+    </div>
+    <div class="card-phone">${r.Phone}</div>
+    ${r.Comments?`<div class="card-comment">${esc(r.Comments)}</div>`:''}
+    <div class="card-date">${r.Date}</div>
+  </div>`;
+}
+
+// ── PROGRESSION ──
+let progFiltered = [...CHYLER_DATA];
+
+function initProgression() {
+  const pms = [...new Set(CHYLER_DATA.map(r=>r.PM).filter(Boolean))].sort();
+  pms.forEach(pm => {
+    const o=document.createElement('option'); o.value=pm; o.textContent=pm;
+    document.getElementById('prog-pm-filter').appendChild(o);
+  });
+  renderProgression(CHYLER_DATA);
+}
+
+function filterProgression() {
+  const q = document.getElementById('prog-search').value.toLowerCase();
+  const st = document.getElementById('prog-status-filter').value;
+  const pm = document.getElementById('prog-pm-filter').value;
+  progFiltered = CHYLER_DATA.filter(r => {
+    const matchQ = !q || [r.Name, r.Phone+'', r.PM, r.Comments, r.Type, r['FINAL STATUS']].some(v=>v&&v.toLowerCase().includes(q));
+    return matchQ && (!st||r['FINAL STATUS']===st) && (!pm||r.PM===pm);
+  });
+  renderProgression(progFiltered);
+}
+
+function chylerDropdown(field, value, rowId) {
+  const opts = ['YES','NO','PENDING','PLANNED','NA'];
+  const sel = (v) => v === value ? 'selected' : '';
+  return `<select class="wdt-cell-select"
+    onchange="chylerCellChange(this,'${field}',${rowId})"
+    style="border:1px solid var(--border);border-radius:5px;padding:4px 6px;
+      font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--white);
+      color:var(--dark);cursor:pointer;min-width:80px">
+    <option value="" ${sel('')}>—</option>
+    ${opts.map(o=>`<option value="${o}" ${sel(o)}>${o}</option>`).join('')}
+  </select>`;
+}
+
+function chylerCellChange(el, field, rowId) {
+  const val = el.value || null;
+  const row = CHYLER_DATA.find(r => r.id === rowId);
+  if (row) row[field] = val;
+  supabaseUpdateCell('chyler_leads', rowId, field, val, CHYLER_COL_MAP);
+}
+
+// Fields that get dropdowns in edit mode (milestone columns)
+const CHYLER_STEP_FIELDS = ['Responsive?','GC created','1st meet','2D','Quotation','2nd meet','Revised 2D','Revised Quotation','Site visit','1st Deposit','2nd Deposit'];
+
+function renderProgression(data) {
+  const blur = editMode ? `onblur="supabaseUpdateCell('chyler_leads',+this.closest('tr').dataset.id,this.dataset.field,this.textContent.trim(),CHYLER_COL_MAP)"` : '';
+
+  function stepCell(r, field) {
+    const v = r[field];
+    if (editMode) return chylerDropdown(field, v, r.id);
+    return cellVal(v);
+  }
+
+  document.getElementById('prog-tbody').innerHTML = data.map(r => {
+    const st=r['FINAL STATUS'];
+    const stClass=st==='LONG KEY COLLECTION'?'LONG':st;
+    const stLabel=st==='LONG KEY COLLECTION'?'Key Collection':st;
+    const editable = editMode ? 'contenteditable="true"' : '';
+    return `<tr data-id="${r.id||''}">
+      <td style="color:var(--muted);font-size:0.78rem">${esc(r.Number)}</td>
+      <td ${editMode?`contenteditable="true" data-field="Date" ${blur}`:''} style="color:var(--muted);font-size:0.78rem;white-space:nowrap">${esc(r.Date)}</td>
+      <td ${editMode?`contenteditable="true" data-field="Source" ${blur}`:''} style="font-size:0.78rem">${esc(r.Source)}</td>
+      <td ${editMode?`contenteditable="true" data-field="Phone" ${blur}`:''} style="color:var(--muted);font-size:0.78rem">${r.Phone}</td>
+      <td>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'—'}</td>
+      <td ${editMode?`contenteditable="true" data-field="Name" ${blur}`:''} style="font-weight:600">${esc(r.Name)}</td>
+      <td>${st==='ACTIVE' ? `<span class="tag stage-tag">${esc(r.stage||'—')}</span>` : '<span style="color:#CCC">—</span>'}</td>
+      <td ${editMode?`contenteditable="true" data-field="Comments" ${blur}`:''} style="font-size:0.75rem;color:var(--muted);max-width:200px;white-space:normal">${esc(r.Comments)||'<span style="color:#CCC">—</span>'}</td>
+      <td>${stepCell(r,'Responsive?')}</td>
+      <td>${stepCell(r,'GC created')}</td>
+      <td ${editMode?`contenteditable="true" data-field="PM" ${blur}`:''}>${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:'<span style="color:#CCC">—</span>'}</td>
+      <td>${stepCell(r,'1st meet')}</td>
+      <td>${stepCell(r,'2D')}</td>
+      <td>${stepCell(r,'Quotation')}</td>
+      <td>${stepCell(r,'2nd meet')}</td>
+      <td>${stepCell(r,'Revised 2D')}</td>
+      <td>${stepCell(r,'Revised Quotation')}</td>
+      <td>${stepCell(r,'Site visit')}</td>
+      <td>${stepCell(r,'1st Deposit')}</td>
+      <td>${stepCell(r,'2nd Deposit')}</td>
+      <td><span class="status-badge ${stClass}">${stLabel}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── EDIT MODE ──
+function toggleEditMode() {
+  editMode = !editMode;
+  const btn = document.getElementById('edit-toggle-btn');
+  const banner = document.getElementById('edit-banner');
+  const wrap = document.getElementById('prog-table-wrap');
+  if(editMode) {
+    btn.classList.add('active');
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editing On`;
+    banner.classList.add('visible');
+    wrap.classList.add('edit-mode');
+  } else {
+    btn.classList.remove('active');
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit`;
+    banner.classList.remove('visible');
+    wrap.classList.remove('edit-mode');
+  }
+  renderProgression(progFiltered.length ? progFiltered : CHYLER_DATA);
+}
+
+// ── EXCEL DOWNLOAD ──
+function downloadExcel() {
+  const data = progFiltered.length ? progFiltered : CHYLER_DATA;
+  const cols = ['Number','Date','Source','Phone','Type','Name','stage','Responsive?','GC created','PM','1st meet','2D','Quotation','2nd meet','Revised 2D','Revised Quotation','Site visit','Comments','1st Deposit','2nd Deposit','FINAL STATUS'];
+  const headers = ['A · #','B · Date','C · Source','D · Phone','E · Type','F · Name','Current Status','G · Responsive?','H · GC Created','I · PM','J · 1st Meet','K · 2D','L · Quotation','M · 2nd Meet','N · Revised 2D','O · Revised Quot.','P · Site Visit','Q · Comments','R · 1st Deposit','S · 2nd Deposit','T · Final Status'];
+
+  // Build CSV with BOM for Excel
+  let csv = '\uFEFF' + headers.join(',') + '\n';
+  data.forEach(r => {
+    const row = cols.map(c => {
+      let v = r[c];
+      if(v===null||v===undefined) v='';
+      v = String(v).replace(/"/g,'""');
+      if(v.includes(',') || v.includes('\n') || v.includes('"')) v = `"${v}"`;
+      return v;
+    });
+    csv += row.join(',') + '\n';
+  });
+
+  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Chyler_Leads_Progression.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadWdtExcel() {
+  const data = wdtProgFiltered.length ? wdtProgFiltered : WDT_DATA;
+  const cols = ['Number','Date','Phone','Type','Name','Status','stage','Comments','PM','Responsive?','GC created','1st meet','2D','Quotation','2nd meet','Revised 2D','Revised Quotation','Site visit','1st Deposit','2nd Deposit'];
+  const headers = ['#','Date','Phone','Type','Name','Status','Current Stage','Comments','PM','Responsive?','GC Created','1st Meet','2D','1st Quote','2nd Meet','Revised 2D','Revised Quote','Site Visit','1st Deposit','2nd Deposit'];
+
+  let csv = '\uFEFF' + headers.join(',') + '\n';
+  data.forEach(r => {
+    const row = cols.map(c => {
+      let v = r[c];
+      if(v===null||v===undefined) v='';
+      v = String(v).replace(/"/g,'""');
+      if(v.includes(',') || v.includes('\n') || v.includes('"')) v = `"${v}"`;
+      return v;
+    });
+    csv += row.join(',') + '\n';
+  });
+
+  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Woodates_Leads_Progression.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadSignedExcel() {
+  const cols = ['Year','Name','Deposit 1','Deposit 2'];
+  const headers = ['Year','Client Name','Deposit 1','Deposit 2'];
+
+  let csv = '\uFEFF' + headers.join(',') + '\n';
+  SIGNED_DATA.forEach(r => {
+    const row = cols.map(c => {
+      let v = r[c];
+      if(v===null||v===undefined) v='';
+      v = String(v).replace(/"/g,'""');
+      if(v.includes(',') || v.includes('\n') || v.includes('"')) v = `"${v}"`;
+      return v;
+    });
+    csv += row.join(',') + '\n';
+  });
+
+  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Woodates_Signed_Clients.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── MASTER LIST ──
+const MASTER_DATA = [
+  {name:'Rose',phone:'91910069',type:'Current'},
+  {name:'Mark',phone:'85991413',type:'BTO'},
+  {name:'YQ',phone:'96886932',type:'Condo'},
+  {name:'SiMin',phone:'90119256',type:'BTO'},
+  {name:'Kasim',phone:'81185205',type:'BTO'},
+  {name:'Hana',phone:'92370923',type:'Resale'},
+  {name:'WaWa',phone:'87920605',type:'BTO'},
+  {name:'Yun Wen',phone:'88625848',type:'BTO'},
+  {name:'Aletheia',phone:'96874495',type:'BTO'},
+  {name:'Lucas',phone:'87211980',type:'BTO'},
+  {name:'Jacky',phone:'87884799',type:'BTO'},
+  {name:'MingWei',phone:'93890756',type:'BTO'},
+  {name:'Arliana',phone:'91019940',type:'BTO'},
+  {name:'Ameera',phone:'87675695',type:'BTO'},
+  {name:'Alan Lau',phone:'90886770',type:'BTO'},
+  {name:'Mel',phone:'81630703',type:'Resale'},
+  {name:'Joanne',phone:'97231378',type:'BTO'},
+  {name:'Fun',phone:'81803560',type:'BTO'},
+  {name:'Adrian',phone:'97938763',type:'BTO'},
+  {name:'Jasmine',phone:'86535024',type:'BTO'},
+  {name:'Teesha',phone:'97570544',type:'Resale'},
+  {name:'Ily',phone:'97479320',type:'Resale'},
+  {name:'Kenneth',phone:'96563892',type:'BTO'},
+  {name:'Joy',phone:'96326559',type:'BTO'},
+  {name:'Stefie Chia',phone:'91594495',type:'BTO'},
+  {name:'Krissy',phone:'98470470',type:'BTO'},
+  {name:'Esmie',phone:'87831491',type:'Resale'},
+  {name:'Eric',phone:'98566883',type:'BTO'},
+  {name:'Shawal',phone:'91849022',type:'BTO'},
+  {name:'William',phone:'91099029',type:'BTO'},
+  {name:'Construction',phone:'96487166',type:'BTO'},
+  {name:'Aaron',phone:'81614001',type:'BTO'},
+  {name:'Dominic',phone:'98310669',type:'BTO'},
+  {name:'Yana',phone:'91878995',type:'BTO'},
+  {name:'LeeKee',phone:'84982194',type:'Resale'},
+  {name:'Doreen',phone:'87009331',type:'BTO'},
+  {name:'Alson',phone:'83332661',type:''},
+  {name:'Chin Yee',phone:'87781660',type:'BTO'},
+  {name:'Dareios',phone:'83681815',type:'BTO'},
+  {name:'Sky',phone:'90309093',type:'BTO'},
+  {name:'Timothea',phone:'91715758',type:'BTO'},
+  {name:'Lysha',phone:'83288915',type:'BTO'},
+  {name:'FangLing',phone:'92976611',type:'BTO'},
+  {name:'Jia Le',phone:'91013901',type:'BTO'},
+  {name:'Aibo',phone:'81124522',type:'BTO'},
+  {name:'Qing Hao',phone:'96343371',type:'BTO'},
+  {name:'Hadi',phone:'87532512',type:'Resale'},
+  {name:'Anita',phone:'93380868',type:'BTO'},
+  {name:'Chandhi',phone:'84245578',type:'Resale'},
+  {name:'Chern Yung',phone:'97689238',type:'BTO'},
+  {name:'XY Stella',phone:'84345251',type:'Resale'},
+  {name:'MeiYi',phone:'96188672',type:'BTO'},
+  {name:'Sharena',phone:'97237771',type:'BTO'},
+  {name:'Kelvin',phone:'98796426',type:'BTO'},
+  {name:'Naz',phone:'88428099',type:'BTO'},
+  {name:'Charmyne',phone:'98527959',type:'BTO'},
+  {name:'Javier',phone:'91525865',type:'Resale'},
+  {name:'Rani',phone:'96202266',type:'BTO'},
+  {name:'Derek',phone:'88698191',type:'BTO'},
+  {name:'Stacey',phone:'97563961',type:'BTO'},
+  {name:'Joreen',phone:'90902090',type:'BTO'},
+  {name:'Zuri (DMZ)',phone:'98569227',type:'BTO'},
+  {name:'Zhao Hong',phone:'81680355',type:'EC'},
+  {name:'Yong',phone:'91372718',type:'Resale'},
+  {name:'Shannon',phone:'97538730',type:'Resale'},
+  {name:'Cheryl',phone:'81894282',type:'BTO'},
+  {name:'Amanda',phone:'91812048',type:'BTO'},
+  {name:'Farah',phone:'81012346',type:'BTO'},
+  {name:'Eileen',phone:'90038355',type:'BTO'},
+  {name:'Lorelle',phone:'97848194',type:'EC'},
+  {name:'Emilia',phone:'92221652',type:'BTO'},
+  {name:'Claudia',phone:'91596389',type:''},
+  {name:'Benz (Petta)',phone:'81897412',type:'BTO'},
+  {name:'MHKNNZ (Hasyir)',phone:'90500906',type:'BTO'},
+  {name:'PK (Ho)',phone:'90606578',type:'BTO'},
+  {name:'Solihin (Sol)',phone:'92343322',type:'BTO'},
+  {name:'Mamat',phone:'97225780',type:'BTO'},
+  {name:'Peng Phin',phone:'82890375',type:''},
+  {name:'Zayd',phone:'90683398',type:'BTO'},
+  {name:'Ms Vicky',phone:'83809889',type:'Bungalow'},
+  {name:'Kelly Ying Fen',phone:'81769626',type:'BTO'},
+  {name:'Cheryl',phone:'81894282',type:'BTO'},
+  {name:'XiuEr',phone:'86862324',type:'Condo'},
+  {name:'JFLim (Jenn Feng)',phone:'90214856',type:'BTO'},
+  {name:'Nisha',phone:'90288474',type:'Condo'},
+  {name:'Raj Krish',phone:'98746560',type:'BTO'},
+  {name:'Renuga Sarawana',phone:'80534066',type:'BTO'},
+  {name:'Jimmy Ng',phone:'81335699',type:'Resale'},
+  {name:'Ray',phone:'85002588',type:'Resale'},
+  {name:'Mrs Law',phone:'81610851',type:''},
+  {name:'Cathrine',phone:'97453128',type:''},
+];
+
+let masterFiltered = [...MASTER_DATA];
+
+function initMaster() {
+  const types = [...new Set(MASTER_DATA.map(r=>r.type).filter(Boolean))].sort();
+  types.forEach(t => {
+    const o=document.createElement('option'); o.value=t; o.textContent=t;
+    document.getElementById('master-type-filter').appendChild(o);
+  });
+  renderMaster(MASTER_DATA);
+}
+
+function filterMaster() {
+  const q = document.getElementById('master-search').value.toLowerCase();
+  const type = document.getElementById('master-type-filter').value;
+  masterFiltered = MASTER_DATA.filter(r => {
+    const matchQ = !q || [r.name, r.phone, r.type].some(v=>v&&v.toLowerCase().includes(q));
+    return matchQ && (!type||r.type===type);
+  });
+  renderMaster(masterFiltered);
+}
+
+function renderMaster(data) {
+  document.getElementById('master-tbody').innerHTML = data.map((r,i) => `
+    <tr>
+      <td style="color:var(--muted);font-size:0.75rem">${i+1}</td>
+      <td style="font-weight:600">${esc(r.name)}</td>
+      <td style="color:var(--muted);font-size:0.82rem">${r.phone}</td>
+      <td>${r.type?`<span class="tag type-tag">${esc(r.type)}</span>`:'<span style="color:#CCC">—</span>'}</td>
+    </tr>`).join('');
+}
+
+// ── NAV ──
+function switchMainNav(section, el) {
+  // Update main nav active state
+  document.querySelectorAll('.main-nav-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+
+  // Show/hide sub navs
+  document.getElementById('sub-nav-chyler').style.display = section==='chyler' ? 'flex' : 'none';
+  document.getElementById('sub-nav-woodates').style.display = section==='woodates' ? 'flex' : 'none';
+  document.getElementById('sub-nav-signed').style.display = section==='signed' ? 'flex' : 'none';
+
+  // Show the right page
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  if(section==='chyler') {
+    // Restore whichever chyler sub-tab was active
+    const activeChylerTab = document.querySelector('#sub-nav-chyler .sub-tab.active');
+    const tabName = activeChylerTab ? activeChylerTab.getAttribute('data-tab') || 'pipeline' : 'pipeline';
+    document.getElementById('page-'+tabName).classList.add('active');
+  } else if(section==='woodates') {
+    document.getElementById('page-woodates').classList.add('active');
+    // Restore active woodates sub-tab
+    const activeWdtTab = document.querySelector('#sub-nav-woodates .sub-tab.active');
+    if(activeWdtTab) switchWdtView(activeWdtTab.getAttribute('data-view')||'pipeline', activeWdtTab);
+  } else if(section==='signed') {
+    document.getElementById('page-woodates-signed').classList.add('active');
+  }
+}
+
+function switchSubTab(tab, el) {
+  document.querySelectorAll('#sub-nav-chyler .sub-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  el.setAttribute('data-tab', tab);
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+}
+
+function toggleSection(id, btn) {
+  const el = document.getElementById(id);
+  if(el.classList.contains('collapsed')) {
+    el.style.maxHeight = el.scrollHeight+'px';
+    el.classList.remove('collapsed');
+    btn.textContent='Hide';
+  } else {
+    el.style.maxHeight = el.scrollHeight+'px';
+    requestAnimationFrame(()=>{ el.classList.add('collapsed'); });
+    btn.textContent='Show';
+  }
+}
+
+// ── NEW ROW MODAL ──
+function openNewRowModal() {
+  document.getElementById('new-row-modal').classList.add('open');
+  const now = new Date();
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('new-date').value = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  document.getElementById('new-source').value = 'Ad';
+  document.getElementById('new-name').focus();
+}
+function closeNewRowModal() {
+  document.getElementById('new-row-modal').classList.remove('open');
+}
+function saveNewRow() {
+  const name = document.getElementById('new-name').value.trim();
+  if(!name) { document.getElementById('new-name').focus(); document.getElementById('new-name').style.borderColor='var(--lapsed)'; return; }
+  document.getElementById('new-name').style.borderColor='';
+  const maxNum = Math.max(...CHYLER_DATA.map(r=>r.Number||0));
+  const newRow = {
+    Date: document.getElementById('new-date').value||'',
+    Number: maxNum+1,
+    Source: document.getElementById('new-source').value||'',
+    Phone: document.getElementById('new-phone').value||'',
+    Type: document.getElementById('new-type').value||null,
+    Name: name,
+    'Responsive?': null,'GC created': null, PM: null,
+    '1st meet': null,'2D': null,'Quotation': null,
+    '2nd meet': null,'Revised 2D': null,'Revised Quotation': null,
+    'Site visit': null,
+    Comments: document.getElementById('new-comments').value||null,
+    '1st Deposit': null,'2nd Deposit': null,
+    'FINAL STATUS': document.getElementById('new-status').value,
+    stage: document.getElementById('new-stage').value,
+  };
+  CHYLER_DATA.push(newRow);
+  MASTER_DATA.push({ name, phone: document.getElementById('new-phone').value||'', type: document.getElementById('new-type').value||'' });
+  closeNewRowModal();
+  renderProgression(progFiltered.length ? progFiltered : CHYLER_DATA);
+  renderPipeline(CHYLER_DATA);
+  renderMaster(masterFiltered);
+  // Save to Supabase
+  supabaseInsertChyler(newRow).then(id => { if(id) newRow.id = id; });
+  // Flash the new row
+  setTimeout(()=>{
+    const rows = document.querySelectorAll('#prog-tbody tr');
+    const last = rows[rows.length-1];
+    if(last){ last.style.background='#FFF8EE'; last.scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(()=>{last.style.background='';},2000); }
+  },80);
+}
+// Close modal on overlay click
+document.getElementById('new-row-modal').addEventListener('click', function(e){ if(e.target===this) closeNewRowModal(); });
+
+// ══════════════════════════════════════
+// WOODATES LEADS DATA & LOGIC
+// ══════════════════════════════════════
+const WDT_DATA = [
+  {Date:'04 Jan 2026',Number:1,Phone:'82239275',Type:'BTO',Name:'Amanda','Responsive?':'YES','GC created':'YES',PM:'QUEENIE','1st meet':'YES','2D':'YES','Quotation':'YES','2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+  {Date:'22 Jan 2026',Number:2,Phone:'94380776',Type:'Resale',Name:'Cindy','Responsive?':'YES','GC created':'YES',PM:'DANIEL','1st meet':'YES','2D':'YES','Quotation':'YES','2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+  {Date:'03 Jan 2026',Number:3,Phone:'97711317',Type:'BTO',Name:'Alistaire','Responsive?':'YES','GC created':'YES',PM:'PENGFEI','1st meet':'YES','2D':'YES','Quotation':'YES','2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+  {Date:'23 Jan 2026',Number:4,Phone:'97646935',Type:'EC',Name:'Quanyou','Responsive?':'YES','GC created':'YES',PM:'DANIEL','1st meet':'YES','2D':'PENDING','Quotation':'PENDING','2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+  {Date:'18 Jan 2026',Number:5,Phone:'90110159',Type:'Condo',Name:'Erlie','Responsive?':'YES','GC created':'YES',PM:'QUEENIE','1st meet':'YES','2D':'PENDING','Quotation':'PENDING','2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+  {Date:'31 Jan 2026',Number:6,Phone:'81866558',Type:'BTO',Name:'Sam','Responsive?':'YES','GC created':'YES',PM:'QUEENIE','1st meet':'YES','2D':'PENDING','Quotation':'PENDING','2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+  {Date:'09 Feb 2026',Number:7,Phone:'81687415',Type:null,Name:'Deepak','Responsive?':'YES','GC created':null,PM:null,'1st meet':null,'2D':null,'Quotation':null,'2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+  {Date:'06 Feb 2026',Number:8,Phone:'87481853',Type:null,Name:'Vanessa Lee','Responsive?':'YES','GC created':null,PM:'SHELA','1st meet':null,'2D':null,'Quotation':null,'2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,Comments:null,'1st Deposit':null,'2nd Deposit':null,Status:null},
+];
+
+const WDT_MASTER = [
+  {Phone:'82239275',Name:'Amanda',Type:'BTO'},
+  {Phone:'94380776',Name:'Cindy',Type:'Resale'},
+  {Phone:'97711317',Name:'Alistaire',Type:'BTO'},
+  {Phone:'97646935',Name:'Quanyou',Type:'EC'},
+  {Phone:'90110159',Name:'Erlie',Type:'Condo'},
+];
+
+// Derive status from data
+function getWdtStatus(r) {
+  if(r.Status) return r.Status;
+  if(r['1st Deposit']) return 'SIGNED';
+  if(r['Responsive?']==='YES') return 'ACTIVE';
+  return 'ACTIVE';
+}
+
+// Stage steps in order: Responsive → GC Created → 1st Meet → 2D → 1st Quote → 2nd Meet → Revised 2D → Revised Quote → Site Visit → 1st Deposit → 2nd Deposit
+const WDT_STEPS = [
+  {key:'Responsive?',    label:'Responsive'},
+  {key:'GC created',     label:'GC Created'},
+  {key:'1st meet',       label:'1st Meet'},
+  {key:'2D',             label:'2D'},
+  {key:'Quotation',      label:'1st Quote'},
+  {key:'2nd meet',       label:'2nd Meet'},
+  {key:'Revised 2D',     label:'Revised 2D'},
+  {key:'Revised Quotation', label:'Revised Quote'},
+  {key:'Site visit',     label:'Site Visit'},
+  {key:'1st Deposit',    label:'1st Deposit'},
+  {key:'2nd Deposit',    label:'2nd Deposit'},
+];
+
+// Derive stage
+function getWdtStage(r) {
+  // Walk backwards to find highest completed step
+  for(let i = WDT_STEPS.length-1; i >= 0; i--) {
+    const v = r[WDT_STEPS[i].key];
+    if(v && v!=='NO' && v!=='NA') return WDT_STEPS[i].label + (v==='PENDING'||v==='PLANNED'?' (Pending)':'');
+  }
+  return 'New Lead';
+}
+
+let wdtCurrentFilter = 'ALL';
+let wdtEditMode = false;
+let wdtProgFiltered = [...WDT_DATA];
+let wdtMasterFiltered = [...WDT_MASTER];
+let wdtCurrentView = 'pipeline';
+
+function switchWdtView(view, el) {
+  wdtCurrentView = view;
+  document.querySelectorAll('#sub-nav-woodates .sub-tab').forEach(t=>t.classList.remove('active'));
+  if(el) { el.classList.add('active'); el.setAttribute('data-view', view); }
+  document.getElementById('wdt-view-pipeline').style.display = view==='pipeline'?'block':'none';
+  document.getElementById('wdt-view-progression').style.display = view==='progression'?'block':'none';
+  document.getElementById('wdt-view-master').style.display = view==='master'?'block':'none';
+}
+
+// ── WDT PIPELINE ──
+function initWdtPipeline() {
+  const pms = [...new Set(WDT_DATA.map(r=>r.PM).filter(Boolean))].sort();
+  pms.forEach(pm => {
+    const o=document.createElement('option'); o.value=pm; o.textContent=pm;
+    document.getElementById('wdt-pipeline-pm-filter').appendChild(o);
+  });
+  const types = [...new Set(WDT_DATA.map(r=>r.Type).filter(Boolean))].sort();
+  types.forEach(t => {
+    const o=document.createElement('option'); o.value=t; o.textContent=t;
+    document.getElementById('wdt-pipeline-type-filter').appendChild(o);
+  });
+  renderWdtPipeline(WDT_DATA);
+}
+
+function setWdtPipelineFilter(status, el) {
+  wdtCurrentFilter = status;
+  document.querySelectorAll('#wdt-view-pipeline .status-filter-pill').forEach(p=>p.classList.remove('selected'));
+  el.classList.add('selected');
+  filterWdtPipeline();
+}
+
+function filterWdtPipeline() {
+  const q = (document.getElementById('wdt-pipeline-search').value||'').toLowerCase();
+  const pm = document.getElementById('wdt-pipeline-pm-filter').value;
+  const type = document.getElementById('wdt-pipeline-type-filter').value;
+  let data = WDT_DATA.filter(r => {
+    const status = getWdtStatus(r);
+    if(wdtCurrentFilter!=='ALL' && status!==wdtCurrentFilter) return false;
+    if(pm && r.PM!==pm) return false;
+    if(type && r.Type!==type) return false;
+    if(q && ![r.Name,r.Phone,r.PM,r.Type].some(v=>v&&String(v).toLowerCase().includes(q))) return false;
+    return true;
+  });
+  renderWdtPipeline(data);
+}
+
+function renderWdtPipeline(data) {
+  const active = data.filter(r=>getWdtStatus(r)==='ACTIVE');
+  const signed = data.filter(r=>getWdtStatus(r)==='SIGNED');
+  const lapsed = data.filter(r=>getWdtStatus(r)==='LAPSED');
+
+  document.getElementById('wdt-pill-all').textContent = WDT_DATA.length;
+  document.getElementById('wdt-pill-active').textContent = WDT_DATA.filter(r=>getWdtStatus(r)==='ACTIVE').length;
+  document.getElementById('wdt-pill-signed').textContent = WDT_DATA.filter(r=>getWdtStatus(r)==='SIGNED').length;
+  document.getElementById('wdt-pill-lapsed').textContent = WDT_DATA.filter(r=>getWdtStatus(r)==='LAPSED').length;
+
+  document.getElementById('wdt-cnt-active').textContent = active.length;
+  document.getElementById('wdt-cnt-signed').textContent = signed.length;
+  document.getElementById('wdt-cnt-lapsed').textContent = lapsed.length;
+
+  // Build kanban for active using WDT_STEPS labels
+  const stageLabels = ['New Lead', ...WDT_STEPS.map(s=>s.label)];
+  const byStage = {};
+  stageLabels.forEach(s=>byStage[s]=[]);
+  active.forEach(r=>{ 
+    const s = getWdtStage(r).replace(' (Pending)',''); 
+    const bucket = byStage[s] || byStage['New Lead'];
+    bucket.push(r); 
+  });
+  document.getElementById('wdt-kanban-active').innerHTML = stageLabels.filter(s=>byStage[s]&&byStage[s].length).map(s=>`
+    <div class="stage-col">
+      <div class="stage-col-header"><span class="stage-num">${byStage[s].length}</span>${s}</div>
+      ${byStage[s].map(r=>wdtCard(r,'active-card')).join('')}
+    </div>`).join('');
+
+  document.getElementById('wdt-cards-signed').innerHTML = signed.map(r=>wdtCard(r,'signed-card')).join('');
+  document.getElementById('wdt-cards-lapsed').innerHTML = lapsed.map(r=>wdtCard(r,'lapsed-card')).join('');
+
+  document.getElementById('wdt-section-active').style.display = active.length?'block':'none';
+  document.getElementById('wdt-section-signed').style.display = signed.length?'block':'none';
+  document.getElementById('wdt-section-lapsed').style.display = lapsed.length?'block':'none';
+}
+
+function goToWdtProgression(name) {
+  // Switch to Woodates Leads section
+  document.querySelectorAll('.main-nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.main-nav-tab')[1].classList.add('active');
+  document.getElementById('sub-nav-chyler').style.display='none';
+  document.getElementById('sub-nav-woodates').style.display='flex';
+  document.getElementById('sub-nav-signed').style.display='none';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-woodates').classList.add('active');
+  // Switch to progression sub-tab
+  const tabs = document.querySelectorAll('#sub-nav-woodates .sub-tab');
+  tabs.forEach(t=>t.classList.remove('active'));
+  tabs.forEach(t=>{ if(t.getAttribute('data-view')==='progression') t.classList.add('active'); });
+  switchWdtView('progression', document.querySelector('#sub-nav-woodates .sub-tab[data-view="progression"]'));
+  // Scroll to the matching row
+  setTimeout(() => {
+    const rows = document.querySelectorAll('#wdt-prog-tbody tr');
+    for(const row of rows) {
+      const nameCell = row.querySelector('td:nth-child(5)');
+      if(nameCell && nameCell.textContent.trim() === name) {
+        row.style.background = '#FFF8EE';
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => { row.style.background = ''; }, 2500);
+        break;
+      }
+    }
+  }, 80);
+}
+
+function wdtCard(r, cls) {
+  const stage = getWdtStage(r);
+  const cleanStage = stage.replace(' (Pending)','');
+  const clickable = cls === 'active-card';
+
+  // Build mini step indicators
+  const steps = WDT_STEPS.map((s) => {
+    const v = r[s.key];
+    let bg;
+    if(!v || v==='NO' || v==='NA')              bg = 'var(--border)';
+    else if(v==='PENDING'||v==='PLANNED')        bg = 'var(--keyco)';
+    else                                         bg = 'var(--signed)';
+    return `<span title="${s.label}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${bg};margin:0 1px;flex-shrink:0"></span>`;
+  }).join('');
+
+  return `<div class="card ${cls}"${clickable ? ` onclick="goToWdtProgression('${esc(r.Name)}')" style="cursor:pointer"` : ''}>
+    <div class="card-name">${esc(r.Name)}</div>
+    <div class="card-meta">
+      ${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}
+      ${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:''}
+      <span class="tag stage-tag">${esc(cleanStage)}</span>
+    </div>
+    <div style="display:flex;gap:0;align-items:center;margin:6px 0 4px;flex-wrap:wrap">${steps}</div>
+    <div class="card-phone">${r.Phone||'—'}</div>
+    ${r.Comments?`<div class="card-comment">${esc(r.Comments)}</div>`:''}
+    <div class="card-date">${r.Date||''}</div>
+  </div>`;
+}
+
+// ── WDT PROGRESSION ──
+function initWdtProgression() {
+  const pms = [...new Set(WDT_DATA.map(r=>r.PM).filter(Boolean))].sort();
+  pms.forEach(pm => {
+    const o=document.createElement('option'); o.value=pm; o.textContent=pm;
+    document.getElementById('wdt-prog-pm-filter').appendChild(o);
+  });
+  renderWdtProgression(WDT_DATA);
+}
+
+function filterWdtProgression() {
+  const q = (document.getElementById('wdt-prog-search').value||'').toLowerCase();
+  const status = document.getElementById('wdt-prog-status-filter').value;
+  const pm = document.getElementById('wdt-prog-pm-filter').value;
+  wdtProgFiltered = WDT_DATA.filter(r => {
+    if(status && getWdtStatus(r)!==status) return false;
+    if(pm && r.PM!==pm) return false;
+    if(q && ![r.Name,r.Phone,r.PM,r.Type,r.Status].some(v=>v&&String(v).toLowerCase().includes(q))) return false;
+    return true;
+  });
+  renderWdtProgression(wdtProgFiltered);
+}
+
+function wdtDropdown(field, value, rowId) {
+  const opts = ['YES','NO','PENDING','PLANNED','NA'];
+  const selected = (v) => v===value ? 'selected' : '';
+  return `<select class="wdt-cell-select" 
+    onchange="wdtCellChange(this,'${field}',${rowId})"
+    style="border:1px solid var(--border);border-radius:5px;padding:4px 6px;
+      font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--white);
+      color:var(--dark);cursor:pointer;min-width:80px">
+    <option value="" ${selected('')}>—</option>
+    ${opts.map(o=>`<option value="${o}" ${selected(o)}>${o}</option>`).join('')}
+  </select>`;
+}
+
+function wdtCellChange(el, field, rowId) {
+  const val = el.value || null;
+  // Update local data
+  const row = WDT_DATA.find(r=>r.id===rowId);
+  if(row) row[field] = val;
+  // Sync to Supabase
+  supabaseUpdateCell('woodates_leads', rowId, field, val, WDT_COL_MAP);
+}
+
+function renderWdtProgression(data) {
+  const isEdit = wdtEditMode;
+  const blur = isEdit ? `onblur="supabaseUpdateCell('woodates_leads',+this.closest('tr').dataset.id,this.dataset.field,this.textContent.trim(),WDT_COL_MAP)"` : '';
+
+  function stepCell(r, field) {
+    const v = r[field];
+    if(isEdit) return wdtDropdown(field, v, r.id);
+    return cellVal(v);
+  }
+
+  document.getElementById('wdt-prog-tbody').innerHTML = data.map((r)=>{
+    const status = getWdtStatus(r);
+    const stage = getWdtStage(r);
+    const cleanStage = stage.replace(' (Pending)','');
+    const isPending = stage.includes('Pending');
+
+    // Mini step dots for Current Stage cell
+    const stepDots = WDT_STEPS.map(s => {
+      const v = r[s.key];
+      if(!v||v==='NO'||v==='NA') return `<span title="${s.label}" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--border);margin:0 1px"></span>`;
+      if(v==='PENDING'||v==='PLANNED') return `<span title="${s.label}" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--keyco);margin:0 1px"></span>`;
+      return `<span title="${s.label}" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--signed);margin:0 1px"></span>`;
+    }).join('');
+
+    return `<tr data-id="${r.id||''}">
+      <td style="color:var(--muted);font-size:0.75rem">${r.Number}</td>
+      <td ${isEdit?`contenteditable="true" data-field="Date" ${blur}`:''} style="color:var(--muted);font-size:0.78rem;white-space:nowrap">${esc(r.Date)||''}</td>
+      <td ${isEdit?`contenteditable="true" data-field="Phone" ${blur}`:''} style="color:var(--muted);font-size:0.78rem">${r.Phone||''}</td>
+      <td>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'<span style="color:#CCC">—</span>'}</td>
+      <td style="font-weight:600" ${isEdit?`contenteditable="true" data-field="Name" ${blur}`:''}>${esc(r.Name)}</td>
+      <td><span class="status-badge ${status}">${status}</span></td>
+      <td style="white-space:nowrap">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="tag stage-tag" style="${isPending?'background:var(--keyco-bg);color:var(--keyco);border-color:var(--keyco-border)':''}">${esc(cleanStage)}</span>
+        </div>
+        <div style="display:flex;margin-top:5px;gap:1px">${stepDots}</div>
+      </td>
+      <td style="max-width:180px;white-space:normal;font-size:0.78rem;color:var(--dark-mid)" ${isEdit?`contenteditable="true" data-field="Comments" ${blur}`:''}>${esc(r.Comments)||'<span style="color:#CCC">—</span>'}</td>
+      <td ${isEdit?`contenteditable="true" data-field="PM" ${blur}`:''}>${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:'<span style="color:#CCC">—</span>'}</td>
+      <td>${stepCell(r,'Responsive?')}</td>
+      <td>${stepCell(r,'GC created')}</td>
+      <td>${stepCell(r,'1st meet')}</td>
+      <td>${stepCell(r,'2D')}</td>
+      <td>${stepCell(r,'Quotation')}</td>
+      <td>${stepCell(r,'2nd meet')}</td>
+      <td>${stepCell(r,'Revised 2D')}</td>
+      <td>${stepCell(r,'Revised Quotation')}</td>
+      <td>${stepCell(r,'Site visit')}</td>
+      <td>${stepCell(r,'1st Deposit')}</td>
+      <td>${stepCell(r,'2nd Deposit')}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleWdtEditMode() {
+  wdtEditMode = !wdtEditMode;
+  const btn = document.getElementById('wdt-edit-toggle-btn');
+  const banner = document.getElementById('wdt-edit-banner');
+  btn.classList.toggle('active', wdtEditMode);
+  banner.classList.toggle('visible', wdtEditMode);
+  renderWdtProgression(wdtProgFiltered.length ? wdtProgFiltered : WDT_DATA);
+}
+
+// ── WDT MASTER ──
+function initWdtMaster() {
+  const types = [...new Set(WDT_MASTER.map(r=>r.Type).filter(Boolean))].sort();
+  types.forEach(t=>{
+    const o=document.createElement('option'); o.value=t; o.textContent=t;
+    document.getElementById('wdt-master-type-filter').appendChild(o);
+  });
+  renderWdtMaster(WDT_MASTER);
+}
+
+function filterWdtMaster() {
+  const q = (document.getElementById('wdt-master-search').value||'').toLowerCase();
+  const type = document.getElementById('wdt-master-type-filter').value;
+  wdtMasterFiltered = WDT_MASTER.filter(r=>{
+    const matchQ = !q||[r.Name,r.Phone,r.Type].some(v=>v&&String(v).toLowerCase().includes(q));
+    return matchQ&&(!type||r.Type===type);
+  });
+  renderWdtMaster(wdtMasterFiltered);
+}
+
+function renderWdtMaster(data) {
+  document.getElementById('wdt-master-tbody').innerHTML = data.map((r,i)=>`
+    <tr>
+      <td style="color:var(--muted);font-size:0.75rem">${i+1}</td>
+      <td style="font-weight:600">${esc(r.Name)}</td>
+      <td style="color:var(--muted);font-size:0.82rem">${r.Phone}</td>
+      <td>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'<span style="color:#CCC">—</span>'}</td>
+    </tr>`).join('');
+}
+
+// ── WDT MODAL ──
+function openWdtModal() {
+  document.getElementById('wdt-row-modal').classList.add('open');
+  const now=new Date(); const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('wdt-new-date').value=`${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+}
+function closeWdtModal() { document.getElementById('wdt-row-modal').classList.remove('open'); }
+function saveWdtRow() {
+  const name = document.getElementById('wdt-new-name').value.trim();
+  if(!name){document.getElementById('wdt-new-name').focus();return;}
+  const maxNum = Math.max(...WDT_DATA.map(r=>r.Number||0));
+  WDT_DATA.push({
+    Date:document.getElementById('wdt-new-date').value,
+    Number:maxNum+1,
+    Phone:document.getElementById('wdt-new-phone').value,
+    Type:document.getElementById('wdt-new-type').value||null,
+    Name:name,
+    'Responsive?':null,'GC created':null,
+    PM:document.getElementById('wdt-new-pm').value||null,
+    '1st meet':null,'2D':null,'Quotation':null,
+    '2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,
+    Comments:document.getElementById('wdt-new-comments').value||null,
+    '1st Deposit':null,'2nd Deposit':null,
+    Status:document.getElementById('wdt-new-status').value,
+  });
+  closeWdtModal();
+  renderWdtPipeline(WDT_DATA);
+  renderWdtProgression(WDT_DATA);
+  supabaseInsertWdt(WDT_DATA[WDT_DATA.length-1]).then(id => { if(id) WDT_DATA[WDT_DATA.length-1].id = id; });
+}
+document.getElementById('wdt-row-modal').addEventListener('click',function(e){if(e.target===this)closeWdtModal();});
+
+// ══════════════════════════════════════
+// WOODATES SIGNED DATA & LOGIC
+// ══════════════════════════════════════
+let SIGNED_DATA = [
+  {Year:2025,Name:'Normal','Deposit 1':'PAID','Deposit 2':'PAID'},
+  {Year:2025,Name:'Christina','Deposit 1':'PAID','Deposit 2':'PAID'},
+  {Year:2025,Name:'Desmond','Deposit 1':'PAID','Deposit 2':'PAID'},
+  {Year:2025,Name:'Stella','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2025,Name:'Snow','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2025,Name:'Edwin','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2025,Name:'Gabby','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2025,Name:'Anthony','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2025,Name:'Shaun','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2025,Name:'Anna','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2026,Name:'Kasim','Deposit 1':'PAID','Deposit 2':null},
+  {Year:2026,Name:'Dominic','Deposit 1':null,'Deposit 2':null},
+  {Year:2026,Name:'Adrian','Deposit 1':null,'Deposit 2':null},
+];
+
+function depositBadge(v) {
+  if(!v) return '<span style="color:#CCC">—</span>';
+  return `<span class="status-badge SIGNED" style="border-radius:6px">✓ ${esc(v)}</span>`;
+}
+
+function renderSigned() {
+  const years = [...new Set(SIGNED_DATA.map(r=>r.Year))].sort();
+  
+  // Stats
+  const total = SIGNED_DATA.length;
+  const both = SIGNED_DATA.filter(r=>r['Deposit 1']&&r['Deposit 2']).length;
+  const one = SIGNED_DATA.filter(r=>r['Deposit 1']&&!r['Deposit 2']).length;
+  const pending = SIGNED_DATA.filter(r=>!r['Deposit 1']).length;
+  document.getElementById('signed-stat-row').innerHTML = `
+    <div class="stat-pill s-total"><span class="count">${total}</span>Total</div>
+    <div class="stat-pill s-signed"><span class="count">${both}</span>Both Deposits</div>
+    <div class="stat-pill s-active"><span class="count">${one}</span>Deposit 1 Only</div>
+    <div class="stat-pill s-lapsed"><span class="count">${pending}</span>Pending</div>
+  `;
+
+  let html = '';
+  let idx = 1;
+  years.forEach(year => {
+    const group = SIGNED_DATA.filter(r=>r.Year===year);
+    html += `<tr><td colspan="5" class="master-section-header signed-header">${year}</td></tr>`;
+    group.forEach(r => {
+      html += `<tr>
+        <td style="color:var(--muted);font-size:0.75rem">${idx++}</td>
+        <td style="color:var(--muted);font-size:0.8rem">${r.Year}</td>
+        <td style="font-weight:600">${esc(r.Name)}</td>
+        <td>${depositBadge(r['Deposit 1'])}</td>
+        <td>${depositBadge(r['Deposit 2'])}</td>
+      </tr>`;
+    });
+  });
+  document.getElementById('signed-tbody').innerHTML = html;
+}
+
+function openSignedModal() {
+  document.getElementById('signed-new-year').value = new Date().getFullYear();
+  document.getElementById('signed-new-name').value = '';
+  document.getElementById('signed-new-dep1').value = '';
+  document.getElementById('signed-new-dep2').value = '';
+  document.getElementById('signed-add-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('signed-new-name').focus(),100);
+}
+function closeSignedModal() { document.getElementById('signed-add-modal').classList.remove('open'); }
+function saveSignedRow() {
+  const name = document.getElementById('signed-new-name').value.trim();
+  if(!name){document.getElementById('signed-new-name').focus();return;}
+  const newEntry = {
+    Year:parseInt(document.getElementById('signed-new-year').value)||new Date().getFullYear(),
+    Name:name,
+    'Deposit 1':document.getElementById('signed-new-dep1').value||null,
+    'Deposit 2':document.getElementById('signed-new-dep2').value||null,
+  };
+  SIGNED_DATA.push(newEntry);
+  closeSignedModal();
+  renderSigned();
+  supabaseInsertSigned(newEntry).then(id => { if(id) newEntry.id = id; });
+  setTimeout(()=>{
+    const rows=document.querySelectorAll('#signed-tbody tr:not(.master-section-header)');
+    const last=rows[rows.length-1];
+    if(last){last.style.background='#EEF6F0';last.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{last.style.background='';},2000);}
+  },80);
+}
+document.getElementById('signed-add-modal').addEventListener('click',function(e){if(e.target===this)closeSignedModal();});
+
+// ══════════════════════════════════════════════════════
+// SUPABASE SYNC LAYER
+// ══════════════════════════════════════════════════════
+const SUPA_URL = 'https://ilytehukqrkwpupdpkgo.supabase.co';
+const SUPA_KEY = 'sb_publishable_tNMpLdZaqm0e-El_LP4kKg_fhfj-ARF';
+const _db = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// ── Sync status toast ─────────────────────────────────
+function showSyncStatus(msg, type='info') {
+  let el = document.getElementById('sync-status');
+  if(!el) {
+    el = document.createElement('div');
+    el.id = 'sync-status';
+    el.style.cssText = `position:fixed;bottom:20px;right:20px;z-index:9999;
+      padding:10px 18px;border-radius:8px;font-size:0.78rem;
+      font-family:'DM Sans',sans-serif;font-weight:600;
+      box-shadow:0 4px 20px rgba(0,0,0,0.12);
+      transition:opacity 0.4s;display:flex;align-items:center;gap:8px;`;
+    document.body.appendChild(el);
+  }
+  const styles = {
+    info:    {bg:'#EBF3FB',color:'#3A6EA8',border:'#B8D4EE'},
+    success: {bg:'var(--signed-bg)',color:'var(--signed)',border:'var(--signed-border)'},
+    error:   {bg:'var(--lapsed-bg)',color:'var(--lapsed)',border:'var(--lapsed-border)'},
+    saving:  {bg:'var(--active-bg)',color:'var(--active)',border:'var(--active-border)'},
+  };
+  const s = styles[type]||styles.info;
+  el.style.background=s.bg; el.style.color=s.color; el.style.border=`1px solid ${s.border}`;
+  const icons={info:'ℹ️',success:'✓',error:'✗',saving:'⏳'};
+  el.innerHTML=`<span>${icons[type]||''}</span><span>${msg}</span>`;
+  el.style.opacity='1';
+  if(type!=='saving'){ clearTimeout(el._t); el._t=setTimeout(()=>{el.style.opacity='0';},3000); }
+}
+
+// ── Field maps ────────────────────────────────────────
+function chylerToDB(r) {
+  return {
+    date:r.Date, number:r.Number, source:r.Source, phone:String(r.Phone||''),
+    type:r.Type, name:r.Name, responsive:r['Responsive?'], gc_created:r['GC created'],
+    pm:r.PM, first_meet:r['1st meet'], two_d:r['2D'], quotation:r['Quotation'],
+    second_meet:r['2nd meet'], revised_2d:r['Revised 2D'], revised_quot:r['Revised Quotation'],
+    site_visit:r['Site visit'], comments:r.Comments,
+    first_deposit:r['1st Deposit'], second_deposit:r['2nd Deposit'],
+    final_status:r['FINAL STATUS'], stage:r.stage,
+  };
+}
+function dbToChyler(r) {
+  return {
+    id:r.id, Date:r.date, Number:r.number, Source:r.source, Phone:r.phone,
+    Type:r.type, Name:r.name, 'Responsive?':r.responsive, 'GC created':r.gc_created,
+    PM:r.pm, '1st meet':r.first_meet, '2D':r.two_d, 'Quotation':r.quotation,
+    '2nd meet':r.second_meet, 'Revised 2D':r.revised_2d, 'Revised Quotation':r.revised_quot,
+    'Site visit':r.site_visit, Comments:r.comments,
+    '1st Deposit':r.first_deposit, '2nd Deposit':r.second_deposit,
+    'FINAL STATUS':r.final_status, stage:r.stage,
+  };
+}
+function wdtToDB(r) {
+  return {
+    date:r.Date, number:r.Number, phone:String(r.Phone||''), type:r.Type, name:r.Name,
+    responsive:r['Responsive?'], gc_created:r['GC created'], pm:r.PM,
+    first_meet:r['1st meet'], two_d:r['2D'], quotation:r['Quotation'],
+    second_meet:r['2nd meet'], revised_2d:r['Revised 2D'], revised_quot:r['Revised Quotation'],
+    site_visit:r['Site visit'], comments:r.Comments,
+    first_deposit:r['1st Deposit'], second_deposit:r['2nd Deposit'], status:r.Status,
+  };
+}
+function dbToWdt(r) {
+  return {
+    id:r.id, Date:r.date, Number:r.number, Phone:r.phone, Type:r.type, Name:r.name,
+    'Responsive?':r.responsive, 'GC created':r.gc_created, PM:r.pm,
+    '1st meet':r.first_meet, '2D':r.two_d, 'Quotation':r.quotation,
+    '2nd meet':r.second_meet, 'Revised 2D':r.revised_2d, 'Revised Quotation':r.revised_quot,
+    'Site visit':r.site_visit, Comments:r.comments,
+    '1st Deposit':r.first_deposit, '2nd Deposit':r.second_deposit, Status:r.status,
+  };
+}
+function signedToDB(r) {
+  return {year:r.Year, name:r.Name, deposit_1:r['Deposit 1'], deposit_2:r['Deposit 2']};
+}
+function dbToSigned(r) {
+  return {id:r.id, Year:r.year, Name:r.name, 'Deposit 1':r.deposit_1, 'Deposit 2':r.deposit_2};
+}
+
+// ── Seed table if empty (first run only) ──────────────
+async function seedIfEmpty(table, hardcoded, toDBFn) {
+  const {data, error} = await _db.from(table).select('id').limit(1);
+  if(error) throw error;
+  if(data && data.length > 0) return false;
+  // Insert in batches of 50 to stay under limits
+  const rows = hardcoded.map(toDBFn);
+  for(let i=0; i<rows.length; i+=50) {
+    const {error:e} = await _db.from(table).insert(rows.slice(i,i+50));
+    if(e) throw e;
+  }
+  return true;
+}
+
+// ── Load all from Supabase, fallback to local ─────────
+async function loadFromSupabase() {
+  showSyncStatus('Syncing with Supabase…', 'saving');
+  try {
+    await Promise.all([
+      seedIfEmpty('chyler_leads',  CHYLER_DATA, chylerToDB),
+      seedIfEmpty('woodates_leads', WDT_DATA,    wdtToDB),
+      seedIfEmpty('chyler_signed',  SIGNED_DATA, signedToDB),
+    ]);
+    const [cl, wl, cs] = await Promise.all([
+      _db.from('chyler_leads').select('*').order('number',{ascending:true}),
+      _db.from('woodates_leads').select('*').order('number',{ascending:true}),
+      _db.from('chyler_signed').select('*').order('id',{ascending:true}),
+    ]);
+    if(cl.error||wl.error||cs.error) throw cl.error||wl.error||cs.error;
+    if(cl.data?.length) { CHYLER_DATA.length=0; cl.data.forEach(r=>CHYLER_DATA.push(dbToChyler(r))); }
+    if(wl.data?.length) { WDT_DATA.length=0;    wl.data.forEach(r=>WDT_DATA.push(dbToWdt(r))); }
+    if(cs.data?.length) { SIGNED_DATA.length=0;  cs.data.forEach(r=>SIGNED_DATA.push(dbToSigned(r))); }
+    showSyncStatus('Synced ✓', 'success');
+    return true;
+  } catch(e) {
+    showSyncStatus('Offline — using local data', 'error');
+    return false;
+  }
+}
+
+// ── Insert helpers ────────────────────────────────────
+async function supabaseInsertChyler(row) {
+  const {data, error} = await _db.from('chyler_leads').insert([chylerToDB(row)]).select().single();
+  if(error) { showSyncStatus('Save failed ✗', 'error'); return null; }
+  showSyncStatus('Lead saved ✓', 'success');
+  return data.id;
+}
+async function supabaseInsertWdt(row) {
+  const {data, error} = await _db.from('woodates_leads').insert([wdtToDB(row)]).select().single();
+  if(error) { showSyncStatus('Save failed ✗', 'error'); return null; }
+  showSyncStatus('Lead saved ✓', 'success');
+  return data.id;
+}
+async function supabaseInsertSigned(row) {
+  const {data, error} = await _db.from('chyler_signed').insert([signedToDB(row)]).select().single();
+  if(error) { showSyncStatus('Save failed ✗', 'error'); return null; }
+  showSyncStatus('Client saved ✓', 'success');
+  return data.id;
+}
+
+// ── Auto-save on cell blur ────────────────────────────
+const CHYLER_COL_MAP = {
+  'Date':'date','Source':'source','Phone':'phone','Type':'type','Name':'name',
+  'Responsive?':'responsive','GC created':'gc_created','PM':'pm',
+  '1st meet':'first_meet','2D':'two_d','Quotation':'quotation',
+  '2nd meet':'second_meet','Revised 2D':'revised_2d','Revised Quotation':'revised_quot',
+  'Site visit':'site_visit','Comments':'comments',
+  '1st Deposit':'first_deposit','2nd Deposit':'second_deposit',
+  'FINAL STATUS':'final_status','stage':'stage',
+};
+const WDT_COL_MAP = {
+  'Date':'date','Phone':'phone','Type':'type','Name':'name',
+  'Responsive?':'responsive','GC created':'gc_created','PM':'pm',
+  '1st meet':'first_meet','2D':'two_d','Quotation':'quotation',
+  '2nd meet':'second_meet','Revised 2D':'revised_2d','Revised Quotation':'revised_quot',
+  'Site visit':'site_visit','Comments':'comments',
+  '1st Deposit':'first_deposit','2nd Deposit':'second_deposit','Status':'status',
+};
+
+async function supabaseUpdateCell(table, rowId, fieldName, value, colMap) {
+  if(!rowId) return;
+  const col = colMap[fieldName]; if(!col) return;
+  showSyncStatus('Saving…', 'saving');
+  const {error} = await _db.from(table).update({[col]: value||null}).eq('id', rowId);
+  if(error) { showSyncStatus('Save failed ✗', 'error'); }
+  else { showSyncStatus('Saved ✓', 'success'); }
+}
+
+// ── Boot ──────────────────────────────────────────────
+(async function boot() {
+  await loadFromSupabase();
+  initPipeline();
+  initProgression();
+  initMaster();
+  initWdtPipeline();
+  initWdtProgression();
+  initWdtMaster();
+  renderSigned();
+})();
 
 </script>
 </body>
-
 </html>
