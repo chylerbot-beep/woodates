@@ -1055,6 +1055,10 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Edit
       </button>
+      <button class="btn-download" onclick="downloadWdtExcel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Excel
+      </button>
     </div>
     <div class="edit-banner" id="wdt-edit-banner">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -1134,10 +1138,16 @@
       <div class="page-title">Chyler × Woodates Signed</div>
       <div class="page-subtitle">Signed clients — deposit tracking</div>
     </div>
-    <button class="btn-new-row" onclick="openSignedModal()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add Client
-    </button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn-download" onclick="downloadSignedExcel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Excel
+      </button>
+      <button class="btn-new-row" onclick="openSignedModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Client
+      </button>
+    </div>
   </div>
 
   <div class="stat-row" id="signed-stat-row"></div>
@@ -1680,6 +1690,57 @@ function downloadExcel() {
   const a = document.createElement('a');
   a.href = url;
   a.download = 'Chyler_Leads_Progression.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadWdtExcel() {
+  const data = wdtProgFiltered.length ? wdtProgFiltered : WDT_DATA;
+  const cols = ['Number','Date','Phone','Type','Name','Status','stage','Comments','PM','Responsive?','GC created','1st meet','2D','Quotation','2nd meet','Revised 2D','Revised Quotation','Site visit','1st Deposit','2nd Deposit'];
+  const headers = ['#','Date','Phone','Type','Name','Status','Current Stage','Comments','PM','Responsive?','GC Created','1st Meet','2D','1st Quote','2nd Meet','Revised 2D','Revised Quote','Site Visit','1st Deposit','2nd Deposit'];
+
+  let csv = '\uFEFF' + headers.join(',') + '\n';
+  data.forEach(r => {
+    const row = cols.map(c => {
+      let v = r[c];
+      if(v===null||v===undefined) v='';
+      v = String(v).replace(/"/g,'""');
+      if(v.includes(',') || v.includes('\n') || v.includes('"')) v = `"${v}"`;
+      return v;
+    });
+    csv += row.join(',') + '\n';
+  });
+
+  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Woodates_Leads_Progression.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadSignedExcel() {
+  const cols = ['Year','Name','Deposit 1','Deposit 2'];
+  const headers = ['Year','Client Name','Deposit 1','Deposit 2'];
+
+  let csv = '\uFEFF' + headers.join(',') + '\n';
+  SIGNED_DATA.forEach(r => {
+    const row = cols.map(c => {
+      let v = r[c];
+      if(v===null||v===undefined) v='';
+      v = String(v).replace(/"/g,'""');
+      if(v.includes(',') || v.includes('\n') || v.includes('"')) v = `"${v}"`;
+      return v;
+    });
+    csv += row.join(',') + '\n';
+  });
+
+  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Woodates_Signed_Clients.csv';
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -2551,7 +2612,45 @@ async function supabaseUpdateCell(table, rowId, fieldName, value, colMap) {
   initWdtProgression();
   initWdtMaster();
   renderSigned();
+  // Provision Chong admin account (idempotent — safe to run every load)
+  provisionChong();
 })();
+
+// ── Provision Chong as admin ──────────────────────────
+// Uses signUp (idempotent via email uniqueness) then upserts the
+// profiles row so the auth guard grants access.
+async function provisionChong() {
+  const CHONG_EMAIL    = 'chong@woodates.com';
+  const CHONG_PASSWORD = 'Woodates2024!';
+  const CHONG_NAME     = 'Chong';
+
+  try {
+    // 1. Attempt sign-up — harmless if already exists (returns error we ignore)
+    const { data: signUpData, error: signUpErr } = await _db.auth.signUp({
+      email:    CHONG_EMAIL,
+      password: CHONG_PASSWORD,
+      options:  { data: { full_name: CHONG_NAME } },
+    });
+
+    // 2. Get the user id — either from fresh sign-up or look up via admin session
+    let userId = signUpData?.user?.id;
+
+    // 3. Upsert profile row to ensure role = 'admin'
+    if (userId) {
+      await _db.from('profiles').upsert(
+        { id: userId, full_name: CHONG_NAME, role: 'admin' },
+        { onConflict: 'id' }
+      );
+      console.log('[Woodates] Chong admin account provisioned ✓');
+    } else if (signUpErr) {
+      // User likely already exists — that's fine
+      console.log('[Woodates] Chong account already exists or sign-up skipped:', signUpErr.message);
+    }
+  } catch(e) {
+    // Non-critical — log only
+    console.warn('[Woodates] provisionChong error:', e);
+  }
+}
 
 </script>
 </body>
