@@ -1047,17 +1047,18 @@
             <th>Type</th>
             <th>Name</th>
             <th>Status</th>
+            <th>Current Stage</th>
+            <th>Comments</th>
+            <th>PM</th>
             <th>Responsive?</th>
             <th>GC Created</th>
-            <th>PM</th>
             <th>1st Meet</th>
             <th>2D</th>
-            <th>Quotation</th>
+            <th>1st Quote</th>
             <th>2nd Meet</th>
             <th>Revised 2D</th>
-            <th>Revised Quot.</th>
+            <th>Revised Quote</th>
             <th>Site Visit</th>
-            <th>Comments</th>
             <th>1st Deposit</th>
             <th>2nd Deposit</th>
           </tr>
@@ -1569,32 +1570,33 @@ function filterProgression() {
 
 function renderProgression(data) {
   const editable = editMode ? 'contenteditable="true"' : '';
+  const blur = editMode ? `onblur="supabaseUpdateCell('chyler_leads',+this.closest('tr').dataset.id,this.dataset.field,this.textContent.trim(),CHYLER_COL_MAP)"` : '';
   document.getElementById('prog-tbody').innerHTML = data.map(r => {
     const st=r['FINAL STATUS'];
     const stClass=st==='LONG KEY COLLECTION'?'LONG':st;
     const stLabel=st==='LONG KEY COLLECTION'?'Key Collection':st;
-    return `<tr>
-      <td ${editable} style="color:var(--muted);font-size:0.78rem">${esc(r.Number)}</td>
-      <td ${editable} style="color:var(--muted);font-size:0.78rem;white-space:nowrap">${esc(r.Date)}</td>
-      <td ${editable} style="font-size:0.78rem">${esc(r.Source)}</td>
-      <td ${editable} style="color:var(--muted);font-size:0.78rem">${r.Phone}</td>
-      <td ${editable}>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'—'}</td>
-      <td ${editable} style="font-weight:600">${esc(r.Name)}</td>
+    return `<tr data-id="${r.id||''}">
+      <td ${editable} data-field="Number" style="color:var(--muted);font-size:0.78rem">${esc(r.Number)}</td>
+      <td ${editable} data-field="Date" ${blur} style="color:var(--muted);font-size:0.78rem;white-space:nowrap">${esc(r.Date)}</td>
+      <td ${editable} data-field="Source" ${blur} style="font-size:0.78rem">${esc(r.Source)}</td>
+      <td ${editable} data-field="Phone" ${blur} style="color:var(--muted);font-size:0.78rem">${r.Phone}</td>
+      <td ${editable} data-field="Type" ${blur}>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'—'}</td>
+      <td ${editable} data-field="Name" ${blur} style="font-weight:600">${esc(r.Name)}</td>
       <td>${st==='ACTIVE' ? `<span class="tag stage-tag">${esc(r.stage||'—')}</span>` : '<span style="color:#CCC">—</span>'}</td>
-      <td>${cellVal(r['Responsive?'])}</td>
-      <td>${cellVal(r['GC created'])}</td>
-      <td>${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:'<span style="color:#CCC">—</span>'}</td>
-      <td>${cellVal(r['1st meet'])}</td>
-      <td>${cellVal(r['2D'])}</td>
-      <td>${cellVal(r['Quotation'])}</td>
-      <td>${cellVal(r['2nd meet'])}</td>
-      <td>${cellVal(r['Revised 2D'])}</td>
-      <td>${cellVal(r['Revised Quotation'])}</td>
-      <td>${cellVal(r['Site visit'])}</td>
-      <td ${editable} style="font-size:0.75rem;color:var(--muted);max-width:200px;white-space:normal">${esc(r.Comments)||'<span style="color:#CCC">—</span>'}</td>
-      <td>${cellVal(r['1st Deposit'])}</td>
-      <td>${cellVal(r['2nd Deposit'])}</td>
-      <td><span class="status-badge ${stClass}">${stLabel}</span></td>
+      <td ${editable} data-field="Responsive?" ${blur}>${cellVal(r['Responsive?'])}</td>
+      <td ${editable} data-field="GC created" ${blur}>${cellVal(r['GC created'])}</td>
+      <td ${editable} data-field="PM" ${blur}>${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:'<span style="color:#CCC">—</span>'}</td>
+      <td ${editable} data-field="1st meet" ${blur}>${cellVal(r['1st meet'])}</td>
+      <td ${editable} data-field="2D" ${blur}>${cellVal(r['2D'])}</td>
+      <td ${editable} data-field="Quotation" ${blur}>${cellVal(r['Quotation'])}</td>
+      <td ${editable} data-field="2nd meet" ${blur}>${cellVal(r['2nd meet'])}</td>
+      <td ${editable} data-field="Revised 2D" ${blur}>${cellVal(r['Revised 2D'])}</td>
+      <td ${editable} data-field="Revised Quotation" ${blur}>${cellVal(r['Revised Quotation'])}</td>
+      <td ${editable} data-field="Site visit" ${blur}>${cellVal(r['Site visit'])}</td>
+      <td ${editable} data-field="Comments" ${blur} style="font-size:0.75rem;color:var(--muted);max-width:200px;white-space:normal">${esc(r.Comments)||'<span style="color:#CCC">—</span>'}</td>
+      <td ${editable} data-field="1st Deposit" ${blur}>${cellVal(r['1st Deposit'])}</td>
+      <td ${editable} data-field="2nd Deposit" ${blur}>${cellVal(r['2nd Deposit'])}</td>
+      <td ${editable} data-field="FINAL STATUS" ${blur}><span class="status-badge ${stClass}">${stLabel}</span></td>
     </tr>`;
   }).join('');
 }
@@ -1861,6 +1863,8 @@ function saveNewRow() {
   renderProgression(progFiltered.length ? progFiltered : CHYLER_DATA);
   renderPipeline(CHYLER_DATA);
   renderMaster(masterFiltered);
+  // Save to Supabase
+  supabaseInsertChyler(newRow).then(id => { if(id) newRow.id = id; });
   // Flash the new row
   setTimeout(()=>{
     const rows = document.querySelectorAll('#prog-tbody tr');
@@ -1901,21 +1905,28 @@ function getWdtStatus(r) {
   return 'ACTIVE';
 }
 
+// Stage steps in order: Responsive → GC Created → 1st Meet → 2D → 1st Quote → 2nd Meet → Revised 2D → Revised Quote → Site Visit → 1st Deposit → 2nd Deposit
+const WDT_STEPS = [
+  {key:'Responsive?',    label:'Responsive'},
+  {key:'GC created',     label:'GC Created'},
+  {key:'1st meet',       label:'1st Meet'},
+  {key:'2D',             label:'2D'},
+  {key:'Quotation',      label:'1st Quote'},
+  {key:'2nd meet',       label:'2nd Meet'},
+  {key:'Revised 2D',     label:'Revised 2D'},
+  {key:'Revised Quotation', label:'Revised Quote'},
+  {key:'Site visit',     label:'Site Visit'},
+  {key:'1st Deposit',    label:'1st Deposit'},
+  {key:'2nd Deposit',    label:'2nd Deposit'},
+];
+
 // Derive stage
 function getWdtStage(r) {
-  if(r['2nd Deposit']) return '2nd Deposit';
-  if(r['1st Deposit']) return '1st Deposit';
-  if(r['Site visit'] && r['Site visit']!=='NO') return 'Site Visit';
-  if(r['Revised Quotation']) return 'Revised Quotation';
-  if(r['Revised 2D']) return 'Revised 2D';
-  if(r['2nd meet'] && r['2nd meet']!=='NO') return '2nd Meeting';
-  if(r['Quotation'] && r['Quotation']!=='PENDING') return 'Quotation';
-  if(r['Quotation']) return 'Quotation (Pending)';
-  if(r['2D'] && r['2D']!=='PENDING') return '2D';
-  if(r['2D']) return '2D (Pending)';
-  if(r['1st meet'] && r['1st meet']!=='NO') return '1st Meeting';
-  if(r['GC created']) return 'GC Created';
-  if(r['Responsive?']==='YES') return 'Responsive';
+  // Walk backwards to find highest completed step
+  for(let i = WDT_STEPS.length-1; i >= 0; i--) {
+    const v = r[WDT_STEPS[i].key];
+    if(v && v!=='NO' && v!=='NA') return WDT_STEPS[i].label + (v==='PENDING'||v==='PLANNED'?' (Pending)':'');
+  }
   return 'New Lead';
 }
 
@@ -1985,14 +1996,16 @@ function renderWdtPipeline(data) {
   document.getElementById('wdt-cnt-signed').textContent = signed.length;
   document.getElementById('wdt-cnt-lapsed').textContent = lapsed.length;
 
-  // Build kanban for active
-  const stages = ['New Lead','Responsive','GC Created','1st Meeting','2D','Quotation','2nd Meeting','Revised 2D','Revised Quotation','Site Visit','1st Deposit','2nd Deposit'];
-  const stageOrder = {};
-  stages.forEach((s,i)=>stageOrder[s]=i);
+  // Build kanban for active using WDT_STEPS labels
+  const stageLabels = ['New Lead', ...WDT_STEPS.map(s=>s.label)];
   const byStage = {};
-  stages.forEach(s=>byStage[s]=[]);
-  active.forEach(r=>{ const s=getWdtStage(r).replace(' (Pending)',''); (byStage[s]||(byStage['New Lead'])).push(r); });
-  document.getElementById('wdt-kanban-active').innerHTML = stages.filter(s=>byStage[s]&&byStage[s].length).map(s=>`
+  stageLabels.forEach(s=>byStage[s]=[]);
+  active.forEach(r=>{ 
+    const s = getWdtStage(r).replace(' (Pending)',''); 
+    const bucket = byStage[s] || byStage['New Lead'];
+    bucket.push(r); 
+  });
+  document.getElementById('wdt-kanban-active').innerHTML = stageLabels.filter(s=>byStage[s]&&byStage[s].length).map(s=>`
     <div class="stage-col">
       <div class="stage-col-header"><span class="stage-num">${byStage[s].length}</span>${s}</div>
       ${byStage[s].map(r=>wdtCard(r,'active-card')).join('')}
@@ -2008,15 +2021,29 @@ function renderWdtPipeline(data) {
 
 function wdtCard(r, cls) {
   const stage = getWdtStage(r);
-  const stageOrder = {'New Lead':0,'Responsive':1,'GC Created':2,'1st Meeting':3,'2D':4,'Quotation':5,'2nd Meeting':6,'Revised 2D':7,'Revised Quotation':8,'Site Visit':9,'1st Deposit':10,'2nd Deposit':11};
-  const prog = Math.round(((stageOrder[stage.replace(' (Pending)','')]||0)/11)*100);
+  // Find current step index for progress bar
+  const cleanStage = stage.replace(' (Pending)','');
+  const stepIdx = WDT_STEPS.findIndex(s=>s.label===cleanStage);
+  const prog = stepIdx >= 0 ? Math.round(((stepIdx+1)/WDT_STEPS.length)*100) : 0;
+
+  // Build mini step indicators
+  const steps = WDT_STEPS.map((s,i) => {
+    const v = r[s.key];
+    let dot = '';
+    if(!v || v==='NO' || v==='NA') dot = `<span title="${s.label}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--border);margin:0 1px;flex-shrink:0"></span>`;
+    else if(v==='PENDING'||v==='PLANNED') dot = `<span title="${s.label}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--keyco);margin:0 1px;flex-shrink:0"></span>`;
+    else dot = `<span title="${s.label}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--signed);margin:0 1px;flex-shrink:0"></span>`;
+    return dot;
+  }).join('');
+
   return `<div class="card ${cls}">
     <div class="card-name">${esc(r.Name)}</div>
     <div class="card-meta">
       ${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}
       ${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:''}
-      <span class="tag stage-tag">${esc(stage)}</span>
+      <span class="tag stage-tag">${esc(cleanStage)}</span>
     </div>
+    <div style="display:flex;gap:0;align-items:center;margin:6px 0 4px;flex-wrap:wrap">${steps}</div>
     <div class="card-phone">${r.Phone||'—'}</div>
     ${r.Comments?`<div class="card-comment">${esc(r.Comments)}</div>`:''}
     <div class="progress-bar"><div class="progress-fill" style="width:${prog}%"></div></div>
@@ -2047,30 +2074,78 @@ function filterWdtProgression() {
   renderWdtProgression(wdtProgFiltered);
 }
 
+function wdtDropdown(field, value, rowId) {
+  const opts = ['YES','NO','PENDING','PLANNED','NA'];
+  const selected = (v) => v===value ? 'selected' : '';
+  return `<select class="wdt-cell-select" 
+    onchange="wdtCellChange(this,'${field}',${rowId})"
+    style="border:1px solid var(--border);border-radius:5px;padding:4px 6px;
+      font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--white);
+      color:var(--dark);cursor:pointer;min-width:80px">
+    <option value="" ${selected('')}>—</option>
+    ${opts.map(o=>`<option value="${o}" ${selected(o)}>${o}</option>`).join('')}
+  </select>`;
+}
+
+function wdtCellChange(el, field, rowId) {
+  const val = el.value || null;
+  // Update local data
+  const row = WDT_DATA.find(r=>r.id===rowId);
+  if(row) row[field] = val;
+  // Sync to Supabase
+  supabaseUpdateCell('woodates_leads', rowId, field, val, WDT_COL_MAP);
+}
+
 function renderWdtProgression(data) {
-  const ceAttr = wdtEditMode ? 'contenteditable="true"' : '';
-  document.getElementById('wdt-prog-tbody').innerHTML = data.map((r,i)=>{
+  const isEdit = wdtEditMode;
+  const blur = isEdit ? `onblur="supabaseUpdateCell('woodates_leads',+this.closest('tr').dataset.id,this.dataset.field,this.textContent.trim(),WDT_COL_MAP)"` : '';
+
+  function stepCell(r, field) {
+    const v = r[field];
+    if(isEdit) return wdtDropdown(field, v, r.id);
+    return cellVal(v);
+  }
+
+  document.getElementById('wdt-prog-tbody').innerHTML = data.map((r)=>{
     const status = getWdtStatus(r);
-    return `<tr>
+    const stage = getWdtStage(r);
+    const cleanStage = stage.replace(' (Pending)','');
+    const isPending = stage.includes('Pending');
+
+    // Mini step dots for Current Stage cell
+    const stepDots = WDT_STEPS.map(s => {
+      const v = r[s.key];
+      if(!v||v==='NO'||v==='NA') return `<span title="${s.label}" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--border);margin:0 1px"></span>`;
+      if(v==='PENDING'||v==='PLANNED') return `<span title="${s.label}" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--keyco);margin:0 1px"></span>`;
+      return `<span title="${s.label}" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--signed);margin:0 1px"></span>`;
+    }).join('');
+
+    return `<tr data-id="${r.id||''}">
       <td style="color:var(--muted);font-size:0.75rem">${r.Number}</td>
-      <td ${ceAttr}>${esc(r.Date)||''}</td>
-      <td ${ceAttr}>${r.Phone||''}</td>
+      <td ${isEdit?`contenteditable="true" data-field="Date" ${blur}`:''} style="color:var(--muted);font-size:0.78rem;white-space:nowrap">${esc(r.Date)||''}</td>
+      <td ${isEdit?`contenteditable="true" data-field="Phone" ${blur}`:''} style="color:var(--muted);font-size:0.78rem">${r.Phone||''}</td>
       <td>${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:'<span style="color:#CCC">—</span>'}</td>
-      <td style="font-weight:600" ${ceAttr}>${esc(r.Name)}</td>
+      <td style="font-weight:600" ${isEdit?`contenteditable="true" data-field="Name" ${blur}`:''}>${esc(r.Name)}</td>
       <td><span class="status-badge ${status}">${status}</span></td>
-      <td>${cellVal(r['Responsive?'])}</td>
-      <td>${cellVal(r['GC created'])}</td>
-      <td>${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:'<span style="color:#CCC">—</span>'}</td>
-      <td>${cellVal(r['1st meet'])}</td>
-      <td>${cellVal(r['2D'])}</td>
-      <td>${cellVal(r['Quotation'])}</td>
-      <td>${cellVal(r['2nd meet'])}</td>
-      <td>${cellVal(r['Revised 2D'])}</td>
-      <td>${cellVal(r['Revised Quotation'])}</td>
-      <td>${cellVal(r['Site visit'])}</td>
-      <td style="max-width:180px;white-space:normal;font-size:0.75rem;color:var(--muted)" ${ceAttr}>${esc(r.Comments)||''}</td>
-      <td>${cellVal(r['1st Deposit'])}</td>
-      <td>${cellVal(r['2nd Deposit'])}</td>
+      <td style="white-space:nowrap">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="tag stage-tag" style="${isPending?'background:var(--keyco-bg);color:var(--keyco);border-color:var(--keyco-border)':''}">${esc(cleanStage)}</span>
+        </div>
+        <div style="display:flex;margin-top:5px;gap:1px">${stepDots}</div>
+      </td>
+      <td style="max-width:180px;white-space:normal;font-size:0.78rem;color:var(--dark-mid)" ${isEdit?`contenteditable="true" data-field="Comments" ${blur}`:''}>${esc(r.Comments)||'<span style="color:#CCC">—</span>'}</td>
+      <td ${isEdit?`contenteditable="true" data-field="PM" ${blur}`:''}>${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:'<span style="color:#CCC">—</span>'}</td>
+      <td>${stepCell(r,'Responsive?')}</td>
+      <td>${stepCell(r,'GC created')}</td>
+      <td>${stepCell(r,'1st meet')}</td>
+      <td>${stepCell(r,'2D')}</td>
+      <td>${stepCell(r,'Quotation')}</td>
+      <td>${stepCell(r,'2nd meet')}</td>
+      <td>${stepCell(r,'Revised 2D')}</td>
+      <td>${stepCell(r,'Revised Quotation')}</td>
+      <td>${stepCell(r,'Site visit')}</td>
+      <td>${stepCell(r,'1st Deposit')}</td>
+      <td>${stepCell(r,'2nd Deposit')}</td>
     </tr>`;
   }).join('');
 }
@@ -2142,6 +2217,7 @@ function saveWdtRow() {
   closeWdtModal();
   renderWdtPipeline(WDT_DATA);
   renderWdtProgression(WDT_DATA);
+  supabaseInsertWdt(WDT_DATA[WDT_DATA.length-1]).then(id => { if(id) WDT_DATA[WDT_DATA.length-1].id = id; });
 }
 document.getElementById('wdt-row-modal').addEventListener('click',function(e){if(e.target===this)closeWdtModal();});
 
@@ -2214,14 +2290,16 @@ function closeSignedModal() { document.getElementById('signed-add-modal').classL
 function saveSignedRow() {
   const name = document.getElementById('signed-new-name').value.trim();
   if(!name){document.getElementById('signed-new-name').focus();return;}
-  SIGNED_DATA.push({
+  const newEntry = {
     Year:parseInt(document.getElementById('signed-new-year').value)||new Date().getFullYear(),
     Name:name,
     'Deposit 1':document.getElementById('signed-new-dep1').value||null,
     'Deposit 2':document.getElementById('signed-new-dep2').value||null,
-  });
+  };
+  SIGNED_DATA.push(newEntry);
   closeSignedModal();
   renderSigned();
+  supabaseInsertSigned(newEntry).then(id => { if(id) newEntry.id = id; });
   setTimeout(()=>{
     const rows=document.querySelectorAll('#signed-tbody tr:not(.master-section-header)');
     const last=rows[rows.length-1];
@@ -2230,14 +2308,190 @@ function saveSignedRow() {
 }
 document.getElementById('signed-add-modal').addEventListener('click',function(e){if(e.target===this)closeSignedModal();});
 
-// ── INIT ALL ──
-initWdtPipeline();
-initWdtProgression();
-initWdtMaster();
-renderSigned();
-initPipeline();
-initProgression();
-initMaster();
+// ══════════════════════════════════════════════════════
+// SUPABASE SYNC LAYER
+// ══════════════════════════════════════════════════════
+const SUPA_URL = 'https://ilytehukqrkwpupdpkgo.supabase.co';
+const SUPA_KEY = 'sb_publishable_tNMpLdZaqm0e-El_LP4kKg_fhfj-ARF';
+const _db = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// ── Sync status toast ─────────────────────────────────
+function showSyncStatus(msg, type='info') {
+  let el = document.getElementById('sync-status');
+  if(!el) {
+    el = document.createElement('div');
+    el.id = 'sync-status';
+    el.style.cssText = `position:fixed;bottom:20px;right:20px;z-index:9999;
+      padding:10px 18px;border-radius:8px;font-size:0.78rem;
+      font-family:'DM Sans',sans-serif;font-weight:600;
+      box-shadow:0 4px 20px rgba(0,0,0,0.12);
+      transition:opacity 0.4s;display:flex;align-items:center;gap:8px;`;
+    document.body.appendChild(el);
+  }
+  const styles = {
+    info:    {bg:'#EBF3FB',color:'#3A6EA8',border:'#B8D4EE'},
+    success: {bg:'var(--signed-bg)',color:'var(--signed)',border:'var(--signed-border)'},
+    error:   {bg:'var(--lapsed-bg)',color:'var(--lapsed)',border:'var(--lapsed-border)'},
+    saving:  {bg:'var(--active-bg)',color:'var(--active)',border:'var(--active-border)'},
+  };
+  const s = styles[type]||styles.info;
+  el.style.background=s.bg; el.style.color=s.color; el.style.border=`1px solid ${s.border}`;
+  const icons={info:'ℹ️',success:'✓',error:'✗',saving:'⏳'};
+  el.innerHTML=`<span>${icons[type]||''}</span><span>${msg}</span>`;
+  el.style.opacity='1';
+  if(type!=='saving'){ clearTimeout(el._t); el._t=setTimeout(()=>{el.style.opacity='0';},3000); }
+}
+
+// ── Field maps ────────────────────────────────────────
+function chylerToDB(r) {
+  return {
+    date:r.Date, number:r.Number, source:r.Source, phone:String(r.Phone||''),
+    type:r.Type, name:r.Name, responsive:r['Responsive?'], gc_created:r['GC created'],
+    pm:r.PM, first_meet:r['1st meet'], two_d:r['2D'], quotation:r['Quotation'],
+    second_meet:r['2nd meet'], revised_2d:r['Revised 2D'], revised_quot:r['Revised Quotation'],
+    site_visit:r['Site visit'], comments:r.Comments,
+    first_deposit:r['1st Deposit'], second_deposit:r['2nd Deposit'],
+    final_status:r['FINAL STATUS'], stage:r.stage,
+  };
+}
+function dbToChyler(r) {
+  return {
+    id:r.id, Date:r.date, Number:r.number, Source:r.source, Phone:r.phone,
+    Type:r.type, Name:r.name, 'Responsive?':r.responsive, 'GC created':r.gc_created,
+    PM:r.pm, '1st meet':r.first_meet, '2D':r.two_d, 'Quotation':r.quotation,
+    '2nd meet':r.second_meet, 'Revised 2D':r.revised_2d, 'Revised Quotation':r.revised_quot,
+    'Site visit':r.site_visit, Comments:r.comments,
+    '1st Deposit':r.first_deposit, '2nd Deposit':r.second_deposit,
+    'FINAL STATUS':r.final_status, stage:r.stage,
+  };
+}
+function wdtToDB(r) {
+  return {
+    date:r.Date, number:r.Number, phone:String(r.Phone||''), type:r.Type, name:r.Name,
+    responsive:r['Responsive?'], gc_created:r['GC created'], pm:r.PM,
+    first_meet:r['1st meet'], two_d:r['2D'], quotation:r['Quotation'],
+    second_meet:r['2nd meet'], revised_2d:r['Revised 2D'], revised_quot:r['Revised Quotation'],
+    site_visit:r['Site visit'], comments:r.Comments,
+    first_deposit:r['1st Deposit'], second_deposit:r['2nd Deposit'], status:r.Status,
+  };
+}
+function dbToWdt(r) {
+  return {
+    id:r.id, Date:r.date, Number:r.number, Phone:r.phone, Type:r.type, Name:r.name,
+    'Responsive?':r.responsive, 'GC created':r.gc_created, PM:r.pm,
+    '1st meet':r.first_meet, '2D':r.two_d, 'Quotation':r.quotation,
+    '2nd meet':r.second_meet, 'Revised 2D':r.revised_2d, 'Revised Quotation':r.revised_quot,
+    'Site visit':r.site_visit, Comments:r.comments,
+    '1st Deposit':r.first_deposit, '2nd Deposit':r.second_deposit, Status:r.status,
+  };
+}
+function signedToDB(r) {
+  return {year:r.Year, name:r.Name, deposit_1:r['Deposit 1'], deposit_2:r['Deposit 2']};
+}
+function dbToSigned(r) {
+  return {id:r.id, Year:r.year, Name:r.name, 'Deposit 1':r.deposit_1, 'Deposit 2':r.deposit_2};
+}
+
+// ── Seed table if empty (first run only) ──────────────
+async function seedIfEmpty(table, hardcoded, toDBFn) {
+  const {data, error} = await _db.from(table).select('id').limit(1);
+  if(error) throw error;
+  if(data && data.length > 0) return false;
+  // Insert in batches of 50 to stay under limits
+  const rows = hardcoded.map(toDBFn);
+  for(let i=0; i<rows.length; i+=50) {
+    const {error:e} = await _db.from(table).insert(rows.slice(i,i+50));
+    if(e) throw e;
+  }
+  return true;
+}
+
+// ── Load all from Supabase, fallback to local ─────────
+async function loadFromSupabase() {
+  showSyncStatus('Syncing with Supabase…', 'saving');
+  try {
+    await Promise.all([
+      seedIfEmpty('chyler_leads',  CHYLER_DATA, chylerToDB),
+      seedIfEmpty('woodates_leads', WDT_DATA,    wdtToDB),
+      seedIfEmpty('chyler_signed',  SIGNED_DATA, signedToDB),
+    ]);
+    const [cl, wl, cs] = await Promise.all([
+      _db.from('chyler_leads').select('*').order('number',{ascending:true}),
+      _db.from('woodates_leads').select('*').order('number',{ascending:true}),
+      _db.from('chyler_signed').select('*').order('id',{ascending:true}),
+    ]);
+    if(cl.error||wl.error||cs.error) throw cl.error||wl.error||cs.error;
+    if(cl.data?.length) { CHYLER_DATA.length=0; cl.data.forEach(r=>CHYLER_DATA.push(dbToChyler(r))); }
+    if(wl.data?.length) { WDT_DATA.length=0;    wl.data.forEach(r=>WDT_DATA.push(dbToWdt(r))); }
+    if(cs.data?.length) { SIGNED_DATA.length=0;  cs.data.forEach(r=>SIGNED_DATA.push(dbToSigned(r))); }
+    showSyncStatus('Synced ✓', 'success');
+    return true;
+  } catch(e) {
+    console.warn('Supabase unavailable, using local data:', e);
+    showSyncStatus('Offline — using local data', 'error');
+    return false;
+  }
+}
+
+// ── Insert helpers ────────────────────────────────────
+async function supabaseInsertChyler(row) {
+  const {data, error} = await _db.from('chyler_leads').insert([chylerToDB(row)]).select().single();
+  if(error) { showSyncStatus('Save failed ✗', 'error'); return null; }
+  showSyncStatus('Lead saved ✓', 'success');
+  return data.id;
+}
+async function supabaseInsertWdt(row) {
+  const {data, error} = await _db.from('woodates_leads').insert([wdtToDB(row)]).select().single();
+  if(error) { showSyncStatus('Save failed ✗', 'error'); return null; }
+  showSyncStatus('Lead saved ✓', 'success');
+  return data.id;
+}
+async function supabaseInsertSigned(row) {
+  const {data, error} = await _db.from('chyler_signed').insert([signedToDB(row)]).select().single();
+  if(error) { showSyncStatus('Save failed ✗', 'error'); return null; }
+  showSyncStatus('Client saved ✓', 'success');
+  return data.id;
+}
+
+// ── Auto-save on cell blur ────────────────────────────
+const CHYLER_COL_MAP = {
+  'Date':'date','Source':'source','Phone':'phone','Type':'type','Name':'name',
+  'Responsive?':'responsive','GC created':'gc_created','PM':'pm',
+  '1st meet':'first_meet','2D':'two_d','Quotation':'quotation',
+  '2nd meet':'second_meet','Revised 2D':'revised_2d','Revised Quotation':'revised_quot',
+  'Site visit':'site_visit','Comments':'comments',
+  '1st Deposit':'first_deposit','2nd Deposit':'second_deposit',
+  'FINAL STATUS':'final_status','stage':'stage',
+};
+const WDT_COL_MAP = {
+  'Date':'date','Phone':'phone','Type':'type','Name':'name',
+  'Responsive?':'responsive','GC created':'gc_created','PM':'pm',
+  '1st meet':'first_meet','2D':'two_d','Quotation':'quotation',
+  '2nd meet':'second_meet','Revised 2D':'revised_2d','Revised Quotation':'revised_quot',
+  'Site visit':'site_visit','Comments':'comments',
+  '1st Deposit':'first_deposit','2nd Deposit':'second_deposit','Status':'status',
+};
+
+async function supabaseUpdateCell(table, rowId, fieldName, value, colMap) {
+  if(!rowId) return;
+  const col = colMap[fieldName]; if(!col) return;
+  showSyncStatus('Saving…', 'saving');
+  const {error} = await _db.from(table).update({[col]: value||null}).eq('id', rowId);
+  if(error) { showSyncStatus('Save failed ✗', 'error'); }
+  else { showSyncStatus('Saved ✓', 'success'); }
+}
+
+// ── Boot ──────────────────────────────────────────────
+(async function boot() {
+  await loadFromSupabase();
+  initPipeline();
+  initProgression();
+  initMaster();
+  initWdtPipeline();
+  initWdtProgression();
+  initWdtMaster();
+  renderSigned();
+})();
 
 </script>
 </body>
