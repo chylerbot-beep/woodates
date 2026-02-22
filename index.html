@@ -575,20 +575,6 @@
             <section>
                 <h2>Available Tools</h2>
                 <div class="tool-grid">
-                    <a href="leads.html" id="leadsCard" class="card" style="display: none;">
-                        <div class="card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <line x1="19" y1="8" x2="19" y2="14"></line>
-                                <line x1="22" y1="11" x2="16" y2="11"></line>
-                            </svg>
-                        </div>
-                        <h3>Leads</h3>
-                        <p>Pipeline, progression tracking, and lead management. Admin only.</p>
-                    </a>
-
                     <a href="#" class="card" id="workflowCard" onclick="createAndOpenProject(event)">
                         <div class="card-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -618,18 +604,6 @@
                             export.</p>
                     </a>
 
-                    <a href="help-me-quote.html" class="card">
-                        <div class="card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"></path>
-                                <path d="M12 8v4l3 3"></path>
-                            </svg>
-                        </div>
-                        <h3>Help Me Quote</h3>
-                        <p>Upload a floor plan and answer intake questions.</p>
-                    </a>
-
                     <a href="admin.html" id="adminCard" class="card" style="display: none;">
                         <div class="card-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -642,6 +616,32 @@
                         </div>
                         <h3>Admin Dashboard</h3>
                         <p>Overview of all designer projects, status tracking, and global management controls.</p>
+                    </a>
+
+                    <a href="help-me-quote.html" class="card">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"></path>
+                                <path d="M12 8v4l3 3"></path>
+                            </svg>
+                        </div>
+                        <h3>Help Me Quote</h3>
+                        <p>Upload a floor plan and answer intake questions.</p>
+                    </a>
+
+                    <a href="leads.html" id="leadsCard" class="card" style="display: none;">
+                        <div class="card-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <line x1="19" y1="8" x2="19" y2="14"></line>
+                                <line x1="22" y1="11" x2="16" y2="11"></line>
+                            </svg>
+                        </div>
+                        <h3>Leads</h3>
+                        <p>Pipeline, progression tracking, and lead management. Admin only.</p>
                     </a>
                 </div>
             </section>
@@ -829,7 +829,7 @@
                 .delete()
                 .eq('id', projectId);
             if (error) {
-                alert('Error deleting project.');
+                showToast('Error deleting project.');
             } else {
                 document.getElementById(`project-row-${projectId}`).remove();
                 const remaining = document.querySelectorAll('#projectsList .project-row');
@@ -885,7 +885,7 @@
             if (!confirm('Delete this quote? This cannot be undone.')) return;
             const { error } = await _supabase.from('quotes').delete().eq('id', quoteId);
             if (error) {
-                alert('Error deleting quote.');
+                showToast('Error deleting quote.');
             } else {
                 document.getElementById(`quote-row-${quoteId}`).remove();
                 const remaining = document.querySelectorAll('#quotesList .quote-row');
@@ -933,7 +933,7 @@
         async function deleteAiQuote(id) {
             if (!confirm('Delete this AI quote request? This cannot be undone.')) return;
             const { error } = await _supabase.from('ai_quote_requests').delete().eq('id', id);
-            if (error) { alert('Error deleting request.'); return; }
+            if (error) { showToast('Error deleting request.'); return; }
             document.getElementById(`aiq-row-${id}`).remove();
             const remaining = document.querySelectorAll('[id^="aiq-row-"]');
             if (remaining.length === 0) {
@@ -980,7 +980,7 @@
             if (data) {
                 window.location.href = `workflow.html?project_id=${data.id}`;
             } else {
-                alert('Error creating project: ' + (error?.message || 'Unknown error'));
+                showToast('Error creating project: ' + (error?.message || 'Unknown error'));
             }
         }
 
@@ -993,6 +993,25 @@
 
         init();
     </script>
+<script>
+
+// ── Toast notification ──────────────────────────────
+function showToast(msg, type='error') {
+  let t = document.getElementById('_app_toast');
+  if(!t) {
+    t = document.createElement('div');
+    t.id = '_app_toast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;padding:12px 24px;border-radius:8px;font-family:DM Sans,sans-serif;font-size:0.85rem;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.15);transition:opacity 0.4s;pointer-events:none';
+    document.body.appendChild(t);
+  }
+  const cols = {error:['#FEE2E2','#991B1B'], success:['#D1FAE5','#065F46'], info:['#EBF3FB','#1D4ED8']};
+  const [bg, color] = cols[type]||cols.error;
+  t.style.background=bg; t.style.color=color;
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._hide); t._hide=setTimeout(()=>{ t.style.opacity='0'; },4000);
+}
+
+</script>
 </body>
 
 </html>
