@@ -98,11 +98,14 @@
     position: sticky; top: 0; z-index: 200;
     box-shadow: var(--shadow-sm);
   }
+  /* Row 1: brand + home button */
   .header-top {
-    padding: 20px 40px 0;
+    padding: 14px 40px;
     display: flex;
-    align-items: flex-end;
-    gap: 32px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid var(--border-light);
   }
   .brand p {
     font-size: 0.7rem;
@@ -119,34 +122,35 @@
     line-height: 1;
   }
 
-  /* ── MAIN NAV ── */
+  /* Row 2: main-nav (Chyler / Woodates / Signed) */
   .main-nav {
     display: flex;
     gap: 0;
-    flex: 1;
-    padding-bottom: 0;
+    padding: 0 40px;
+    background: var(--cream-dark);
+    border-bottom: 1px solid var(--border);
   }
   .main-nav-tab {
-    padding: 14px 22px;
-    font-size: 0.82rem;
-    font-weight: 600;
+    padding: 11px 22px;
+    font-size: 0.8rem;
+    font-weight: 700;
     color: var(--muted);
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     border-bottom: 2px solid transparent;
     white-space: nowrap;
     cursor: pointer;
     transition: all 0.2s;
   }
-  .main-nav-tab:hover { color: var(--dark); }
-  .main-nav-tab.active { color: var(--dark); border-bottom-color: var(--active); }
+  .main-nav-tab:hover { color: var(--dark); background: rgba(0,0,0,0.03); }
+  .main-nav-tab.active { color: var(--active); border-bottom-color: var(--active); background: var(--white); }
 
-  /* ── SUB TABS ── */
+  /* Row 3: sub-tabs (Pipeline / Progression / Master List) */
   .sub-nav {
     display: flex;
     gap: 0;
     padding: 0 40px;
     background: var(--white);
-    border-top: 1px solid var(--border-light);
   }
   .sub-tab {
     padding: 10px 20px;
@@ -164,11 +168,9 @@
   .sub-tab.active { color: var(--active); border-bottom-color: var(--active); }
 
   .header-actions {
-    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding-bottom: 14px;
   }
   .btn-outline {
     border: 1px solid var(--border);
@@ -584,11 +586,11 @@
 
   /* ── MOBILE IMPROVEMENTS ── */
   @media (max-width: 768px) {
-    .header-top { padding: 14px 16px 0; flex-wrap: wrap; gap: 12px; }
+    .header-top { padding: 12px 16px; }
     .brand h1 { font-size: 1.4rem; }
-    .main-nav { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; scrollbar-width: none; }
+    .main-nav { padding: 0 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; scrollbar-width: none; }
     .main-nav::-webkit-scrollbar { display: none; }
-    .main-nav-tab { padding: 12px 16px; font-size: 0.78rem; }
+    .main-nav-tab { padding: 10px 16px; font-size: 0.75rem; }
     .sub-nav { padding: 0 16px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     .sub-nav::-webkit-scrollbar { display: none; }
     .sub-tab { padding: 10px 14px; font-size: 0.72rem; white-space: nowrap; }
@@ -603,7 +605,6 @@
     .stat-pill { padding: 8px 12px; font-size: 0.78rem; }
     .stat-pill .count { font-size: 1.1rem; }
     .cards-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
-    .header-actions { padding-bottom: 12px; }
     /* Progression page header on mobile */
     #page-progression .page-header { flex-direction: column; align-items: stretch; }
     #page-progression .page-header > div:last-child { flex-wrap: wrap; }
@@ -617,28 +618,13 @@
     .w-table td, .w-table th { padding: 10px 12px; font-size: 0.8rem; }
   }
   @media (max-width: 480px) {
-    .header-top { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px 16px 0; }
-    .brand { flex: 1; }
+    .header-top { padding: 10px 14px; }
     .brand h1 { font-size: 1.25rem; }
-    /* Make main-nav scrollable on small screens instead of hiding it */
-    .main-nav {
-      width: 100%;
-      order: 3;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      flex-wrap: nowrap;
-      scrollbar-width: none;
-      border-top: 1px solid var(--border-light);
-      padding-top: 0;
-    }
-    .main-nav::-webkit-scrollbar { display: none; }
-    .main-nav-tab {
-      padding: 10px 14px;
-      font-size: 0.75rem;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .header-actions { padding-bottom: 8px; order: 2; }
+    /* main-nav and sub-nav are already full-width rows — just tighten padding */
+    .main-nav { padding: 0 12px; }
+    .main-nav-tab { padding: 9px 12px; font-size: 0.72rem; flex-shrink: 0; }
+    .sub-nav { padding: 0 12px; }
+    .sub-tab { padding: 9px 12px; font-size: 0.7rem; }
     .status-filter-row { gap: 6px; }
     .status-filter-pill { padding: 6px 12px; font-size: 0.72rem; }
     .page { padding: 16px 12px; }
@@ -760,20 +746,23 @@
 </div>
 
 <header>
+  <!-- Row 1: Brand + Home -->
   <div class="header-top">
     <div class="brand">
       <p>Woodates</p>
       <h1>Leads</h1>
     </div>
-    <div class="main-nav">
-      <div class="main-nav-tab active" onclick="switchMainNav('chyler', this)">Chyler Leads</div>
-      <div class="main-nav-tab" onclick="switchMainNav('woodates', this)">Woodates Leads</div>
-      <div class="main-nav-tab" onclick="switchMainNav('signed', this)">Chyler Signed</div>
-    </div>
     <div class="header-actions">
       <a href="index.html" class="btn-outline">← Home</a>
     </div>
   </div>
+  <!-- Row 2: Main section tabs -->
+  <div class="main-nav">
+    <div class="main-nav-tab active" onclick="switchMainNav('chyler', this)">Chyler Leads</div>
+    <div class="main-nav-tab" onclick="switchMainNav('woodates', this)">Woodates Leads</div>
+    <div class="main-nav-tab" onclick="switchMainNav('signed', this)">Chyler Signed</div>
+  </div>
+  <!-- Row 3: Sub-view tabs -->
   <div class="sub-nav" id="sub-nav-chyler">
     <div class="sub-tab active" onclick="switchSubTab('pipeline', this)">Pipeline</div>
     <div class="sub-tab" onclick="switchSubTab('progression', this)">Progression</div>
@@ -793,6 +782,17 @@
     <div class="page-title">Active Pipeline</div>
     <div class="page-subtitle">Kanban view — As of 11 Feb 2026</div>
   </div>
+  <div class="filters" style="margin-bottom:16px">
+    <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterPipeline()" id="pipeline-search">
+    <div style="display:flex;gap:8px;flex:1;min-width:0">
+      <select class="filter-select" style="flex:1" onchange="filterPipeline()" id="pipeline-pm-filter">
+        <option value="">All PMs</option>
+      </select>
+      <select class="filter-select" style="flex:1" onchange="filterPipeline()" id="pipeline-type-filter">
+        <option value="">All Types</option>
+      </select>
+    </div>
+  </div>
   <div class="status-filter-row">
     <div class="status-filter-pill sf-all selected" onclick="setPipelineFilter('ALL', this)"><span class="pill-count" id="pill-count-all"></span>All</div>
     <div class="status-filter-pill sf-active" onclick="setPipelineFilter('ACTIVE', this)"><span class="pill-count" id="pill-count-active"></span>Active</div>
@@ -800,15 +800,6 @@
     <div class="status-filter-pill sf-lapsed" onclick="setPipelineFilter('LAPSED', this)"><span class="pill-count" id="pill-count-lapsed"></span>Lapsed</div>
     <div class="status-filter-pill sf-keyco" onclick="setPipelineFilter('KEYCO', this)"><span class="pill-count" id="pill-count-keyco"></span>Key Collection</div>
     <div class="status-filter-pill sf-reachout" onclick="setPipelineFilter('REACHOUT', this)">🔔 Reach Out</div>
-  </div>
-  <div class="filters">
-    <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterPipeline()" id="pipeline-search">
-    <select class="filter-select" onchange="filterPipeline()" id="pipeline-pm-filter">
-      <option value="">All PMs</option>
-    </select>
-    <select class="filter-select" onchange="filterPipeline()" id="pipeline-type-filter">
-      <option value="">All Types</option>
-    </select>
   </div>
 
   <!-- REACH OUT SECTION -->
@@ -991,20 +982,22 @@
 
   <!-- ── WDT PIPELINE VIEW ── -->
   <div id="wdt-view-pipeline">
+    <div class="filters" style="margin-bottom:16px">
+      <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterWdtPipeline()" id="wdt-pipeline-search">
+      <div style="display:flex;gap:8px;flex:1;min-width:0">
+        <select class="filter-select" style="flex:1" onchange="filterWdtPipeline()" id="wdt-pipeline-pm-filter">
+          <option value="">All PMs</option>
+        </select>
+        <select class="filter-select" style="flex:1" onchange="filterWdtPipeline()" id="wdt-pipeline-type-filter">
+          <option value="">All Types</option>
+        </select>
+      </div>
+    </div>
     <div class="status-filter-row">
       <div class="status-filter-pill sf-all selected" onclick="setWdtPipelineFilter('ALL',this)"><span class="pill-count" id="wdt-pill-all"></span>All</div>
       <div class="status-filter-pill sf-active" onclick="setWdtPipelineFilter('ACTIVE',this)"><span class="pill-count" id="wdt-pill-active"></span>Active</div>
       <div class="status-filter-pill sf-signed" onclick="setWdtPipelineFilter('SIGNED',this)"><span class="pill-count" id="wdt-pill-signed"></span>Signed</div>
       <div class="status-filter-pill sf-lapsed" onclick="setWdtPipelineFilter('LAPSED',this)"><span class="pill-count" id="wdt-pill-lapsed"></span>Lapsed</div>
-    </div>
-    <div class="filters">
-      <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterWdtPipeline()" id="wdt-pipeline-search">
-      <select class="filter-select" onchange="filterWdtPipeline()" id="wdt-pipeline-pm-filter">
-        <option value="">All PMs</option>
-      </select>
-      <select class="filter-select" onchange="filterWdtPipeline()" id="wdt-pipeline-type-filter">
-        <option value="">All Types</option>
-      </select>
     </div>
     <div id="wdt-section-active">
       <div class="section-header">
