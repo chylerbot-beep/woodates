@@ -950,9 +950,221 @@
             text-align: center;
         }
 
+        /* ── AGENDA VIEW ─────────────────────────────────────── */
+        .agenda-view {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .agenda-day-group {
+            border-bottom: 1px solid var(--border);
+        }
+        .agenda-day-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 24px 10px;
+            position: sticky;
+            top: 0;
+            background: var(--cream);
+            z-index: 5;
+        }
+        .agenda-day-num {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--dark);
+            line-height: 1;
+            min-width: 36px;
+            text-align: center;
+        }
+        .agenda-day-info { display: flex; flex-direction: column; }
+        .agenda-day-name {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .agenda-day-month {
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+        .agenda-day-header.is-today .agenda-day-num {
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            font-size: 1.2rem;
+        }
+        .agenda-events { padding: 0 24px 12px 72px; display: flex; flex-direction: column; gap: 6px; }
+        .agenda-event-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.15s;
+            border: 1px solid transparent;
+        }
+        .agenda-event-row:hover { background: var(--cream); border-color: var(--border); }
+        .agenda-event-time {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--muted);
+            min-width: 80px;
+            padding-top: 2px;
+        }
+        .agenda-event-color-bar {
+            width: 3px;
+            border-radius: 2px;
+            min-height: 36px;
+            flex-shrink: 0;
+        }
+        .agenda-event-info { flex: 1; min-width: 0; }
+        .agenda-event-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--dark);
+            line-height: 1.3;
+        }
+        .agenda-event-sub {
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+        .agenda-empty-day {
+            padding: 8px 0;
+            color: var(--border);
+            font-size: 0.78rem;
+            font-style: italic;
+        }
+
+        /* ── MOBILE FAB ──────────────────────────────────────── */
+        .mobile-fab {
+            display: none;
+            position: fixed;
+            bottom: 24px;
+            right: 20px;
+            z-index: 300;
+            width: 52px;
+            height: 52px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(196,149,106,0.4);
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, transform 0.15s;
+        }
+        .mobile-fab:hover { background: var(--accent-hover); transform: scale(1.05); }
+
+        /* ── MOBILE SIDEBAR DRAWER ───────────────────────────── */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            z-index: 150;
+        }
+        .sidebar-overlay.open { display: block; }
+
+        /* ── MOBILE HEADER ───────────────────────────────────── */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--dark);
+            padding: 4px;
+        }
+
+        /* ── RESPONSIVE ──────────────────────────────────────── */
         @media (max-width: 768px) {
-            .sidebar { display: none; }
-            .cal-title { font-size: 1rem; }
+            header { padding: 14px 16px; }
+            .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
+            .header-nav { gap: 8px; }
+            .nav-link { display: none; }
+            #userDisplay { display: none; }
+            .logout-btn { padding: 6px 10px; font-size: 0.75rem; }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -280px;
+                height: 100%;
+                z-index: 200;
+                transition: left 0.25s ease;
+                width: 260px;
+                min-width: 260px;
+                padding-top: 60px;
+            }
+            .sidebar.open { left: 0; }
+            .sidebar-overlay { display: none; }
+            .sidebar-overlay.open { display: block; }
+            .mobile-fab { display: flex; }
+
+            .cal-toolbar {
+                padding: 10px 12px;
+                gap: 8px;
+                flex-wrap: nowrap;
+            }
+            .cal-nav-group { gap: 4px; flex: 1; min-width: 0; overflow: hidden; }
+            .cal-title { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .cal-today-btn { padding: 0 8px; font-size: 0.72rem; }
+            .cal-nav-btn { width: 28px; height: 28px; font-size: 0.8rem; flex-shrink: 0; }
+
+            .view-switcher {
+                flex-shrink: 0;
+                gap: 2px;
+                padding: 2px;
+            }
+            .view-btn {
+                padding: 4px 7px;
+                font-size: 0.68rem;
+            }
+
+            .agenda-day-header { padding: 12px 16px 8px; }
+            .agenda-events { padding: 0 16px 10px 60px; }
+            .agenda-event-time { min-width: 68px; font-size: 0.68rem; }
+
+            .week-header-row { grid-template-columns: 44px repeat(7, 1fr); }
+            .week-body { grid-template-columns: 44px repeat(7, 1fr); }
+            .time-slot-label { font-size: 0.55rem; padding: 4px 4px 0 0; }
+            .week-header-day { padding: 6px 3px; }
+            .week-header-day-label { font-size: 0.55rem; }
+            .week-header-day-num { font-size: 0.95rem; }
+            .week-header-day.is-today .week-header-day-num { width: 26px; height: 26px; font-size: 0.9rem; }
+            .event-block { padding: 2px 4px; font-size: 0.62rem; left: 1px; right: 1px; border-radius: 4px; }
+            .event-block .event-time-label { display: none; }
+
+            .month-body { grid-auto-rows: minmax(60px, 1fr); }
+            .month-cell { padding: 4px; min-height: 60px; }
+            .month-cell-num { font-size: 0.72rem; width: 22px; height: 22px; }
+            .month-event-pill { font-size: 0.58rem; padding: 1px 4px; }
+            .month-day-label { font-size: 0.58rem; padding: 6px 2px; }
+
+            .modal-card { margin: 12px; max-width: calc(100% - 24px); max-height: 92vh; border-radius: 12px; }
+            .modal-body { padding: 16px 18px; }
+            .modal-footer { padding: 12px 18px 18px; }
+            .modal-header { padding: 16px 18px 12px; }
+            .form-row-inline { grid-template-columns: 1fr; gap: 10px; }
+            .leave-type-grid { grid-template-columns: repeat(2, 1fr); }
+
+            footer { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .view-btn { padding: 4px 6px; font-size: 0.63rem; }
+            .cal-title { font-size: 0.78rem; }
         }
     </style>
 </head>
@@ -960,9 +1172,14 @@
 
 <!-- HEADER -->
 <header>
-    <div class="brand">
-        <h1>Woodates</h1>
-        <p>Schedule</p>
+    <div style="display:flex;align-items:center;gap:10px;">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="brand">
+            <h1>Woodates</h1>
+            <p>Schedule</p>
+        </div>
     </div>
     <div class="header-nav">
         <a href="index.html" class="nav-link">Portal</a>
@@ -972,11 +1189,14 @@
     </div>
 </header>
 
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <!-- MAIN BODY -->
 <div class="app-body">
 
     <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <button class="add-appt-btn" id="addApptBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -1009,7 +1229,9 @@
                 <span class="cal-title" id="calTitle"></span>
             </div>
             <div class="view-switcher">
+                <button class="view-btn" data-view="agenda">Agenda</button>
                 <button class="view-btn" data-view="day">Day</button>
+                <button class="view-btn" data-view="3day">3 Day</button>
                 <button class="view-btn active" data-view="week">Week</button>
                 <button class="view-btn" data-view="month">Month</button>
             </div>
@@ -1019,6 +1241,9 @@
         </div>
     </div>
 </div>
+
+<!-- Mobile FAB -->
+<button class="mobile-fab" id="mobileFab" aria-label="New appointment">+</button>
 
 <footer>&copy; 2025 Woodates Design &amp; Build Pte Ltd. All rights reserved.</footer>
 
@@ -1219,7 +1444,7 @@ let _currentUser = null;
 let _isAdmin = false;
 let _teamMembers = []; // [{id, name, role, color, visible}]
 let _events = [];
-let _currentView = 'week'; // day | week | month
+let _currentView = 'week'; // agenda | day | 3day | week | month
 let _viewDate = new Date(); // anchor date
 let _editingEventId = null;
 let _editingIsLeave = false;
@@ -1259,6 +1484,13 @@ async function init() {
 
     await loadTeam();
     setupUI();
+
+    // Default to agenda on mobile, week on desktop
+    if (window.innerWidth <= 768) {
+        _currentView = 'agenda';
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'agenda'));
+    }
+
     renderMiniCal();
     await loadEvents();
     renderCalendar();
@@ -1344,6 +1576,21 @@ async function loadEvents() {
 
 // ── SETUP UI ──────────────────────────────────────────────────
 function setupUI() {
+    // Mobile sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('open');
+    });
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+    });
+
+    // Mobile FAB
+    document.getElementById('mobileFab').addEventListener('click', () => openNewModal());
+
     // View buttons
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1381,7 +1628,11 @@ function setupUI() {
 function navigate(dir) {
     if (_currentView === 'day') {
         _viewDate = addDays(_viewDate, dir);
+    } else if (_currentView === '3day') {
+        _viewDate = addDays(_viewDate, dir * 3);
     } else if (_currentView === 'week') {
+        _viewDate = addDays(_viewDate, dir * 7);
+    } else if (_currentView === 'agenda') {
         _viewDate = addDays(_viewDate, dir * 7);
     } else {
         _viewDate = new Date(_viewDate.getFullYear(), _viewDate.getMonth() + dir, 1);
@@ -1460,6 +1711,8 @@ function renderCalendar() {
 
     if (_currentView === 'week') renderWeek(area);
     else if (_currentView === 'day') renderDay(area);
+    else if (_currentView === '3day') render3Day(area);
+    else if (_currentView === 'agenda') renderAgenda(area);
     else renderMonth(area);
 }
 
@@ -1470,6 +1723,11 @@ function updateCalTitle() {
 
     if (_currentView === 'day') {
         title.textContent = `${dayNames[_viewDate.getDay()]}, ${monthNames[_viewDate.getMonth()]} ${_viewDate.getDate()}, ${_viewDate.getFullYear()}`;
+    } else if (_currentView === '3day') {
+        const end3 = addDays(_viewDate, 2);
+        title.textContent = `${monthNames[_viewDate.getMonth()]} ${_viewDate.getDate()} – ${end3.getDate()}, ${_viewDate.getFullYear()}`;
+    } else if (_currentView === 'agenda') {
+        title.textContent = `${monthNames[_viewDate.getMonth()]} ${_viewDate.getFullYear()}`;
     } else if (_currentView === 'week') {
         const wstart = weekStart(_viewDate);
         const wend = addDays(wstart, 6);
@@ -1585,6 +1843,108 @@ function renderDay(area) {
     scrollToWorkingHours(area);
 }
 
+// ── 3-DAY VIEW ────────────────────────────────────────────────
+function render3Day(area) {
+    const today = new Date();
+    const days = Array.from({length:3}, (_, i) => addDays(_viewDate, i));
+    const hours = Array.from({length:24}, (_, i) => i);
+    const names = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    const dayHeaders = days.map(d => {
+        const isToday = sameDay(d, today);
+        return `
+            <div class="week-header-day ${isToday ? 'is-today' : ''}" data-date="${toDateStr(d)}">
+                <div class="week-header-day-label">${names[d.getDay()]}</div>
+                <div class="week-header-day-num">${d.getDate()}</div>
+            </div>
+        `;
+    }).join('');
+
+    const timeSlots = hours.map(h => {
+        const label = h === 0 ? '' : (h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`);
+        return `<div class="time-slot-label">${label}</div>`;
+    }).join('');
+
+    const dayCols = days.map(d => {
+        const dateStr = toDateStr(d);
+        const dayEvents = getVisibleEventsForDate(dateStr);
+        const hourRows = hours.map(h => `<div class="hour-row" data-date="${dateStr}" data-hour="${h}" onclick="handleCellClick(event,'${dateStr}',${h})"></div>`).join('');
+        const eventBlocks = dayEvents.map(ev => renderEventBlock(ev)).join('');
+        return `<div class="day-col" data-date="${dateStr}">${hourRows}${eventBlocks}</div>`;
+    }).join('');
+
+    area.innerHTML = `
+        <div class="week-grid">
+            <div class="week-header-row" style="grid-template-columns:60px repeat(3,1fr);">
+                <div class="week-header-time"></div>
+                ${dayHeaders}
+            </div>
+            <div class="week-body" style="grid-template-columns:60px repeat(3,1fr);" id="weekBody">
+                <div class="time-col">${timeSlots}</div>
+                ${dayCols}
+            </div>
+        </div>
+    `;
+    scrollToWorkingHours(area);
+}
+
+// ── AGENDA VIEW ───────────────────────────────────────────────
+function renderAgenda(area) {
+    const today = new Date();
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    // Show 30 days starting from _viewDate
+    const days = Array.from({length:30}, (_, i) => addDays(_viewDate, i));
+
+    const groups = days.map(d => {
+        const dateStr = toDateStr(d);
+        const evs = getVisibleEventsForDate(dateStr);
+        const isToday = sameDay(d, today);
+        const evRows = evs.map(ev => {
+            const m = getMember(ev.assignee_id);
+            const color = m?.color || '#C4956A';
+            const isLeave = ev.event_type === 'leave';
+            const timeLabel = isLeave && ev.start_time === '00:00' ? '🌴 All day'
+                : formatTime(ev.start_time) + ' – ' + formatTime(ev.end_time);
+            const sub = [m?.name, ev.client_name, ev.location].filter(Boolean).join(' · ');
+            return `
+                <div class="agenda-event-row" onclick="showEventDetail('${esc(ev.id)}')">
+                    <div class="agenda-event-time">${esc(timeLabel)}</div>
+                    <div class="agenda-event-color-bar" style="background:${color};${isLeave ? 'border:1.5px dashed '+color+';background:'+color+'30;' : ''}"></div>
+                    <div class="agenda-event-info">
+                        <div class="agenda-event-title">${esc(ev.title)}</div>
+                        ${sub ? `<div class="agenda-event-sub">${esc(sub)}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        return `
+            <div class="agenda-day-group">
+                <div class="agenda-day-header ${isToday ? 'is-today' : ''}" onclick="openNewModal('${dateStr}')">
+                    <div class="agenda-day-num">${d.getDate()}</div>
+                    <div class="agenda-day-info">
+                        <div class="agenda-day-name">${dayNames[d.getDay()]}</div>
+                        <div class="agenda-day-month">${monthNames[d.getMonth()]} ${d.getFullYear()}</div>
+                    </div>
+                </div>
+                <div class="agenda-events">
+                    ${evRows || '<div class="agenda-empty-day">No appointments</div>'}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    area.innerHTML = `<div class="agenda-view">${groups}</div>`;
+
+    // Scroll to today if visible
+    setTimeout(() => {
+        const todayHeader = area.querySelector('.agenda-day-header.is-today');
+        if (todayHeader) todayHeader.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }, 50);
+}
+
 // ── MONTH VIEW ────────────────────────────────────────────────
 function renderMonth(area) {
     const year = _viewDate.getFullYear();
@@ -1640,8 +2000,8 @@ function renderMonthCell(date, otherMonth, today) {
 
 function handleMonthCellClick(dateStr) {
     _viewDate = new Date(dateStr + 'T12:00:00');
-    _currentView = 'day';
-    document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'day'));
+    _currentView = window.innerWidth <= 768 ? 'agenda' : 'day';
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === _currentView));
     renderCalendar();
 }
 
