@@ -728,7 +728,7 @@
           {
             id: 'workflowCard',
             href: '#',
-            onclick: 'createAndOpenProject(event)',
+            dataAction: 'createAndOpenProject',
             icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
             title: 'PM Project Checklist',
             desc: 'Track project progress from onboarding to handover. Manage technical site visits and documentation protocols.',
@@ -762,7 +762,7 @@
           grid.innerHTML = TOOL_ORDER
             .filter(t => !t.adminOnly || isAdmin)
             .map(t => `
-              <a href="${t.href}" class="card" id="${t.id}"${t.onclick ? ` onclick="${t.onclick}"` : ''}>
+              <a href="${t.href}" class="card" id="${t.id}"${t.dataAction ? ` data-action="${t.dataAction}" data-args="${t.dataArgs||''}"` : ''}>
                 <div class="card-icon">${t.icon}</div>
                 <h3>${t.title}</h3>
                 <p>${t.desc}</p>
@@ -822,7 +822,7 @@
                         <div style="font-size: 0.85rem; color: var(--accent); font-weight: 600;">${esc(designerName)}</div>
                         <div style="display:flex; align-items:center; gap:8px;">
                             <a href="workflow.html?project_id=${esc(p.id)}" class="btn-open">Open</a>
-                            <button class="btn-delete" onclick="deleteProject('${esc(p.id)}')">Delete</button>
+                            <button class="btn-delete" data-action="deleteProject" data-id="${esc(p.id)}">Delete</button>
                         </div>
                     </div>
                 `;
@@ -881,7 +881,7 @@
                         <div style="font-size:0.8rem; color:#9E9590;">${date}</div>
                         <div style="display:flex; align-items:center; gap:8px;">
                             <a href="quote-tool.html?quote_id=${esc(q.id)}" class="btn-open">Open</a>
-                            <button class="btn-delete" onclick="deleteQuote('${esc(q.id)}')">Delete</button>
+                            <button class="btn-delete" data-action="deleteQuote" data-id="${esc(q.id)}">Delete</button>
                         </div>
                     </div>
                 `;
@@ -930,7 +930,7 @@
                         <div style="font-size:0.8rem;color:#9E9590;">${date}</div>
                         <div><span class="status-badge status-${esc(status)}">${esc(status)}</span></div>
                         <div>
-                            <button class="btn-delete" onclick="deleteAiQuote('${esc(r.id)}')">Delete</button>
+                            <button class="btn-delete" data-action="deleteAiQuote" data-id="${esc(r.id)}">Delete</button>
                         </div>
                     </div>
                 `;
@@ -1052,6 +1052,19 @@ function showToast(msg, type='error') {
   t.textContent=msg; t.style.opacity='1';
   clearTimeout(t._hide); t._hide=setTimeout(()=>{ t.style.opacity='0'; },4000);
 }
+
+
+        // Event delegation - replaces all onclick attributes
+        document.addEventListener('click', async function(e) {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const action = btn.dataset.action;
+            const id = btn.dataset.id || null;
+            if (action === 'deleteProject') deleteProject(id);
+            else if (action === 'deleteQuote') deleteQuote(id);
+            else if (action === 'deleteAiQuote') deleteAiQuote(id);
+            else if (action === 'createAndOpenProject') createAndOpenProject(e);
+        });
 
 </script>
 </body>
