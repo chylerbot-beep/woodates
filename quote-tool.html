@@ -706,8 +706,8 @@
                 </div>
 
                 <div class="flex justify-between mt-4">
-                    <button class="btn btn-secondary" onclick="goToStep(1)">&larr; Back</button>
-                    <button class="btn" onclick="goToStep(3)">Preview Quote &rarr;</button>
+                    <button class="btn btn-secondary" data-action="goToStep" data-step="1">&larr; Back</button>
+                    <button class="btn" data-action="goToStep" data-step="3">Preview Quote &rarr;</button>
                 </div>
             </div>
 
@@ -718,25 +718,25 @@
                 </div>
 
                 <div class="text-center mt-4 no-print">
-                    <button class="btn btn-secondary" onclick="goToStep(2)" style="margin-right:1rem;">&larr; Edit
+                    <button class="btn btn-secondary" data-action="goToStep" data-step="2" style="margin-right:1rem;">&larr; Edit
                         Items</button>
                     <div
                         style="display:inline-flex; gap:0.75rem; flex-wrap:wrap; justify-content:center; margin-top:0; vertical-align:middle;">
-                        <button class="btn" onclick="window.print()"
+                        <button class="btn" data-action="printPage"
                             style="display:inline-flex;align-items:center;gap:0.5rem;">
                             🖨️ Download PDF / Print
                         </button>
-                        <button class="btn btn-secondary" onclick="downloadExcel()"
+                        <button class="btn btn-secondary" data-action="downloadExcel"
                             style="display:inline-flex;align-items:center;gap:0.5rem;">
                             📊 Download Excel
                         </button>
-                        <button class="btn" onclick="saveQuoteToSupabase()"
+                        <button class="btn" data-action="saveQuoteToSupabase"
                             style="display:inline-flex;align-items:center;gap:0.5rem;background:#4A7C59;border-color:#4A7C59;">
                             💾 Save to Portal
                         </button>
                     </div>
                     <div style="margin-top: 1.5rem;">
-                        <button class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.75rem;" onclick="resetQuote()">Reset Entire Quote</button>
+                        <button class="btn btn-danger" style="padding: 0.5rem 1rem; font-size: 0.75rem;" data-action="resetQuote">Reset Entire Quote</button>
                     </div>
                 </div>
             </div>
@@ -1013,13 +1013,13 @@
             container.innerHTML = `
         <div style="display:flex; flex-wrap:wrap; gap:0.75rem; width:100%;">
             ${TABS.map(tab => `
-            <button class="tab-btn ${state.activeTab === tab.id ? 'active' : ''}" onclick="setActiveTab('${tab.id}')">
+            <button class="tab-btn ${state.activeTab === tab.id ? 'active' : ''}" data-action="setActiveTab" data-tab="${tab.id}">
                 ${tab.label}
             </button>
             `).join('')}
         </div>
         <div style="width:100%; padding-top:0.5rem;">
-            <button onclick="loadBTOPreset()" style="
+            <button data-action="loadBTOPreset" style="
                 padding: 0.75rem 1.75rem;
                 background: var(--accent);
                 border: none;
@@ -1868,7 +1868,22 @@ function showToast(msg, type='error') {
   clearTimeout(t._hide); t._hide = setTimeout(()=>{ t.style.opacity='0'; }, 4000);
 }
 
-    </script>
+    
+    // Event delegation - replaces all onclick attributes
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        if (action === 'goToStep') goToStep(Number(btn.dataset.step));
+        else if (action === 'printPage') window.print();
+        else if (action === 'downloadExcel') downloadExcel();
+        else if (action === 'saveQuoteToSupabase') saveQuoteToSupabase();
+        else if (action === 'resetQuote') resetQuote();
+        else if (action === 'loadBTOPreset') loadBTOPreset();
+        else if (action === 'setActiveTab') setActiveTab(btn.dataset.tab);
+    });
+
+</script>
 
 </body>
 
