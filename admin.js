@@ -32,6 +32,7 @@ const { createClient } = supabase;
 
             document.body.style.display = 'flex';
             fetchAllProjects();
+            fetchCompletedQuotes();
             fetchAiQuoteRequests();
         }
 
@@ -67,7 +68,49 @@ const { createClient } = supabase;
                         <td>${esc(p.client_name) || '&mdash;'}</td>
                         <td><span class="status-badge status-${esc(status)}">${esc(status.replace('_', ' '))}</span></td>
                         <td>${date}</td>
-                        <td><a href="workflow.html?project_id=${esc(p.id)}&readonly=true" class="btn-view">View Only</a></td>
+                        <td style="display:flex;gap:8px;align-items:center;">
+                            <a href="workflow.html?project_id=${esc(p.id)}&readonly=true" class="btn-view">View Only</a>
+                            <button class="btn-delete" data-action="deleteProject" data-id="${esc(p.id)}" data-label="${esc(p.project_name || 'this project')}">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ── COMPLETED QUOTES ──────────────────────────────────────────────
+        async function fetchCompletedQuotes() {
+            const body = document.getElementById('completedQuotesBody');
+            const { data: quotes, error } = await _supabase
+                .from('quotes')
+                .select('*, profiles(full_name)')
+                .eq('status', 'completed')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                body.innerHTML = '<tr><td colspan="7" class="no-data">Error loading completed quotes.</td></tr>';
+                return;
+            }
+
+            if (!quotes || quotes.length === 0) {
+                body.innerHTML = '<tr><td colspan="7" class="no-data">No completed quotes yet.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = quotes.map(q => {
+                const date = new Date(q.created_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
+                const designer = q.profiles?.full_name || 'Unknown';
+                const total = q.total_amount != null
+                    ? '$' + Number(q.total_amount).toLocaleString('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    : '—';
+                return `
+                    <tr>
+                        <td class="designer-name">${esc(designer)}</td>
+                        <td style="font-weight:600;">${esc(q.quote_number || q.id?.slice(0,8) || '—')}</td>
+                        <td>${esc(q.client_name || '—')}</td>
+                        <td style="font-size:0.85rem;color:#6B5B4E;">${esc(q.address || '—')}</td>
+                        <td style="font-weight:700;color:var(--accent);">${total}</td>
+                        <td style="font-size:0.82rem;color:#9E9590;">${date}</td>
+                        <td><button class="btn-delete" data-action="deleteQuote" data-id="${esc(q.id)}" data-label="${esc(q.quote_number || q.client_name || 'this quote')}">Delete</button></td>
                     </tr>
                 `;
             }).join('');
@@ -106,6 +149,7 @@ const { createClient } = supabase;
                         <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                             <button class="btn-dl" style="font-size:0.75rem;padding:5px 10px;" data-action="openModal" data-id="${esc(r.id)}">View Answers</button>
                             ${status !== 'completed' ? `<button class="btn-complete" style="font-size:0.75rem;padding:5px 10px;" data-action="markComplete" data-id="${esc(r.id)}">✓ Complete</button>` : ''}
+                            <button class="btn-delete" data-action="deleteHelpMeQuote" data-id="${esc(r.id)}" data-label="${esc(r.client_name || 'this request')}">Delete</button>
                         </td>
                     </tr>
                 `;
@@ -204,6 +248,31 @@ const { createClient } = supabase;
             closeModal();
         }
 
+        // ── DELETE FUNCTIONS ──────────────────────────────────────────────
+        async function deleteProject(id, label) {
+            if (!confirm(`Delete project "${label}"? This cannot be undone.`)) return;
+            const { error } = await _supabase.from('projects').delete().eq('id', id);
+            if (error) { showToast('Error deleting project.'); return; }
+            showToast('Project deleted.', 'success');
+            fetchAllProjects();
+        }
+
+        async function deleteQuote(id, label) {
+            if (!confirm(`Delete quote "${label}"? This cannot be undone.`)) return;
+            const { error } = await _supabase.from('quotes').delete().eq('id', id);
+            if (error) { showToast('Error deleting quote.'); return; }
+            showToast('Quote deleted.', 'success');
+            fetchCompletedQuotes();
+        }
+
+        async function deleteHelpMeQuote(id, label) {
+            if (!confirm(`Delete Help Me Quote request from "${label}"? This cannot be undone.`)) return;
+            const { error } = await _supabase.from('ai_quote_requests').delete().eq('id', id);
+            if (error) { showToast('Error deleting request.'); return; }
+            showToast('Request deleted.', 'success');
+            fetchAiQuoteRequests();
+        }
+
         init();
 
         // Event delegation - replaces all onclick attributes
@@ -212,9 +281,13 @@ const { createClient } = supabase;
             if (!btn) return;
             const action = btn.dataset.action;
             const id = btn.dataset.id || null;
+            const label = btn.dataset.label || '';
             if (action === 'closeModal') closeModal();
             else if (action === 'markComplete') markComplete(id);
             else if (action === 'openModal') openModal(id);
+            else if (action === 'deleteProject') deleteProject(id, label);
+            else if (action === 'deleteQuote') deleteQuote(id, label);
+            else if (action === 'deleteHelpMeQuote') deleteHelpMeQuote(id, label);
         });
 
 // ── Toast notification ──────────────────────────────

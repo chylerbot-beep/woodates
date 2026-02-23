@@ -222,6 +222,25 @@
 
         .btn-dl:hover { opacity: 0.85; }
 
+        .btn-delete {
+            background: none;
+            color: #C0392B;
+            border: 1px solid #C0392B;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-delete:hover {
+            background: #C0392B;
+            color: white;
+        }
+
         .ai-table th, .ai-table td { padding: 14px 20px; }
 
         .ai-table { font-size: 0.88rem; }
@@ -368,7 +387,7 @@
     </header>
 
     <main>
-        <h2>Global Project Oversight</h2>
+        <h2>All Projects</h2>
 
         <div class="admin-container">
             <table class="project-table">
@@ -390,7 +409,28 @@
             </table>
         </div>
 
-        <h2 class="section-divider">AI Quote Requests</h2>
+        <h2 class="section-divider">Completed Quotes</h2>
+
+        <div class="admin-container">
+            <table class="project-table ai-table">
+                <thead>
+                    <tr>
+                        <th>Designer</th>
+                        <th>Quote No.</th>
+                        <th>Client</th>
+                        <th>Address</th>
+                        <th>Total</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="completedQuotesBody">
+                    <tr><td colspan="7" class="loading">Fetching completed quotes...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 class="section-divider">Pending Help Me Quotes</h2>
 
         <div class="admin-container">
             <table class="project-table ai-table">
@@ -405,7 +445,7 @@
                     </tr>
                 </thead>
                 <tbody id="aiQuotesBody">
-                    <tr><td colspan="6" class="loading">Fetching AI quote requests...</td></tr>
+                    <tr><td colspan="6" class="loading">Fetching pending requests...</td></tr>
                 </tbody>
             </table>
         </div>
