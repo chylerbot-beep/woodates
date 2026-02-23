@@ -479,7 +479,7 @@
                     <polyline points="20 6 9 17 4 12"/>
                 </svg>
                 <span class="file-name" id="fileName"></span>
-                <button class="remove-file" onclick="removeFile()">Remove</button>
+                <button class="remove-file" data-action="removeFile">Remove</button>
             </div>
             <div class="field-error" id="err-floorPlan">Please upload the floor plan.</div>
         </div>
@@ -811,7 +811,7 @@
         </div>
 
         <div class="submit-area">
-            <button class="btn-submit" id="submitBtn" onclick="submitQuoteRequest()">Submit Quote Request</button>
+            <button class="btn-submit" id="submitBtn" data-action="submitQuoteRequest">Submit Quote Request</button>
         </div>
     </div>
 
@@ -1085,6 +1085,16 @@ function showToast(msg, type='error') {
   t.textContent=msg; t.style.opacity='1';
   clearTimeout(t._hide); t._hide=setTimeout(()=>{ t.style.opacity='0'; },4000);
 }
+
+
+  // Event delegation - replaces all onclick attributes
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    if (action === 'removeFile') removeFile();
+    else if (action === 'submitQuoteRequest') submitQuoteRequest();
+  });
 
 </script>
 </body>
