@@ -1026,9 +1026,9 @@
             .sidebar.open { left: 0; }
             .mobile-fab { display: flex; }
 
-            .cal-toolbar { padding: 10px 12px; gap: 8px; flex-wrap: nowrap; }
-            .cal-nav-group { gap: 4px; flex: 1; min-width: 0; overflow: hidden; }
-            .cal-title { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .cal-toolbar { padding: 8px 12px; gap: 6px; flex-wrap: wrap; }
+            .cal-nav-group { gap: 4px; flex: 1; min-width: 0; }
+            .cal-title { font-size: 0.82rem; white-space: nowrap; }
             .cal-today-btn { padding: 0 8px; font-size: 0.72rem; }
             .cal-nav-btn { width: 28px; height: 28px; font-size: 0.8rem; flex-shrink: 0; }
             .view-switcher { flex-shrink: 0; gap: 2px; padding: 2px; }
@@ -1129,10 +1129,10 @@
             </div>
             <div class="view-switcher">
                 <button class="view-btn" data-view="agenda">Agenda</button>
-                <button class="view-btn" data-view="day">Day</button>
-                <button class="view-btn" data-view="3day">3 Day</button>
-                <button class="view-btn active" data-view="week">Week</button>
-                <button class="view-btn" data-view="month">Month</button>
+                <button class="view-btn" data-view="day">1D</button>
+                <button class="view-btn" data-view="3day">3D</button>
+                <button class="view-btn active" data-view="week">1W</button>
+                <button class="view-btn" data-view="month">1M</button>
             </div>
         </div>
         <div class="calendar-area" id="calendarArea">
@@ -1606,8 +1606,13 @@ function renderCalendar() {
 
 function updateCalTitle() {
     const title = document.getElementById('calTitle');
-    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const isMobile = window.innerWidth <= 768;
+    const monthNames = isMobile
+        ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+        : ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const dayNames = isMobile
+        ? ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+        : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
     if (_currentView === 'day') {
         title.textContent = `${dayNames[_viewDate.getDay()]}, ${monthNames[_viewDate.getMonth()]} ${_viewDate.getDate()}, ${_viewDate.getFullYear()}`;
