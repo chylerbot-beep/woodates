@@ -42,25 +42,18 @@ const { createClient } = supabase;
                 .select('*, profiles(full_name)')
                 .order('updated_at', { ascending: false });
 
-            if (error) {
-                projectsBody.innerHTML = '<tr><td colspan="6" class="no-data">Error loading projects.</td></tr>';
-                return;
-            }
+            const cards = document.getElementById('projectsCards');
 
-            if (!projects || projects.length === 0) {
-                projectsBody.innerHTML = '<tr><td colspan="6" class="no-data">No projects found in the system.</td></tr>';
+            if (error || !projects || projects.length === 0) {
+                projectsBody.innerHTML = '<tr><td colspan="6" class="no-data">No projects found.</td></tr>';
+                cards.innerHTML = '<div class="m-empty">No projects found.</div>';
                 return;
             }
 
             projectsBody.innerHTML = projects.map(p => {
-                const date = new Date(p.updated_at).toLocaleDateString('en-SG', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric'
-                });
+                const date = new Date(p.updated_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
                 const status = p.status || 'in_progress';
                 const designerName = p.profiles ? p.profiles.full_name : 'Unknown';
-
                 return `
                     <tr>
                         <td class="designer-name">${esc(designerName)}</td>
@@ -75,11 +68,43 @@ const { createClient } = supabase;
                     </tr>
                 `;
             }).join('');
+
+            cards.innerHTML = '<div class="card-list">' + projects.map(p => {
+                const date = new Date(p.updated_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
+                const status = p.status || 'in_progress';
+                const designerName = p.profiles ? p.profiles.full_name : 'Unknown';
+                return `
+                    <div class="m-card">
+                        <div class="m-card-header">
+                            <div>
+                                <div class="m-card-title">${esc(p.project_name || 'Untitled')}</div>
+                                <div class="m-card-sub">${esc(designerName)}</div>
+                            </div>
+                            <span class="status-badge status-${esc(status)}">${esc(status.replace('_', ' '))}</span>
+                        </div>
+                        <div class="m-card-meta">
+                            <div class="m-meta-item">
+                                <span class="m-meta-label">Client</span>
+                                <span class="m-meta-value">${esc(p.client_name || '—')}</span>
+                            </div>
+                            <div class="m-meta-item">
+                                <span class="m-meta-label">Updated</span>
+                                <span class="m-meta-value">${date}</span>
+                            </div>
+                        </div>
+                        <div class="m-card-actions">
+                            <a href="workflow.html?project_id=${esc(p.id)}&readonly=true" class="btn-view">View Only</a>
+                            <button class="btn-delete" data-action="deleteProject" data-id="${esc(p.id)}" data-label="${esc(p.project_name || 'this project')}">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('') + '</div>';
         }
 
         // ── COMPLETED QUOTES ──────────────────────────────────────────────
         async function fetchCompletedQuotes() {
             const body = document.getElementById('completedQuotesBody');
+            const cards = document.getElementById('completedQuotesCards');
             const { data: quotes, error } = await _supabase
                 .from('quotes')
                 .select('*, profiles(full_name)')
@@ -88,6 +113,7 @@ const { createClient } = supabase;
 
             if (error || !quotes || quotes.length === 0) {
                 body.innerHTML = '<tr><td colspan="7" class="no-data">No quotes yet.</td></tr>';
+                cards.innerHTML = '<div class="m-empty">No quotes yet.</div>';
                 return;
             }
 
@@ -109,6 +135,42 @@ const { createClient } = supabase;
                     </tr>
                 `;
             }).join('');
+
+            cards.innerHTML = '<div class="card-list">' + quotes.map(q => {
+                const date = new Date(q.created_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
+                const designer = q.profiles?.full_name || 'Unknown';
+                const total = q.total_amount != null
+                    ? '$' + Number(q.total_amount).toLocaleString('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    : '—';
+                return `
+                    <div class="m-card">
+                        <div class="m-card-header">
+                            <div>
+                                <div class="m-card-title">${esc(q.quote_number || q.id?.slice(0,8) || 'Quote')}</div>
+                                <div class="m-card-sub">${esc(designer)}</div>
+                            </div>
+                            <span style="font-weight:700;color:var(--accent);font-size:0.95rem;">${total}</span>
+                        </div>
+                        <div class="m-card-meta">
+                            <div class="m-meta-item">
+                                <span class="m-meta-label">Client</span>
+                                <span class="m-meta-value">${esc(q.client_name || '—')}</span>
+                            </div>
+                            <div class="m-meta-item">
+                                <span class="m-meta-label">Date</span>
+                                <span class="m-meta-value">${date}</span>
+                            </div>
+                            <div class="m-meta-item" style="grid-column:1/-1;">
+                                <span class="m-meta-label">Address</span>
+                                <span class="m-meta-value">${esc(q.address || '—')}</span>
+                            </div>
+                        </div>
+                        <div class="m-card-actions">
+                            <button class="btn-delete" data-action="deleteQuote" data-id="${esc(q.id)}" data-label="${esc(q.quote_number || q.client_name || 'this quote')}">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('') + '</div>';
         }
 
         // ── AI QUOTE REQUESTS ─────────────────────────────────────────────
@@ -116,6 +178,7 @@ const { createClient } = supabase;
 
         async function fetchAiQuoteRequests() {
             const body = document.getElementById('aiQuotesBody');
+            const cards = document.getElementById('aiQuotesCards');
             const { data: requests, error } = await _supabase
                 .from('ai_quote_requests')
                 .select('*, profiles(full_name)')
@@ -123,6 +186,7 @@ const { createClient } = supabase;
 
             if (error || !requests || requests.length === 0) {
                 body.innerHTML = '<tr><td colspan="6" class="no-data">No quotes yet.</td></tr>';
+                cards.innerHTML = '<div class="m-empty">No quotes yet.</div>';
                 return;
             }
 
@@ -133,7 +197,6 @@ const { createClient } = supabase;
                 const floorPlanCell = r.floor_plan_url
                     ? `<a href="${esc(r.floor_plan_url)}" target="_blank" class="btn-dl" style="font-size:0.75rem;padding:4px 10px;">⬇ Download</a>`
                     : '<span style="color:#9E9590;font-size:0.85rem;">—</span>';
-
                 return `
                     <tr id="aiq-admin-${esc(r.id)}">
                         <td class="designer-name">${esc(designer)}</td>
@@ -149,6 +212,39 @@ const { createClient } = supabase;
                     </tr>
                 `;
             }).join('');
+
+            cards.innerHTML = '<div class="card-list">' + requests.map(r => {
+                const date = new Date(r.created_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
+                const status = r.status || 'pending';
+                const designer = r.profiles?.full_name || 'Unknown';
+                return `
+                    <div class="m-card">
+                        <div class="m-card-header">
+                            <div>
+                                <div class="m-card-title">${esc(r.client_name || 'Unknown Client')}</div>
+                                <div class="m-card-sub">${esc(designer)}</div>
+                            </div>
+                            <span class="status-badge status-${esc(status)}">${esc(status)}</span>
+                        </div>
+                        <div class="m-card-meta">
+                            <div class="m-meta-item">
+                                <span class="m-meta-label">Submitted</span>
+                                <span class="m-meta-value">${date}</span>
+                            </div>
+                            <div class="m-meta-item">
+                                <span class="m-meta-label">Floor Plan</span>
+                                <span class="m-meta-value">${r.floor_plan_url ? '✓ Attached' : '—'}</span>
+                            </div>
+                        </div>
+                        <div class="m-card-actions">
+                            <button class="btn-dl" data-action="openModal" data-id="${esc(r.id)}">View Answers</button>
+                            ${r.floor_plan_url ? `<a href="${esc(r.floor_plan_url)}" target="_blank" class="btn-dl">⬇ Floor Plan</a>` : ''}
+                            ${status !== 'completed' ? `<button class="btn-complete" data-action="markComplete" data-id="${esc(r.id)}">✓ Complete</button>` : ''}
+                            <button class="btn-delete" data-action="deleteHelpMeQuote" data-id="${esc(r.id)}" data-label="${esc(r.client_name || 'this request')}">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('') + '</div>';
         }
 
         function openModal(id) {
