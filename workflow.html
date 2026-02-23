@@ -948,10 +948,10 @@
     <div class="header-actions">
       <span class="save-status" id="saveStatus"></span>
       <div class="btn-group">
-        <button class="btn btn-ghost" onclick="window.location.href='index.html'"
+        <button class="btn btn-ghost" data-action="goHome"
           style="border-color: rgba(255,255,255,0.2); color: #BDB5AD;">← Home</button>
-        <button class="btn btn-save" id="saveBtn" onclick="manualSave()">💾 Save</button>
-        <button class="btn btn-ghost" onclick="resetAll()">↺ Reset</button>
+        <button class="btn btn-save" id="saveBtn" data-action="manualSave">💾 Save</button>
+        <button class="btn btn-ghost" data-action="resetAll">↺ Reset</button>
       </div>
     </div>
   </header>
@@ -981,7 +981,7 @@
           <option value="">— Select a designer to add —</option>
         </select>
       </div>
-      <button class="btn-add-designer" id="btnAddDesigner" onclick="addDesignerFromSelect()" disabled>+ Add</button>
+      <button class="btn-add-designer" id="btnAddDesigner" data-action="addDesignerFromSelect" disabled>+ Add</button>
     </div>
     <div class="designer-tags" id="designerTags">
       <span class="designers-empty" id="designersEmpty">No designers assigned yet.</span>
@@ -1003,7 +1003,7 @@
       <strong id="footerChecked">0</strong> / <span id="footerTotal">0</span> tasks completed
     </div>
     <div class="footer-actions">
-      <button class="btn btn-danger" onclick="resetAll()">Reset All</button>
+      <button class="btn btn-danger" data-action="resetAll">Reset All</button>
     </div>
   </footer>
 
@@ -1390,7 +1390,7 @@
         const cnt = phase.tasks.filter((_, tIdx) => state[getKey(pIdx, tIdx)]).length;
 
         el.innerHTML = `
-      <div class="phase-header" onclick="togglePhase(${pIdx})">
+      <div class="phase-header" data-action="togglePhase" data-idx="${pIdx}">
         <div class="phase-number">${phase.num}</div>
         <div class="phase-title-wrap">
           <div class="phase-title">${phase.title}${phase.sub ? ` <small style="font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:400;color:var(--warm-mid);">&mdash; ${phase.sub}</small>` : ''}</div>
@@ -1410,20 +1410,20 @@
           const subTick = task.photoSent ? `
             <div class="sub-tick-row${subChecked ? ' sub-checked-row' : ''}" id="subrow_${pIdx}_${tIdx}">
               <div class="sub-checkbox${subChecked ? ' sub-checked' : ''}" id="subcb_${pIdx}_${tIdx}"
-                onclick="event.stopPropagation(); toggleSubTick(${pIdx}, ${tIdx})"></div>
+                data-action="toggleSubTick" data-pidx="${pIdx}" data-tidx="${tIdx}"></div>
               <span class="sub-tick-label">📸 Photo sent to WhatsApp group</span>
             </div>` : '';
           return `
           <div class="task-row ${checked}" id="row_${pIdx}_${tIdx}">
             <div class="task-checkbox-wrap">
-              <div class="task-checkbox" onclick="toggleTask(${pIdx}, ${tIdx})"></div>
+              <div class="task-checkbox" data-action="toggleTask" data-pidx="${pIdx}" data-tidx="${tIdx}"></div>
             </div>
             <div class="task-content">
               <div class="task-action">${task.action}</div>
               <div class="task-notes">${task.notes.replace(/\n/g, '<br>')}</div>
               ${subTick}
             </div>
-            <div class="task-timestamp" onclick="event.stopPropagation()">
+            <div class="task-timestamp" >
               ${renderTickMeta(tsVal, whoVal)}
             </div>
           </div>`;
@@ -1431,7 +1431,7 @@
         <div class="phase-notes-area">
           <label>Phase Notes</label>
           <textarea placeholder="Add site notes, decisions, or follow-ups for this phase…" 
-            onclick="event.stopPropagation()"
+            
             oninput="saveNote(${pIdx}, this.value)">${state[getNoteKey(pIdx)] || ''}</textarea>
         </div>
       </div>
@@ -1507,7 +1507,7 @@
               ${d.name}
               ${isSelf ? '<span class="tag-you">You</span>' : ''}
             </span>
-            ${!isReadonly ? `<span class="tag-remove" onclick="removeDesigner(${idx})" title="Remove">×</span>` : ''}
+            ${!isReadonly ? `<span class="tag-remove" data-action="removeDesigner" data-idx="${idx}" title="Remove">×</span>` : ''}
           `;
           container.appendChild(tag);
         });
@@ -1571,6 +1571,23 @@ function showToast(msg, type='error') {
   t.textContent=msg; t.style.opacity='1';
   clearTimeout(t._hide); t._hide=setTimeout(()=>{ t.style.opacity='0'; },4000);
 }
+
+
+    // Event delegation - replaces all onclick attributes
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        e.stopPropagation();
+        const action = btn.dataset.action;
+        if (action === 'goHome') window.location.href = 'index.html';
+        else if (action === 'manualSave') manualSave();
+        else if (action === 'resetAll') resetAll();
+        else if (action === 'addDesignerFromSelect') addDesignerFromSelect();
+        else if (action === 'togglePhase') togglePhase(Number(btn.dataset.idx));
+        else if (action === 'toggleSubTick') { e.stopPropagation(); toggleSubTick(Number(btn.dataset.pidx), Number(btn.dataset.tidx)); }
+        else if (action === 'toggleTask') toggleTask(Number(btn.dataset.pidx), Number(btn.dataset.tidx));
+        else if (action === 'removeDesigner') removeDesigner(Number(btn.dataset.idx));
+    });
 
 </script>
 </body>
