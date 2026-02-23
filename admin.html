@@ -415,7 +415,7 @@
             <div class="modal-box">
                 <div class="modal-header">
                     <h3 id="modalClientName">Intake Answers</h3>
-                    <button class="modal-close" onclick="closeModal()">×</button>
+                    <button class="modal-close" data-action="closeModal">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="answer-grid" id="answerGrid"></div>
@@ -426,7 +426,7 @@
                 </div>
                 <div class="modal-actions">
                     <a id="modalFloorPlanLink" href="#" target="_blank" class="btn-dl">⬇ Download Floor Plan</a>
-                    <button id="modalCompleteBtn" class="btn-complete" onclick="markComplete(null)">✓ Mark Complete</button>
+                    <button id="modalCompleteBtn" class="btn-complete" data-action="markComplete">✓ Mark Complete</button>
                 </div>
             </div>
         </div>
@@ -543,8 +543,8 @@
                         <td style="font-size:0.82rem;color:#9E9590;">${date}</td>
                         <td><span class="status-badge status-${esc(status)}">${esc(status)}</span></td>
                         <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                            <button class="btn-dl" style="font-size:0.75rem;padding:5px 10px;" onclick="openModal('${esc(r.id)}')">View Answers</button>
-                            ${status !== 'completed' ? `<button class="btn-complete" style="font-size:0.75rem;padding:5px 10px;" onclick="markComplete('${esc(r.id)}')">✓ Complete</button>` : ''}
+                            <button class="btn-dl" style="font-size:0.75rem;padding:5px 10px;" data-action="openModal" data-id="${esc(r.id)}">View Answers</button>
+                            ${status !== 'completed' ? `<button class="btn-complete" style="font-size:0.75rem;padding:5px 10px;" data-action="markComplete" data-id="${esc(r.id)}">✓ Complete</button>` : ''}
                         </td>
                     </tr>
                 `;
@@ -644,6 +644,17 @@
         }
 
         init();
+
+        // Event delegation - replaces all onclick attributes
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const action = btn.dataset.action;
+            const id = btn.dataset.id || null;
+            if (action === 'closeModal') closeModal();
+            else if (action === 'markComplete') markComplete(id);
+            else if (action === 'openModal') openModal(id);
+        });
     </script>
 <script>
 
