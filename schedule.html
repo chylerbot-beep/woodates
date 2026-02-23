@@ -1209,8 +1209,8 @@
 
         <!-- Tabs (hidden when editing existing) -->
         <div class="modal-tabs" id="modalTabs">
-            <button class="modal-tab active" id="tabAppt" onclick="switchModalTab('appt')">New Appointment</button>
-            <button class="modal-tab" id="tabLeave" onclick="switchModalTab('leave')">New Leave</button>
+            <button class="modal-tab active" id="tabAppt" data-action="switchModalTab" data-tab="appt">New Appointment</button>
+            <button class="modal-tab" id="tabLeave" data-action="switchModalTab" data-tab="leave">New Leave</button>
         </div>
 
         <!-- Close button row -->
@@ -1279,12 +1279,12 @@
                 <div class="form-row">
                     <label>Leave Type *</label>
                     <div class="leave-type-grid" id="leaveTypeGrid">
-                        <button class="leave-type-chip selected" data-type="Annual Leave" onclick="selectLeaveType(this)">Annual Leave</button>
-                        <button class="leave-type-chip" data-type="Medical Leave" onclick="selectLeaveType(this)">Medical Leave</button>
-                        <button class="leave-type-chip" data-type="Off Day" onclick="selectLeaveType(this)">Off Day</button>
-                        <button class="leave-type-chip" data-type="Public Holiday" onclick="selectLeaveType(this)">Public Holiday</button>
-                        <button class="leave-type-chip" data-type="Childcare Leave" onclick="selectLeaveType(this)">Childcare Leave</button>
-                        <button class="leave-type-chip" data-type="Other" onclick="selectLeaveType(this)">Other</button>
+                        <button class="leave-type-chip selected" data-type="Annual Leave" data-action="selectLeaveType">Annual Leave</button>
+                        <button class="leave-type-chip" data-type="Medical Leave" data-action="selectLeaveType">Medical Leave</button>
+                        <button class="leave-type-chip" data-type="Off Day" data-action="selectLeaveType">Off Day</button>
+                        <button class="leave-type-chip" data-type="Public Holiday" data-action="selectLeaveType">Public Holiday</button>
+                        <button class="leave-type-chip" data-type="Childcare Leave" data-action="selectLeaveType">Childcare Leave</button>
+                        <button class="leave-type-chip" data-type="Other" data-action="selectLeaveType">Other</button>
                     </div>
                 </div>
                 <div class="form-row">
@@ -1526,7 +1526,7 @@ async function loadTeam() {
 function renderTeamList() {
     const list = document.getElementById('teamList');
     list.innerHTML = _teamMembers.map(m => `
-        <div class="team-member-item ${_visibleMembers.has(m.id) ? 'active' : ''}" data-id="${esc(m.id)}" onclick="toggleMember('${esc(m.id)}')">
+        <div class="team-member-item ${_visibleMembers.has(m.id) ? 'active' : ''}" data-id="${esc(m.id)}" data-action="toggleMember" data-id="${esc(m.id)}">
             <div class="team-avatar" style="background:${m.color}">${initials(m.name)}</div>
             <div class="team-member-info">
                 <div class="team-member-name">${esc(m.name)}</div>
@@ -1662,7 +1662,7 @@ function renderMiniCal() {
         const holiday = isSgHoliday(dateStr);
         const cls = [isToday && !isSel ? 'today' : '', isSel ? 'selected' : '', isSun && !isToday && !isSel ? 'is-sunday' : '', holiday && !isToday && !isSel ? 'is-holiday' : ''].filter(Boolean).join(' ');
         const title = holiday ? ` title="${holiday}"` : '';
-        cells += `<div class="mini-cal-cell ${cls}"${title} onclick="miniCalClick('${dateStr}')">${d}</div>`;
+        cells += `<div class="mini-cal-cell ${cls}"${title} data-action="miniCalClick" data-date="${dateStr}">${d}</div>`;
     }
     // Fill rest
     const total = startDow + lastDay.getDate();
@@ -1673,9 +1673,9 @@ function renderMiniCal() {
 
     cal.innerHTML = `
         <div class="mini-cal-header">
-            <button class="mini-cal-nav" onclick="miniCalNav(-1)">&#8249;</button>
+            <button class="mini-cal-nav" data-action="miniCalNav" data-dir="-1">&#8249;</button>
             <span class="mini-cal-title">${monthNames[month]} ${year}</span>
-            <button class="mini-cal-nav" onclick="miniCalNav(1)">&#8250;</button>
+            <button class="mini-cal-nav" data-action="miniCalNav" data-dir="1">&#8250;</button>
         </div>
         <div class="mini-cal-grid">
             ${dayNames.map(d => `<div class="mini-cal-day-label">${d}</div>`).join('')}
@@ -1766,7 +1766,7 @@ function renderWeek(area) {
         const isSun = isSunday(d);
         const holiday = isSgHoliday(dateStr);
         const dayEvents = getVisibleEventsForDate(dateStr);
-        const hourRows = hours.map(h => `<div class="hour-row" data-date="${dateStr}" data-hour="${h}" onclick="handleCellClick(event,'${dateStr}',${h})"></div>`).join('');
+        const hourRows = hours.map(h => `<div class="hour-row" data-date="${dateStr}" data-hour="${h}" data-action="handleCellClick" data-date="${dateStr}" data-hour="${h}"></div>`).join('');
         const eventBlocks = dayEvents.map(ev => renderEventBlock(ev)).join('');
         const cls = [isSun ? 'is-sunday' : '', holiday ? 'is-holiday' : ''].filter(Boolean).join(' ');
         return `
@@ -1819,7 +1819,7 @@ function renderDay(area) {
         return `<div class="time-slot-label">${label}</div>`;
     }).join('');
 
-    const hourRows = hours.map(h => `<div class="hour-row" data-date="${dateStr}" data-hour="${h}" onclick="handleCellClick(event,'${dateStr}',${h})"></div>`).join('');
+    const hourRows = hours.map(h => `<div class="hour-row" data-date="${dateStr}" data-hour="${h}" data-action="handleCellClick" data-date="${dateStr}" data-hour="${h}"></div>`).join('');
     const eventBlocks = dayEvents.map(ev => renderEventBlock(ev)).join('');
 
     area.innerHTML = `
@@ -1874,7 +1874,7 @@ function render3Day(area) {
         const holiday = isSgHoliday(dateStr);
         const cls = [isSun ? 'is-sunday' : '', holiday ? 'is-holiday' : ''].filter(Boolean).join(' ');
         const dayEvents = getVisibleEventsForDate(dateStr);
-        const hourRows = hours.map(h => `<div class="hour-row" data-date="${dateStr}" data-hour="${h}" onclick="handleCellClick(event,'${dateStr}',${h})"></div>`).join('');
+        const hourRows = hours.map(h => `<div class="hour-row" data-date="${dateStr}" data-hour="${h}" data-action="handleCellClick" data-date="${dateStr}" data-hour="${h}"></div>`).join('');
         const eventBlocks = dayEvents.map(ev => renderEventBlock(ev)).join('');
         return `<div class="day-col ${cls}" data-date="${dateStr}">${hourRows}${eventBlocks}</div>`;
     }).join('');
@@ -1913,7 +1913,7 @@ function renderAgenda(area) {
             const timeLabel = isLeave && ev.start_time === '00:00' ? '🌴 All day'
                 : formatTime(ev.start_time) + ' – ' + formatTime(ev.end_time);
             const sub = [m?.name, ev.client_name, ev.location].filter(Boolean).join(' · ');
-            return `<div class="agenda-event-row" onclick="showEventDetail('${esc(ev.id)}')">
+            return `<div class="agenda-event-row" data-action="showEventDetail" data-id="${esc(ev.id)}">
                 <div class="agenda-event-time">${esc(timeLabel)}</div>
                 <div class="agenda-event-color-bar" style="background:${color};${isLeave?'border:1.5px dashed '+color+';background:'+color+'30;':''}"></div>
                 <div class="agenda-event-info">
@@ -1926,7 +1926,7 @@ function renderAgenda(area) {
         const holidayTag = holiday ? `<div class="agenda-holiday-tag">🇸🇬 ${holiday}</div>` : '';
 
         return `<div class="agenda-day-group">
-            <div class="agenda-day-header ${headerCls}" onclick="openNewModal('${dateStr}')">
+            <div class="agenda-day-header ${headerCls}" data-action="openNewModal" data-date="${dateStr}">
                 <div class="agenda-day-num">${d.getDate()}</div>
                 <div class="agenda-day-info">
                     <div class="agenda-day-name">${dayNames[d.getDay()]}</div>
@@ -1990,12 +1990,12 @@ function renderMonthCell(date, otherMonth, today) {
     const maxShow = 3;
     const pills = evs.slice(0, maxShow).map(ev => {
         const m = getMember(ev.assignee_id);
-        return `<span class="month-event-pill" style="background:${m?.color||'#C4956A'}22;color:${m?.color||'#C4956A'};" onclick="showEventDetail('${esc(ev.id)}');event.stopPropagation();">${esc(ev.title)}</span>`;
+        return `<span class="month-event-pill" style="background:${m?.color||'#C4956A'}22;color:${m?.color||'#C4956A'};" data-action="showEventDetail" data-id="${esc(ev.id)}">${esc(ev.title)}</span>`;
     }).join('');
     const more = evs.length > maxShow ? `<div class="month-more">+${evs.length - maxShow} more</div>` : '';
     const cls = [otherMonth ? 'other-month' : '', isToday ? 'today' : '', isSun ? 'is-sunday' : '', holiday ? 'is-holiday' : ''].filter(Boolean).join(' ');
     return `
-        <div class="month-cell ${cls}" onclick="handleMonthCellClick('${dateStr}')">
+        <div class="month-cell ${cls}" data-action="handleMonthCellClick" data-date="${dateStr}">
             <div class="month-cell-num">${date.getDate()}</div>
             ${holiday ? `<span class="month-holiday-label">🇸🇬 ${holiday}</span>` : ''}
             ${pills}
@@ -2039,7 +2039,7 @@ function renderEventBlock(ev) {
     return `
         <button class="event-block${isLeave ? ' is-leave' : ''}"
             style="top:${top}%;height:${height}%;${leaveStyle}color:${color};"
-            onclick="showEventDetail('${esc(ev.id)}');event.stopPropagation();">
+            data-action="showEventDetail" data-id="${esc(ev.id)}">
             <span class="event-time-label">${esc(timeLabel)}</span>
             <span class="event-title-label">${esc(ev.title)}</span>
             ${!isLeave && ev.client_name ? `<span class="event-client-label">${esc(ev.client_name)}</span>` : ''}
@@ -2433,6 +2433,23 @@ function formatDateLong(dateStr) {
 
 // ── START ─────────────────────────────────────────────────────
 init();
+
+    // Event delegation - replaces all onclick attributes
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        if (action === 'switchModalTab') switchModalTab(btn.dataset.tab);
+        else if (action === 'selectLeaveType') selectLeaveType(btn);
+        else if (action === 'miniCalNav') miniCalNav(Number(btn.dataset.dir));
+        else if (action === 'miniCalClick') miniCalClick(btn.dataset.date);
+        else if (action === 'toggleMember') toggleMember(btn.dataset.id);
+        else if (action === 'handleCellClick') handleCellClick(e, btn.dataset.date, Number(btn.dataset.hour));
+        else if (action === 'showEventDetail') { e.stopPropagation(); showEventDetail(btn.dataset.id); }
+        else if (action === 'openNewModal') openNewModal(btn.dataset.date);
+        else if (action === 'handleMonthCellClick') handleMonthCellClick(btn.dataset.date);
+    });
+
 </script>
 </body>
 </html>
