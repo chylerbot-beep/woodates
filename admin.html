@@ -443,6 +443,11 @@
             'sb_publishable_tNMpLdZaqm0e-El_LP4kKg_fhfj-ARF'
         );
 
+        // XSS protection: escape all user-sourced strings before inserting into innerHTML
+        function esc(s) {
+            return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+
         const projectsBody = document.getElementById('projectsBody');
 
         async function init() {
@@ -496,12 +501,12 @@
 
                 return `
                     <tr>
-                        <td class="designer-name">${designerName}</td>
-                        <td class="project-name">${p.project_name || 'Untitled'}</td>
-                        <td>${p.client_name || '&mdash;'}</td>
-                        <td><span class="status-badge status-${status}">${status.replace('_', ' ')}</span></td>
+                        <td class="designer-name">${esc(designerName)}</td>
+                        <td class="project-name">${esc(p.project_name) || 'Untitled'}</td>
+                        <td>${esc(p.client_name) || '&mdash;'}</td>
+                        <td><span class="status-badge status-${esc(status)}">${esc(status.replace('_', ' '))}</span></td>
                         <td>${date}</td>
-                        <td><a href="workflow.html?project_id=${p.id}&readonly=true" class="btn-view">View Only</a></td>
+                        <td><a href="workflow.html?project_id=${esc(p.id)}&readonly=true" class="btn-view">View Only</a></td>
                     </tr>
                 `;
             }).join('');
@@ -527,19 +532,19 @@
                 const status = r.status || 'pending';
                 const designer = r.profiles?.full_name || 'Unknown';
                 const floorPlanCell = r.floor_plan_url
-                    ? `<a href="${r.floor_plan_url}" target="_blank" class="btn-dl" style="font-size:0.75rem;padding:4px 10px;">⬇ Download</a>`
+                    ? `<a href="${esc(r.floor_plan_url)}" target="_blank" class="btn-dl" style="font-size:0.75rem;padding:4px 10px;">⬇ Download</a>`
                     : '<span style="color:#9E9590;font-size:0.85rem;">—</span>';
 
                 return `
-                    <tr id="aiq-admin-${r.id}">
-                        <td class="designer-name">${designer}</td>
-                        <td style="font-weight:500;">${r.client_name || '—'}</td>
+                    <tr id="aiq-admin-${esc(r.id)}">
+                        <td class="designer-name">${esc(designer)}</td>
+                        <td style="font-weight:500;">${esc(r.client_name) || '—'}</td>
                         <td>${floorPlanCell}</td>
                         <td style="font-size:0.82rem;color:#9E9590;">${date}</td>
-                        <td><span class="status-badge status-${status}">${status}</span></td>
+                        <td><span class="status-badge status-${esc(status)}">${esc(status)}</span></td>
                         <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                            <button class="btn-dl" style="font-size:0.75rem;padding:5px 10px;" onclick="openModal('${r.id}')">View Answers</button>
-                            ${status !== 'completed' ? `<button class="btn-complete" style="font-size:0.75rem;padding:5px 10px;" onclick="markComplete('${r.id}')">✓ Complete</button>` : ''}
+                            <button class="btn-dl" style="font-size:0.75rem;padding:5px 10px;" onclick="openModal('${esc(r.id)}')">View Answers</button>
+                            ${status !== 'completed' ? `<button class="btn-complete" style="font-size:0.75rem;padding:5px 10px;" onclick="markComplete('${esc(r.id)}')">✓ Complete</button>` : ''}
                         </td>
                     </tr>
                 `;
@@ -583,8 +588,8 @@
                     .filter(([, v]) => v != null && v !== '')
                     .map(([label, val]) => `
                         <div class="answer-item">
-                            <label>${label}</label>
-                            <p>${val}</p>
+                            <label>${esc(label)}</label>
+                            <p>${esc(String(val))}</p>
                         </div>
                     `).join('');
 
