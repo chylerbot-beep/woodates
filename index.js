@@ -19,7 +19,6 @@ const { createClient } = supabase;
         const userRoleEl = document.getElementById('userRole');
         const projectsListEl = document.getElementById('projectsList');
         const logoutBtn = document.getElementById('logoutBtn');
-        const newProjectBtn = document.getElementById('newProjectBtn');
 
         // Brute-force protection: track failed attempts
         let _loginAttempts = 0;
@@ -145,7 +144,7 @@ const { createClient } = supabase;
             }
 
             if (!projects || projects.length === 0) {
-                projectsListEl.innerHTML = '<div class="no-projects">No projects found. Create your first one!</div>';
+                projectsListEl.innerHTML = '';
                 return;
             }
 
@@ -184,7 +183,7 @@ const { createClient } = supabase;
                 document.getElementById(`project-row-${projectId}`).remove();
                 const remaining = document.querySelectorAll('#projectsList .project-row');
                 if (remaining.length === 0) {
-                    projectsListEl.innerHTML = '<div class="no-projects">No projects found. Create your first one!</div>';
+                    projectsListEl.innerHTML = '';
                 }
             }
         }
@@ -198,13 +197,12 @@ const { createClient } = supabase;
                 .order('created_at', { ascending: false });
 
             if (error) {
-                // Table may not exist yet — show friendly message
-                quotesListEl.innerHTML = '<div class="no-projects">No quotes saved yet. <a href="quote-tool.html" style="color:var(--accent);font-weight:600;">Create your first quote →</a></div>';
+                quotesListEl.innerHTML = '';
                 return;
             }
 
             if (!quotes || quotes.length === 0) {
-                quotesListEl.innerHTML = '<div class="no-projects">No quotes saved yet. <a href="quote-tool.html" style="color:var(--accent);font-weight:600;">Create your first quote →</a></div>';
+                quotesListEl.innerHTML = '';
                 return;
             }
 
@@ -240,7 +238,8 @@ const { createClient } = supabase;
                 document.getElementById(`quote-row-${quoteId}`).remove();
                 const remaining = document.querySelectorAll('#quotesList .quote-row');
                 if (remaining.length === 0) {
-                    document.getElementById('quotesList').innerHTML = '<div class="no-projects">No quotes saved yet. <a href="quote-tool.html" style="color:var(--accent);font-weight:600;">Create your first quote →</a></div>';
+                    document.getElementById('quotesList').innerHTML = '';
+                }
                 }
             }
         }
@@ -254,7 +253,7 @@ const { createClient } = supabase;
                 .order('created_at', { ascending: false });
 
             if (error || !requests || requests.length === 0) {
-                listEl.innerHTML = '<div class="no-projects">No AI quote requests yet. <a href="help-me-quote.html" style="color:var(--accent);font-weight:600;">Submit your first →</a></div>';
+                listEl.innerHTML = '';
                 return;
             }
 
@@ -287,7 +286,7 @@ const { createClient } = supabase;
             document.getElementById(`aiq-row-${id}`).remove();
             const remaining = document.querySelectorAll('[id^="aiq-row-"]');
             if (remaining.length === 0) {
-                document.getElementById('aiQuotesList').innerHTML = '<div class="no-projects">No AI quote requests yet. <a href="help-me-quote.html" style="color:var(--accent);font-weight:600;">Submit your first →</a></div>';
+                document.getElementById('aiQuotesList').innerHTML = '';
             }
         }
 
@@ -368,8 +367,6 @@ const { createClient } = supabase;
                 showToast('Error creating project: ' + (error?.message || 'Unknown error'));
             }
         }
-
-        newProjectBtn.addEventListener('click', createAndOpenProject);
 
         logoutBtn.addEventListener('click', async () => {
             await _supabase.auth.signOut();
