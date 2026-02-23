@@ -1354,6 +1354,8 @@
     'sb_publishable_tNMpLdZaqm0e-El_LP4kKg_fhfj-ARF'
   );
 
+  // XSS protection: esc() helper is defined below (line ~1404) and used throughout this file
+
   const authChecking = document.getElementById('auth-checking');
   const accessDenied = document.getElementById('access-denied');
 
