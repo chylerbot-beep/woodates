@@ -598,6 +598,63 @@
             margin-top: 2px;
         }
 
+        /* ── MODAL TABS ──────────────────────────────────────── */
+        .modal-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            padding: 0 28px;
+            background: var(--white);
+            border-radius: 14px 14px 0 0;
+        }
+        .modal-tab {
+            padding: 16px 20px 14px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--muted);
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-family: 'DM Sans', sans-serif;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.15s;
+        }
+        .modal-tab:hover { color: var(--dark); }
+        .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .modal-tab-panel { display: none; }
+        .modal-tab-panel.active { display: block; }
+
+        /* Leave type chips */
+        .leave-type-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .leave-type-chip {
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s;
+            background: var(--white);
+            color: var(--warm-mid);
+        }
+        .leave-type-chip:hover { border-color: var(--accent); color: var(--accent); }
+        .leave-type-chip.selected { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+
+        /* Leave block styling on calendar */
+        .event-block.is-leave {
+            border-left-width: 3px;
+            border-style: dashed;
+            opacity: 0.85;
+        }
+
         /* ── MODAL ───────────────────────────────────────────── */
         .modal-overlay {
             position: fixed;
@@ -627,6 +684,7 @@
             box-shadow: var(--shadow-lg);
             transform: translateY(10px) scale(0.98);
             transition: transform 0.2s;
+            position: relative;
         }
         .modal-overlay.open .modal-card {
             transform: translateY(0) scale(1);
@@ -923,7 +981,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            New Appointment
+            New
         </button>
 
         <!-- Mini Calendar -->
@@ -964,64 +1022,134 @@
 
 <footer>&copy; 2025 Woodates Design &amp; Build Pte Ltd. All rights reserved.</footer>
 
-<!-- ADD / EDIT APPOINTMENT MODAL -->
+<!-- ADD / EDIT MODAL — tabbed: Appointment | Leave -->
 <div class="modal-overlay" id="apptModal">
     <div class="modal-card">
-        <div class="modal-header">
-            <h2 class="modal-title" id="apptModalTitle">New Appointment</h2>
+
+        <!-- Tabs (hidden when editing existing) -->
+        <div class="modal-tabs" id="modalTabs">
+            <button class="modal-tab active" id="tabAppt" onclick="switchModalTab('appt')">New Appointment</button>
+            <button class="modal-tab" id="tabLeave" onclick="switchModalTab('leave')">New Leave</button>
+        </div>
+
+        <!-- Close button row -->
+        <div style="position:absolute;top:14px;right:18px;z-index:10;">
             <button class="modal-close" id="apptModalClose">&times;</button>
         </div>
-        <div class="modal-body">
-            <div class="form-row">
-                <label>Appointment Title *</label>
-                <input type="text" id="apptTitle" placeholder="e.g. Client Consultation">
-            </div>
-            <div class="form-row">
-                <label>Client Name</label>
-                <input type="text" id="apptClient" placeholder="Client name">
-            </div>
-            <div class="form-row">
-                <label>Assigned To *</label>
-                <select id="apptAssignee"></select>
-            </div>
-            <div class="form-row-inline">
-                <div class="form-row" style="margin:0">
-                    <label>Date *</label>
-                    <input type="date" id="apptDate">
+
+        <!-- ── APPOINTMENT TAB ── -->
+        <div class="modal-tab-panel active" id="panelAppt">
+            <div class="modal-body">
+                <div class="form-row">
+                    <label>Appointment Title *</label>
+                    <input type="text" id="apptTitle" placeholder="e.g. Client Consultation">
                 </div>
-                <div class="form-row" style="margin:0">
-                    <label>Status</label>
-                    <select id="apptStatus">
-                        <option value="confirmed">Confirmed</option>
-                        <option value="pending">Pending</option>
-                        <option value="cancelled">Cancelled</option>
-                    </select>
+                <div class="form-row">
+                    <label>Client Name</label>
+                    <input type="text" id="apptClient" placeholder="Client name">
+                </div>
+                <div class="form-row">
+                    <label>Assigned To *</label>
+                    <select id="apptAssignee"></select>
+                </div>
+                <div class="form-row-inline">
+                    <div class="form-row" style="margin:0">
+                        <label>Date *</label>
+                        <input type="date" id="apptDate">
+                    </div>
+                    <div class="form-row" style="margin:0">
+                        <label>Status</label>
+                        <select id="apptStatus">
+                            <option value="confirmed">Confirmed</option>
+                            <option value="pending">Pending</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row-inline">
+                    <div class="form-row" style="margin:0">
+                        <label>Start Time *</label>
+                        <input type="time" id="apptStart" value="09:00">
+                    </div>
+                    <div class="form-row" style="margin:0">
+                        <label>End Time *</label>
+                        <input type="time" id="apptEnd" value="10:00">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>Location / Address</label>
+                    <input type="text" id="apptLocation" placeholder="e.g. 123 Orchard Rd, Singapore">
+                </div>
+                <div class="form-row">
+                    <label>Notes</label>
+                    <textarea id="apptNotes" placeholder="Any additional notes…"></textarea>
                 </div>
             </div>
-            <div class="form-row-inline">
-                <div class="form-row" style="margin:0">
-                    <label>Start Time *</label>
-                    <input type="time" id="apptStart" value="09:00">
-                </div>
-                <div class="form-row" style="margin:0">
-                    <label>End Time *</label>
-                    <input type="time" id="apptEnd" value="10:00">
-                </div>
-            </div>
-            <div class="form-row">
-                <label>Location / Address</label>
-                <input type="text" id="apptLocation" placeholder="e.g. 123 Orchard Rd, Singapore">
-            </div>
-            <div class="form-row">
-                <label>Notes</label>
-                <textarea id="apptNotes" placeholder="Any additional notes…"></textarea>
+            <div class="modal-footer">
+                <button class="btn-delete-appt" id="apptDeleteBtn" style="display:none;">Delete</button>
+                <button class="btn-cancel" id="apptCancelBtn">Cancel</button>
+                <button class="btn-save" id="apptSaveBtn">Save Appointment</button>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="btn-delete-appt" id="apptDeleteBtn" style="display:none;">Delete</button>
-            <button class="btn-cancel" id="apptCancelBtn">Cancel</button>
-            <button class="btn-save" id="apptSaveBtn">Save Appointment</button>
+
+        <!-- ── LEAVE TAB ── -->
+        <div class="modal-tab-panel" id="panelLeave">
+            <div class="modal-body">
+                <div class="form-row">
+                    <label>Leave Type *</label>
+                    <div class="leave-type-grid" id="leaveTypeGrid">
+                        <button class="leave-type-chip selected" data-type="Annual Leave" onclick="selectLeaveType(this)">Annual Leave</button>
+                        <button class="leave-type-chip" data-type="Medical Leave" onclick="selectLeaveType(this)">Medical Leave</button>
+                        <button class="leave-type-chip" data-type="Off Day" onclick="selectLeaveType(this)">Off Day</button>
+                        <button class="leave-type-chip" data-type="Public Holiday" onclick="selectLeaveType(this)">Public Holiday</button>
+                        <button class="leave-type-chip" data-type="Childcare Leave" onclick="selectLeaveType(this)">Childcare Leave</button>
+                        <button class="leave-type-chip" data-type="Other" onclick="selectLeaveType(this)">Other</button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>Assigned To *</label>
+                    <select id="leaveAssignee"></select>
+                </div>
+                <div class="form-row-inline">
+                    <div class="form-row" style="margin:0">
+                        <label>From Date *</label>
+                        <input type="date" id="leaveStart">
+                    </div>
+                    <div class="form-row" style="margin:0">
+                        <label>To Date *</label>
+                        <input type="date" id="leaveEnd">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                        <input type="checkbox" id="leaveHasTimes" onchange="toggleLeaveTimes(this)" style="width:auto;margin:0;">
+                        Specify times (optional — for partial-day leave)
+                    </label>
+                </div>
+                <div id="leaveTimesRow" style="display:none;">
+                    <div class="form-row-inline">
+                        <div class="form-row" style="margin:0">
+                            <label>Start Time</label>
+                            <input type="time" id="leaveStartTime" value="09:00">
+                        </div>
+                        <div class="form-row" style="margin:0">
+                            <label>End Time</label>
+                            <input type="time" id="leaveEndTime" value="18:00">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>Notes</label>
+                    <textarea id="leaveNotes" placeholder="Reason or additional info…" style="min-height:60px;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-delete-appt" id="leaveDeleteBtn" style="display:none;">Delete</button>
+                <button class="btn-cancel" id="leaveCancelBtn">Cancel</button>
+                <button class="btn-save" id="leaveSaveBtn">Save Leave</button>
+            </div>
         </div>
+
     </div>
 </div>
 
@@ -1094,6 +1222,7 @@ let _events = [];
 let _currentView = 'week'; // day | week | month
 let _viewDate = new Date(); // anchor date
 let _editingEventId = null;
+let _editingIsLeave = false;
 let _visibleMembers = new Set();
 let _miniCalDate = new Date();
 
@@ -1163,6 +1292,13 @@ async function loadTeam() {
     }
 
     _visibleMembers = new Set(_teamMembers.map(m => m.id));
+
+    // Designers only ever see their own schedule — hide the team toggle sidebar
+    if (!_isAdmin) {
+        _visibleMembers = new Set([_currentUser.id]);
+        document.getElementById('teamSection').style.display = 'none';
+    }
+
     renderTeamList();
 }
 
@@ -1228,12 +1364,15 @@ function setupUI() {
     document.getElementById('nextBtn').addEventListener('click', () => navigate(1));
 
     // Modal controls
-    document.getElementById('addApptBtn').addEventListener('click', () => openApptModal());
+    document.getElementById('addApptBtn').addEventListener('click', () => openNewModal());
     document.getElementById('apptModalClose').addEventListener('click', closeApptModal);
     document.getElementById('apptCancelBtn').addEventListener('click', closeApptModal);
+    document.getElementById('leaveCancelBtn').addEventListener('click', closeApptModal);
     document.getElementById('apptModal').addEventListener('click', e => { if (e.target === document.getElementById('apptModal')) closeApptModal(); });
     document.getElementById('apptSaveBtn').addEventListener('click', saveAppointment);
+    document.getElementById('leaveSaveBtn').addEventListener('click', saveLeave);
     document.getElementById('apptDeleteBtn').addEventListener('click', deleteEditingEvent);
+    document.getElementById('leaveDeleteBtn').addEventListener('click', deleteEditingEvent);
 
     document.getElementById('detailModalClose').addEventListener('click', () => closeModal('eventDetailModal'));
     document.getElementById('eventDetailModal').addEventListener('click', e => { if (e.target === document.getElementById('eventDetailModal')) closeModal('eventDetailModal'); });
@@ -1510,25 +1649,48 @@ function handleMonthCellClick(dateStr) {
 function renderEventBlock(ev) {
     const m = getMember(ev.assignee_id);
     const color = m?.color || '#C4956A';
-    const [startH, startM] = ev.start_time.split(':').map(Number);
-    const [endH, endM] = ev.end_time.split(':').map(Number);
-    const top = (startH * 60 + startM) / (24 * 60) * 100;
-    const height = Math.max(((endH * 60 + endM) - (startH * 60 + startM)) / (24 * 60) * 100, 2);
-    const timeLabel = formatTime(ev.start_time) + ' – ' + formatTime(ev.end_time);
+    const isLeave = ev.event_type === 'leave';
+
+    let top, height;
+    if (isLeave && ev.start_time === '00:00') {
+        // All-day leave — span full column as a banner at top
+        top = 0; height = 100;
+    } else {
+        const [startH, startM] = (ev.start_time || '00:00').split(':').map(Number);
+        const [endH, endM] = (ev.end_time || '23:59').split(':').map(Number);
+        top = (startH * 60 + startM) / (24 * 60) * 100;
+        height = Math.max(((endH * 60 + endM) - (startH * 60 + startM)) / (24 * 60) * 100, 2);
+    }
+
+    const timeLabel = isLeave && ev.start_time === '00:00'
+        ? '🌴 All day'
+        : formatTime(ev.start_time) + ' – ' + formatTime(ev.end_time);
+
+    const leaveStyle = isLeave
+        ? `border-style:dashed;border-width:1.5px;border-color:${color};background:${color}15;`
+        : `border-left:3px solid ${color};background:${color}22;`;
 
     return `
-        <button class="event-block"
-            style="top:${top}%;height:${height}%;background:${color}22;color:${color};border-left:3px solid ${color};"
+        <button class="event-block${isLeave ? ' is-leave' : ''}"
+            style="top:${top}%;height:${height}%;${leaveStyle}color:${color};"
             onclick="showEventDetail('${esc(ev.id)}');event.stopPropagation();">
             <span class="event-time-label">${esc(timeLabel)}</span>
             <span class="event-title-label">${esc(ev.title)}</span>
-            ${ev.client_name ? `<span class="event-client-label">${esc(ev.client_name)}</span>` : ''}
+            ${!isLeave && ev.client_name ? `<span class="event-client-label">${esc(ev.client_name)}</span>` : ''}
         </button>
     `;
 }
 
 function getVisibleEventsForDate(dateStr) {
-    return _events.filter(ev => ev.date === dateStr && _visibleMembers.has(ev.assignee_id));
+    return _events.filter(ev => {
+        if (!_visibleMembers.has(ev.assignee_id)) return false;
+        if (ev.date === dateStr) return true;
+        // Multi-day leave spans: include if dateStr falls between date and leave_end_date
+        if (ev.event_type === 'leave' && ev.leave_end_date && ev.leave_end_date > ev.date) {
+            return dateStr >= ev.date && dateStr <= ev.leave_end_date;
+        }
+        return false;
+    });
 }
 
 function getMember(id) {
@@ -1550,7 +1712,6 @@ function handleCellClick(e, dateStr, hour) {
     const endH = String(Math.min(hour + 1, 23)).padStart(2,'0');
     openApptModal(null, dateStr, `${startH}:00`, `${endH}:00`);
 }
-
 // ── SHOW EVENT DETAIL ─────────────────────────────────────────
 function showEventDetail(id) {
     const ev = _events.find(e => e.id === id);
@@ -1561,7 +1722,16 @@ function showEventDetail(id) {
     document.getElementById('detailColorBar').style.background = color;
     document.getElementById('detailTitle').textContent = ev.title;
     document.getElementById('detailDesigner').textContent = m?.name || 'Unassigned';
-    document.getElementById('detailDateTime').textContent = formatDateLong(ev.date) + '  ·  ' + formatTime(ev.start_time) + ' – ' + formatTime(ev.end_time);
+
+    // Date/time display — leaves show date range, appointments show time
+    if (ev.event_type === 'leave') {
+        const startFmt = formatDateLong(ev.date);
+        const endFmt = ev.leave_end_date && ev.leave_end_date !== ev.date ? ' → ' + formatDateLong(ev.leave_end_date) : '';
+        const timeFmt = (ev.start_time && ev.start_time !== '00:00') ? '  ·  ' + formatTime(ev.start_time) + ' – ' + formatTime(ev.end_time) : '';
+        document.getElementById('detailDateTime').textContent = startFmt + endFmt + timeFmt;
+    } else {
+        document.getElementById('detailDateTime').textContent = formatDateLong(ev.date) + '  ·  ' + formatTime(ev.start_time) + ' – ' + formatTime(ev.end_time);
+    }
 
     const clientRow = document.getElementById('detailClientRow');
     if (ev.client_name) { document.getElementById('detailClient').textContent = ev.client_name; clientRow.style.display = 'flex'; }
@@ -1592,37 +1762,126 @@ function showEventDetail(id) {
     openModal('eventDetailModal');
 }
 
+// ── MODAL TAB SWITCHING ───────────────────────────────────────
+function switchModalTab(tab) {
+    document.getElementById('tabAppt').classList.toggle('active', tab === 'appt');
+    document.getElementById('tabLeave').classList.toggle('active', tab === 'leave');
+    document.getElementById('panelAppt').classList.toggle('active', tab === 'appt');
+    document.getElementById('panelLeave').classList.toggle('active', tab === 'leave');
+}
+
+function selectLeaveType(el) {
+    document.querySelectorAll('.leave-type-chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+}
+
+function toggleLeaveTimes(cb) {
+    document.getElementById('leaveTimesRow').style.display = cb.checked ? 'block' : 'none';
+}
+
+// Open the modal fresh (from + New button) — show tabs
+function openNewModal(prefillDate) {
+    _editingEventId = null;
+    _editingIsLeave = false;
+    document.getElementById('modalTabs').style.display = 'flex';
+    switchModalTab('appt');
+
+    // Reset appointment form
+    document.getElementById('apptTitle').value = '';
+    document.getElementById('apptClient').value = '';
+    document.getElementById('apptDate').value = prefillDate || toDateStr(new Date());
+    document.getElementById('apptStart').value = '09:00';
+    document.getElementById('apptEnd').value = '10:00';
+    document.getElementById('apptLocation').value = '';
+    document.getElementById('apptNotes').value = '';
+    document.getElementById('apptStatus').value = 'confirmed';
+    document.getElementById('apptDeleteBtn').style.display = 'none';
+    document.getElementById('apptSaveBtn').textContent = 'Save Appointment';
+
+    // Reset leave form
+    document.getElementById('leaveStart').value = prefillDate || toDateStr(new Date());
+    document.getElementById('leaveEnd').value = prefillDate || toDateStr(new Date());
+    document.getElementById('leaveNotes').value = '';
+    document.getElementById('leaveHasTimes').checked = false;
+    document.getElementById('leaveTimesRow').style.display = 'none';
+    document.getElementById('leaveDeleteBtn').style.display = 'none';
+    document.getElementById('leaveSaveBtn').textContent = 'Save Leave';
+    document.querySelectorAll('.leave-type-chip').forEach((c,i) => c.classList.toggle('selected', i === 0));
+
+    // Populate assignee dropdowns
+    _populateAssigneeDropdowns();
+    openModal('apptModal');
+}
+
+function _populateAssigneeDropdowns(apptAssigneeId, leaveAssigneeId) {
+    const assignableMembers = _isAdmin ? _teamMembers : _teamMembers.filter(m => m.id === _currentUser.id);
+    const makeOptions = (selectedId) => assignableMembers.map(m =>
+        `<option value="${esc(m.id)}" ${m.id === (selectedId || _currentUser.id) ? 'selected' : ''}>${esc(m.name)}</option>`
+    ).join('');
+    document.getElementById('apptAssignee').innerHTML = makeOptions(apptAssigneeId);
+    document.getElementById('apptAssignee').disabled = !_isAdmin && assignableMembers.length <= 1;
+    document.getElementById('leaveAssignee').innerHTML = makeOptions(leaveAssigneeId);
+    document.getElementById('leaveAssignee').disabled = !_isAdmin && assignableMembers.length <= 1;
+}
+
 // ── OPEN / CLOSE MODALS ───────────────────────────────────────
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 function openApptModal(editId = null, prefillDate = null, prefillStart = null, prefillEnd = null) {
+    if (!editId) { openNewModal(prefillDate); return; }
+
     _editingEventId = editId;
-    const ev = editId ? _events.find(e => e.id === editId) : null;
+    const ev = _events.find(e => e.id === editId);
+    if (!ev) return;
 
-    document.getElementById('apptModalTitle').textContent = editId ? 'Edit Appointment' : 'New Appointment';
-    document.getElementById('apptTitle').value = ev?.title || '';
-    document.getElementById('apptClient').value = ev?.client_name || '';
-    document.getElementById('apptDate').value = ev?.date || prefillDate || toDateStr(new Date());
-    document.getElementById('apptStart').value = ev?.start_time || prefillStart || '09:00';
-    document.getElementById('apptEnd').value = ev?.end_time || prefillEnd || '10:00';
-    document.getElementById('apptLocation').value = ev?.location || '';
-    document.getElementById('apptNotes').value = ev?.notes || '';
-    document.getElementById('apptStatus').value = ev?.status || 'confirmed';
+    _editingIsLeave = ev.event_type === 'leave';
 
-    // Build assignee dropdown — admins see everyone, designers see only themselves
-    const sel = document.getElementById('apptAssignee');
-    const assignableMembers = _isAdmin ? _teamMembers : _teamMembers.filter(m => m.id === _currentUser.id);
-    sel.innerHTML = assignableMembers.map(m => `<option value="${esc(m.id)}" ${(ev?.assignee_id === m.id || (!ev && m.id === _currentUser.id)) ? 'selected' : ''}>${esc(m.name)}</option>`).join('');
-    sel.disabled = !_isAdmin && assignableMembers.length <= 1;
+    // Hide tabs when editing existing
+    document.getElementById('modalTabs').style.display = 'none';
 
-    document.getElementById('apptDeleteBtn').style.display = editId ? 'inline-block' : 'none';
+    if (_editingIsLeave) {
+        switchModalTab('leave');
+        // Fill leave form
+        const chip = [...document.querySelectorAll('.leave-type-chip')].find(c => c.dataset.type === ev.title);
+        document.querySelectorAll('.leave-type-chip').forEach(c => c.classList.remove('selected'));
+        if (chip) chip.classList.add('selected');
+        else document.querySelectorAll('.leave-type-chip')[0].classList.add('selected');
+
+        document.getElementById('leaveStart').value = ev.date;
+        document.getElementById('leaveEnd').value = ev.leave_end_date || ev.date;
+        document.getElementById('leaveNotes').value = ev.notes || '';
+        const hasTimes = !!(ev.start_time && ev.end_time);
+        document.getElementById('leaveHasTimes').checked = hasTimes;
+        document.getElementById('leaveTimesRow').style.display = hasTimes ? 'block' : 'none';
+        if (hasTimes) {
+            document.getElementById('leaveStartTime').value = ev.start_time;
+            document.getElementById('leaveEndTime').value = ev.end_time;
+        }
+        document.getElementById('leaveDeleteBtn').style.display = 'inline-block';
+        document.getElementById('leaveSaveBtn').textContent = 'Update Leave';
+    } else {
+        switchModalTab('appt');
+        document.getElementById('apptTitle').value = ev.title || '';
+        document.getElementById('apptClient').value = ev.client_name || '';
+        document.getElementById('apptDate').value = ev.date || prefillDate || toDateStr(new Date());
+        document.getElementById('apptStart').value = ev.start_time || prefillStart || '09:00';
+        document.getElementById('apptEnd').value = ev.end_time || prefillEnd || '10:00';
+        document.getElementById('apptLocation').value = ev.location || '';
+        document.getElementById('apptNotes').value = ev.notes || '';
+        document.getElementById('apptStatus').value = ev.status || 'confirmed';
+        document.getElementById('apptDeleteBtn').style.display = 'inline-block';
+        document.getElementById('apptSaveBtn').textContent = 'Update Appointment';
+    }
+
+    _populateAssigneeDropdowns(ev.assignee_id, ev.assignee_id);
     openModal('apptModal');
 }
 
 function closeApptModal() {
     closeModal('apptModal');
     _editingEventId = null;
+    _editingIsLeave = false;
 }
 
 // ── SAVE APPOINTMENT ──────────────────────────────────────────
@@ -1637,8 +1896,6 @@ async function saveAppointment() {
     if (!_isAdmin && assigneeId !== _currentUser.id) {
         showToast('You can only create appointments for yourself.'); return;
     }
-
-    // Also enforce: non-admins cannot edit someone else's appointment
     if (!_isAdmin && _editingEventId) {
         const existing = _events.find(e => e.id === _editingEventId);
         if (existing && existing.assignee_id !== _currentUser.id) {
@@ -1653,6 +1910,7 @@ async function saveAppointment() {
 
     const payload = {
         title,
+        event_type: 'appointment',
         client_name: document.getElementById('apptClient').value.trim() || null,
         date,
         start_time: start,
@@ -1673,18 +1931,80 @@ async function saveAppointment() {
         ({ error } = await _supabase.from('appointments').insert([payload]));
     }
 
-    btn.disabled = false; btn.textContent = 'Save Appointment';
+    btn.disabled = false; btn.textContent = _editingEventId ? 'Update Appointment' : 'Save Appointment';
 
     if (error) {
-        if (error.code === '42P01') {
-            showToast('Table not set up yet. Please create the appointments table in Supabase.', 'error');
-        } else {
-            showToast('Error saving: ' + error.message);
-        }
-        return;
+        showToast('Error saving: ' + (error.code === '42P01' ? 'Appointments table not set up yet.' : error.message)); return;
     }
 
     showToast(_editingEventId ? 'Appointment updated.' : 'Appointment added.', 'success');
+    closeApptModal();
+    await loadEvents();
+    renderCalendar();
+}
+
+// ── SAVE LEAVE ────────────────────────────────────────────────
+async function saveLeave() {
+    const leaveType = document.querySelector('.leave-type-chip.selected')?.dataset.type || 'Annual Leave';
+    const startDate = document.getElementById('leaveStart').value;
+    const endDate = document.getElementById('leaveEnd').value;
+    const assigneeId = document.getElementById('leaveAssignee').value;
+    const hasTimes = document.getElementById('leaveHasTimes').checked;
+    const startTime = hasTimes ? document.getElementById('leaveStartTime').value : null;
+    const endTime = hasTimes ? document.getElementById('leaveEndTime').value : null;
+
+    if (!_isAdmin && assigneeId !== _currentUser.id) {
+        showToast('You can only create leave for yourself.'); return;
+    }
+    if (!startDate || !endDate || !assigneeId) {
+        showToast('Please fill in all required fields.'); return;
+    }
+    if (endDate < startDate) { showToast('End date must be on or after start date.'); return; }
+    if (hasTimes && startTime >= endTime) { showToast('End time must be after start time.'); return; }
+
+    const btn = document.getElementById('leaveSaveBtn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+
+    // For multi-day leave, insert one row per day
+    const days = [];
+    let cur = new Date(startDate + 'T12:00:00');
+    const end = new Date(endDate + 'T12:00:00');
+    while (cur <= end) { days.push(toDateStr(cur)); cur = addDays(cur, 1); }
+
+    const rows = days.map(d => ({
+        title: leaveType,
+        event_type: 'leave',
+        date: d,
+        leave_end_date: endDate,
+        start_time: startTime || '00:00',
+        end_time: endTime || '23:59',
+        assignee_id: assigneeId,
+        notes: document.getElementById('leaveNotes').value.trim() || null,
+        status: 'confirmed',
+        client_name: null,
+        location: null,
+    }));
+
+    let error;
+    if (_editingEventId) {
+        // Delete old rows for this leave group then re-insert
+        const oldEv = _events.find(e => e.id === _editingEventId);
+        if (oldEv) {
+            // Delete all rows with same leave group (same assignee + leave_end_date + date range)
+            await _supabase.from('appointments').delete().eq('id', _editingEventId);
+        }
+        ({ error } = await _supabase.from('appointments').insert(rows));
+    } else {
+        ({ error } = await _supabase.from('appointments').insert(rows));
+    }
+
+    btn.disabled = false; btn.textContent = 'Save Leave';
+
+    if (error) {
+        showToast('Error saving leave: ' + error.message); return;
+    }
+
+    showToast('Leave saved.', 'success');
     closeApptModal();
     await loadEvents();
     renderCalendar();
