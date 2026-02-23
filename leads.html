@@ -443,25 +443,6 @@
   }
   .btn-edit-toggle:hover:not(.active) { background: var(--cream-dark); }
 
-  /* Save button — shown only in edit mode */
-  .btn-save-edits {
-    display: none;
-    align-items: center;
-    gap: 7px;
-    border: 1px solid var(--signed-border);
-    padding: 7px 16px;
-    border-radius: 6px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    color: var(--signed);
-    background: var(--signed-bg);
-    transition: all 0.2s;
-  }
-  .btn-save-edits.visible { display: flex; }
-  .btn-save-edits:hover { background: var(--signed); color: white; border-color: var(--signed); }
-
   /* Download button */
   .btn-download {
     display: flex;
@@ -679,11 +660,7 @@
     #wdt-pipeline-filters .search-box { flex: 0 0 100%; min-width: 0; }
     #pipeline-filters .filter-select,
     #wdt-pipeline-filters .filter-select { flex: 1; min-width: 0; width: auto; }
-    .btn-edit-toggle, .btn-download, .btn-new-row, .btn-save-edits { padding: 8px 14px; font-size: 0.8rem; }
-    /* Toolbar rows wrap on small screens */
-    #page-progression .page-header > div:last-child,
-    #wdt-view-progression > div:first-child,
-    #page-woodates-signed .page-header > div:last-child { flex-wrap: wrap; gap: 8px; }
+    .btn-edit-toggle, .btn-download, .btn-new-row { padding: 8px 14px; font-size: 0.8rem; }
   }
 
   /* ── ADD ROW MODAL ── */
@@ -926,10 +903,6 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Edit
       </button>
-      <button class="btn-save-edits" id="save-edits-btn" data-action="saveEdits">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-        Save
-      </button>
       <button class="btn-download" data-action="downloadExcel">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download Excel
@@ -939,7 +912,7 @@
 
   <div class="edit-banner" id="edit-banner">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    Editing mode is on — click any cell to edit, then press Save when done.
+    Editing mode is on — click any cell to edit. Changes will save when you turn off editing.
   </div>
 
   <div class="filters">
@@ -1092,10 +1065,6 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Edit
       </button>
-      <button class="btn-save-edits" id="wdt-save-edits-btn" data-action="saveWdtEdits">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-        Save
-      </button>
       <button class="btn-download" data-action="downloadWdtExcel">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download Excel
@@ -1103,7 +1072,7 @@
     </div>
     <div class="edit-banner" id="wdt-edit-banner">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Editing mode is on — click any cell to edit, then press Save when done.
+      Editing mode is on — click any cell to edit. Changes will save when you turn off editing.
     </div>
     <div class="filters">
       <input class="search-box" type="text" placeholder="Search by name, phone, PM, status…" oninput="filterWdtProgression()" id="wdt-prog-search">
@@ -1184,10 +1153,6 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Edit
       </button>
-      <button class="btn-save-edits" id="signed-save-edits-btn" data-action="saveSignedEdits">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-        Save
-      </button>
       <button class="btn-download" data-action="downloadSignedExcel">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download Excel
@@ -1201,7 +1166,7 @@
 
   <div class="edit-banner" id="signed-edit-banner">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    Editing mode is on — click any cell to edit, then press Save when done.
+    Editing mode is on — click any cell to edit. Changes will save when you turn off editing.
   </div>
 
   <div class="stat-row" id="signed-stat-row"></div>
