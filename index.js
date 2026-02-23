@@ -240,7 +240,6 @@ const { createClient } = supabase;
                 if (remaining.length === 0) {
                     document.getElementById('quotesList').innerHTML = '';
                 }
-                }
             }
         }
 
