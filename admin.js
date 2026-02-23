@@ -86,13 +86,8 @@ const { createClient } = supabase;
                 .eq('status', 'completed')
                 .order('created_at', { ascending: false });
 
-            if (error) {
-                body.innerHTML = '<tr><td colspan="7" class="no-data">Error loading completed quotes.</td></tr>';
-                return;
-            }
-
-            if (!quotes || quotes.length === 0) {
-                body.innerHTML = '<tr><td colspan="7" class="no-data">No completed quotes yet.</td></tr>';
+            if (error || !quotes || quotes.length === 0) {
+                body.innerHTML = '<tr><td colspan="7" class="no-data">No quotes yet.</td></tr>';
                 return;
             }
 
@@ -127,7 +122,7 @@ const { createClient } = supabase;
                 .order('created_at', { ascending: false });
 
             if (error || !requests || requests.length === 0) {
-                body.innerHTML = '<tr><td colspan="6" class="no-data">No AI quote requests yet.</td></tr>';
+                body.innerHTML = '<tr><td colspan="6" class="no-data">No quotes yet.</td></tr>';
                 return;
             }
 
