@@ -362,6 +362,7 @@ function renderProgression(data) {
 function toggleEditMode() {
   editMode = !editMode;
   const btn = document.getElementById('edit-toggle-btn');
+  const saveBtn = document.getElementById('save-edits-btn');
   const banner = document.getElementById('edit-banner');
   const wrap = document.getElementById('prog-table-wrap');
   if(editMode) {
@@ -369,13 +370,30 @@ function toggleEditMode() {
     btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editing On`;
     banner.classList.add('visible');
     wrap.classList.add('edit-mode');
+    saveBtn.classList.add('visible');
   } else {
     btn.classList.remove('active');
     btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit`;
     banner.classList.remove('visible');
     wrap.classList.remove('edit-mode');
+    saveBtn.classList.remove('visible');
   }
   renderProgression(progFiltered.length ? progFiltered : CHYLER_DATA);
+}
+
+async function saveEdits() {
+  const cells = document.querySelectorAll('#prog-table-wrap td[contenteditable="true"][data-field]');
+  if(!cells.length) { showSyncStatus('Nothing to save', 'success'); return; }
+  showSyncStatus('Saving…', 'saving');
+  const saves = [];
+  cells.forEach(td => {
+    const rowId = +td.closest('tr')?.dataset.id;
+    const field = td.dataset.field;
+    const value = td.textContent.trim();
+    if(rowId && field) saves.push(supabaseUpdateCell('chyler_leads', rowId, field, value, CHYLER_COL_MAP));
+  });
+  await Promise.all(saves);
+  showSyncStatus('All changes saved ✓', 'success');
 }
 
 // ── EXCEL DOWNLOAD ──
@@ -987,10 +1005,32 @@ function renderWdtProgression(data) {
 function toggleWdtEditMode() {
   wdtEditMode = !wdtEditMode;
   const btn = document.getElementById('wdt-edit-toggle-btn');
+  const saveBtn = document.getElementById('wdt-save-edits-btn');
   const banner = document.getElementById('wdt-edit-banner');
   btn.classList.toggle('active', wdtEditMode);
   banner.classList.toggle('visible', wdtEditMode);
+  saveBtn.classList.toggle('visible', wdtEditMode);
+  if(wdtEditMode) {
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editing On`;
+  } else {
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit`;
+  }
   renderWdtProgression(wdtProgFiltered.length ? wdtProgFiltered : WDT_DATA);
+}
+
+async function saveWdtEdits() {
+  const cells = document.querySelectorAll('#wdt-prog-tbody td[contenteditable="true"][data-field]');
+  if(!cells.length) { showSyncStatus('Nothing to save', 'success'); return; }
+  showSyncStatus('Saving…', 'saving');
+  const saves = [];
+  cells.forEach(td => {
+    const rowId = +td.closest('tr')?.dataset.id;
+    const field = td.dataset.field;
+    const value = td.textContent.trim();
+    if(rowId && field) saves.push(supabaseUpdateCell('woodates_leads', rowId, field, value, WDT_COL_MAP));
+  });
+  await Promise.all(saves);
+  showSyncStatus('All changes saved ✓', 'success');
 }
 
 // ── WDT MASTER ──
@@ -1127,20 +1167,46 @@ let signedEditMode = false;
 function toggleSignedEditMode() {
   signedEditMode = !signedEditMode;
   const btn = document.getElementById('signed-edit-toggle-btn');
+  const saveBtn = document.getElementById('signed-save-edits-btn');
   const banner = document.getElementById('signed-edit-banner');
   const wrap = document.querySelector('#signed-table').closest('.table-wrap');
   if(signedEditMode) {
     btn.classList.add('active');
     btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editing On`;
     banner.classList.add('visible');
+    saveBtn.classList.add('visible');
     if(wrap) wrap.classList.add('edit-mode');
   } else {
     btn.classList.remove('active');
     btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit`;
     banner.classList.remove('visible');
+    saveBtn.classList.remove('visible');
     if(wrap) wrap.classList.remove('edit-mode');
   }
   renderSigned();
+}
+
+async function saveSignedEdits() {
+  const cells = document.querySelectorAll('#signed-tbody td[contenteditable="true"]');
+  if(!cells.length) { showSyncStatus('Nothing to save', 'success'); return; }
+  showSyncStatus('Saving…', 'saving');
+  const saves = [];
+  cells.forEach(td => {
+    const rowId = +td.closest('tr')?.dataset.id;
+    const value = td.textContent.trim();
+    if(rowId && value) {
+      saves.push(
+        _db.from('chyler_signed').update({name: value}).eq('id', rowId)
+          .then(({error}) => { if(error) throw error; })
+      );
+    }
+  });
+  try {
+    await Promise.all(saves);
+    showSyncStatus('All changes saved ✓', 'success');
+  } catch(e) {
+    showSyncStatus('Save failed ✗', 'error');
+  }
 }
 
 function signedDepositDropdown(rowId, field, value) {
@@ -1408,11 +1474,14 @@ async function supabaseUpdateCell(table, rowId, fieldName, value, colMap) {
         else if (action === 'toggleSection') toggleSection(target, btn);
         else if (action === 'openNewRowModal') openNewRowModal();
         else if (action === 'toggleEditMode') toggleEditMode();
+        else if (action === 'saveEdits') saveEdits();
         else if (action === 'downloadExcel') downloadExcel();
         else if (action === 'openWdtModal') openWdtModal();
         else if (action === 'toggleWdtEditMode') toggleWdtEditMode();
+        else if (action === 'saveWdtEdits') saveWdtEdits();
         else if (action === 'downloadWdtExcel') downloadWdtExcel();
         else if (action === 'toggleSignedEditMode') toggleSignedEditMode();
+        else if (action === 'saveSignedEdits') saveSignedEdits();
         else if (action === 'downloadSignedExcel') downloadSignedExcel();
         else if (action === 'openSignedModal') openSignedModal();
         else if (action === 'closeWdtModal') closeWdtModal();
