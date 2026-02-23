@@ -839,12 +839,30 @@
 
     let selectedFile = null;
 
+    // Allowed file types for floor plan uploads (checked client-side as first layer)
+    const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'];
+
+    function validateFile(file) {
+        if (!file) return false;
+        if (file.size > 10 * 1024 * 1024) {
+            showToast('File too large. Please upload a file under 10MB.');
+            return false;
+        }
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!ALLOWED_MIME_TYPES.includes(file.type) || !ALLOWED_EXTENSIONS.includes(ext)) {
+            showToast('Invalid file type. Please upload an image (JPG, PNG, GIF, WEBP) or PDF.');
+            return false;
+        }
+        return true;
+    }
+
     // ── FILE HANDLING ──────────────────────────────────────────────
     function handleFileSelect(e) {
         const file = e.target.files[0];
         if (!file) return;
-        if (file.size > 10 * 1024 * 1024) {
-            showToast('File too large. Please upload a file under 10MB.');
+        if (!validateFile(file)) {
+            e.target.value = '';
             return;
         }
         selectedFile = file;
@@ -867,7 +885,7 @@
         e.preventDefault();
         uploadArea.classList.remove('drag-over');
         const file = e.dataTransfer.files[0];
-        if (file) {
+        if (file && validateFile(file)) {
             selectedFile = file;
             document.getElementById('fileName').textContent = file.name;
             document.getElementById('filePreview').classList.add('visible');
