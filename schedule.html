@@ -1121,10 +1121,7 @@ async function init() {
         document.getElementById('adminNavLink').style.display = 'inline';
     }
 
-    // Hide/disable "add" & edit buttons for non-admins
-    if (!_isAdmin) {
-        document.getElementById('addApptBtn').style.display = 'none';
-    }
+    // Designers can manage their own appointments; admins manage everyone's
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
         await _supabase.auth.signOut();
@@ -1548,7 +1545,7 @@ function scrollToWorkingHours(area) {
 
 // ── CELL CLICK (create appt) ──────────────────────────────────
 function handleCellClick(e, dateStr, hour) {
-    if (!_isAdmin) return;
+    // Both admins and designers can create appointments (designers default to themselves)
     const startH = String(hour).padStart(2,'0');
     const endH = String(Math.min(hour + 1, 23)).padStart(2,'0');
     openApptModal(null, dateStr, `${startH}:00`, `${endH}:00`);
@@ -1583,7 +1580,8 @@ function showEventDetail(id) {
     else notesRow.style.display = 'none';
 
     const actions = document.getElementById('detailActions');
-    if (_isAdmin) {
+    const canEdit = _isAdmin || ev.assignee_id === _currentUser.id;
+    if (canEdit) {
         actions.style.display = 'flex';
         document.getElementById('detailEditBtn').onclick = () => { closeModal('eventDetailModal'); openApptModal(id); };
         document.getElementById('detailDeleteBtn').onclick = () => deleteEvent(id);
@@ -1612,9 +1610,11 @@ function openApptModal(editId = null, prefillDate = null, prefillStart = null, p
     document.getElementById('apptNotes').value = ev?.notes || '';
     document.getElementById('apptStatus').value = ev?.status || 'confirmed';
 
-    // Build assignee dropdown
+    // Build assignee dropdown — admins see everyone, designers see only themselves
     const sel = document.getElementById('apptAssignee');
-    sel.innerHTML = _teamMembers.map(m => `<option value="${esc(m.id)}" ${(ev?.assignee_id === m.id || (!ev && m.id === _currentUser.id)) ? 'selected' : ''}>${esc(m.name)}</option>`).join('');
+    const assignableMembers = _isAdmin ? _teamMembers : _teamMembers.filter(m => m.id === _currentUser.id);
+    sel.innerHTML = assignableMembers.map(m => `<option value="${esc(m.id)}" ${(ev?.assignee_id === m.id || (!ev && m.id === _currentUser.id)) ? 'selected' : ''}>${esc(m.name)}</option>`).join('');
+    sel.disabled = !_isAdmin && assignableMembers.length <= 1;
 
     document.getElementById('apptDeleteBtn').style.display = editId ? 'inline-block' : 'none';
     openModal('apptModal');
@@ -1632,6 +1632,19 @@ async function saveAppointment() {
     const start = document.getElementById('apptStart').value;
     const end = document.getElementById('apptEnd').value;
     const assigneeId = document.getElementById('apptAssignee').value;
+
+    // Security: non-admins can only save for themselves
+    if (!_isAdmin && assigneeId !== _currentUser.id) {
+        showToast('You can only create appointments for yourself.'); return;
+    }
+
+    // Also enforce: non-admins cannot edit someone else's appointment
+    if (!_isAdmin && _editingEventId) {
+        const existing = _events.find(e => e.id === _editingEventId);
+        if (existing && existing.assignee_id !== _currentUser.id) {
+            showToast('You can only edit your own appointments.'); return;
+        }
+    }
 
     if (!title || !date || !start || !end || !assigneeId) {
         showToast('Please fill in all required fields.'); return;
