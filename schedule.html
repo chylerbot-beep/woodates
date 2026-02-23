@@ -197,6 +197,8 @@
         .mini-cal-cell.today { background: var(--accent); color: white; font-weight: 700; }
         .mini-cal-cell.selected { background: var(--dark); color: white; font-weight: 700; }
         .mini-cal-cell.other-month { color: var(--border); }
+        .mini-cal-cell.is-sunday:not(.today):not(.selected) { color: #C0392B; }
+        .mini-cal-cell.is-holiday:not(.today):not(.selected) { color: #8B6914; background: #FFF9E6; }
         .mini-cal-cell.has-events::after {
             content: '';
             position: absolute;
@@ -950,7 +952,60 @@
             text-align: center;
         }
 
-        /* ── AGENDA VIEW ─────────────────────────────────────── */
+        /* ── SUNDAY & HOLIDAY STYLING ────────────────────────── */
+        .week-header-day.is-sunday .week-header-day-label,
+        .week-header-day.is-sunday .week-header-day-num { color: #C0392B; }
+        .week-header-day.is-holiday .week-header-day-label,
+        .week-header-day.is-holiday .week-header-day-num { color: #8B6914; }
+        .holiday-badge {
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: #8B6914;
+            background: #FFF3CD;
+            border-radius: 3px;
+            padding: 1px 4px;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            display: block;
+        }
+        .day-col.is-sunday { background: rgba(220,38,38,0.03); }
+        .day-col.is-holiday { background: rgba(255,193,7,0.05); }
+        .month-cell.is-sunday .month-cell-num { color: #C0392B; }
+        .month-cell.is-sunday:not(.today) { background: rgba(220,38,38,0.03); }
+        .month-cell.is-holiday:not(.today) { background: rgba(255,193,7,0.06); }
+        .month-cell.is-holiday .month-cell-num { color: #8B6914; }
+        .month-holiday-label {
+            font-size: 0.58rem;
+            font-weight: 600;
+            color: #8B6914;
+            background: #FFF3CD;
+            border-radius: 3px;
+            padding: 1px 5px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+        .agenda-holiday-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #8B6914;
+            background: #FFF3CD;
+            border-radius: 4px;
+            padding: 2px 8px;
+            margin-bottom: 4px;
+        }
+        .agenda-day-header.is-sunday .agenda-day-num { color: #C0392B; }
+        .agenda-day-header.is-sunday .agenda-day-name { color: #C0392B; }
+        .agenda-day-header.is-holiday .agenda-day-num { color: #8B6914; }
+        .agenda-day-header.is-holiday .agenda-day-name { color: #8B6914; }
         .agenda-view { padding: 0; display: flex; flex-direction: column; }
         .agenda-day-group { border-bottom: 1px solid var(--border); }
         .agenda-day-header {
@@ -1026,9 +1081,9 @@
             .sidebar.open { left: 0; }
             .mobile-fab { display: flex; }
 
-            .cal-toolbar { padding: 8px 12px; gap: 6px; flex-wrap: wrap; }
-            .cal-nav-group { gap: 4px; flex: 1; min-width: 0; }
-            .cal-title { font-size: 0.82rem; white-space: nowrap; }
+            .cal-toolbar { padding: 10px 12px; gap: 8px; flex-wrap: nowrap; }
+            .cal-nav-group { gap: 4px; flex: 1; min-width: 0; overflow: hidden; }
+            .cal-title { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .cal-today-btn { padding: 0 8px; font-size: 0.72rem; }
             .cal-nav-btn { width: 28px; height: 28px; font-size: 0.8rem; flex-shrink: 0; }
             .view-switcher { flex-shrink: 0; gap: 2px; padding: 2px; }
@@ -1129,10 +1184,10 @@
             </div>
             <div class="view-switcher">
                 <button class="view-btn" data-view="agenda">Agenda</button>
-                <button class="view-btn" data-view="day">1D</button>
-                <button class="view-btn" data-view="3day">3D</button>
-                <button class="view-btn active" data-view="week">1W</button>
-                <button class="view-btn" data-view="month">1M</button>
+                <button class="view-btn" data-view="day">Day</button>
+                <button class="view-btn" data-view="3day">3 Day</button>
+                <button class="view-btn active" data-view="week">Week</button>
+                <button class="view-btn" data-view="month">Month</button>
             </div>
         </div>
         <div class="calendar-area" id="calendarArea">
@@ -1353,6 +1408,50 @@ let _miniCalDate = new Date();
 // Designer color palette
 const DESIGNER_COLORS = ['#C4956A','#7B9E87','#8B7DB5','#D4896A','#5E9EC4','#C47A8B','#6B8FB5','#9E7B6B'];
 
+// ── SINGAPORE PUBLIC HOLIDAYS ─────────────────────────────────
+// Source: MOM Singapore official public holidays
+const SG_PUBLIC_HOLIDAYS = {
+    // 2025
+    '2025-01-01': "New Year's Day",
+    '2025-01-29': 'Chinese New Year',
+    '2025-01-30': 'Chinese New Year',
+    '2025-03-31': 'Hari Raya Puasa',
+    '2025-04-18': 'Good Friday',
+    '2025-05-01': 'Labour Day',
+    '2025-05-12': 'Vesak Day',
+    '2025-06-06': 'Hari Raya Haji',
+    '2025-08-09': 'National Day',
+    '2025-10-20': 'Deepavali',
+    '2025-12-25': 'Christmas Day',
+    // 2026
+    '2026-01-01': "New Year's Day",
+    '2026-02-17': 'Chinese New Year',
+    '2026-02-18': 'Chinese New Year',
+    '2026-03-20': 'Hari Raya Puasa',
+    '2026-04-03': 'Good Friday',
+    '2026-05-01': 'Labour Day',
+    '2026-05-31': 'Vesak Day',
+    '2026-05-27': 'Hari Raya Haji',
+    '2026-08-10': 'National Day',
+    '2026-11-09': 'Deepavali',
+    '2026-12-25': 'Christmas Day',
+    // 2027
+    '2027-01-01': "New Year's Day",
+    '2027-02-06': 'Chinese New Year',
+    '2027-02-07': 'Chinese New Year',
+    '2027-03-10': 'Hari Raya Puasa',
+    '2027-03-26': 'Good Friday',
+    '2027-05-01': 'Labour Day',
+    '2027-05-20': 'Vesak Day',
+    '2027-05-17': 'Hari Raya Haji',
+    '2027-08-09': 'National Day',
+    '2027-10-29': 'Deepavali',
+    '2027-12-25': 'Christmas Day',
+};
+
+function isSgHoliday(dateStr) { return SG_PUBLIC_HOLIDAYS[dateStr] || null; }
+function isSunday(date) { return date.getDay() === 0; }
+
 // ── INIT ──────────────────────────────────────────────────────
 async function init() {
     const { data: { session } } = await _supabase.auth.getSession();
@@ -1556,9 +1655,12 @@ function renderMiniCal() {
         const date = new Date(year, month, d);
         const isToday = sameDay(date, today);
         const isSel = sameDay(date, selectedDay);
-        const cls = [isToday && !isSel ? 'today' : '', isSel ? 'selected' : ''].filter(Boolean).join(' ');
+        const isSun = isSunday(date);
         const dateStr = toDateStr(date);
-        cells += `<div class="mini-cal-cell ${cls}" onclick="miniCalClick('${dateStr}')">${d}</div>`;
+        const holiday = isSgHoliday(dateStr);
+        const cls = [isToday && !isSel ? 'today' : '', isSel ? 'selected' : '', isSun && !isToday && !isSel ? 'is-sunday' : '', holiday && !isToday && !isSel ? 'is-holiday' : ''].filter(Boolean).join(' ');
+        const title = holiday ? ` title="${holiday}"` : '';
+        cells += `<div class="mini-cal-cell ${cls}"${title} onclick="miniCalClick('${dateStr}')">${d}</div>`;
     }
     // Fill rest
     const total = startDow + lastDay.getDate();
@@ -1606,13 +1708,8 @@ function renderCalendar() {
 
 function updateCalTitle() {
     const title = document.getElementById('calTitle');
-    const isMobile = window.innerWidth <= 768;
-    const monthNames = isMobile
-        ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-        : ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const dayNames = isMobile
-        ? ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
-        : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
     if (_currentView === 'day') {
         title.textContent = `${dayNames[_viewDate.getDay()]}, ${monthNames[_viewDate.getMonth()]} ${_viewDate.getDate()}, ${_viewDate.getFullYear()}`;
@@ -1643,11 +1740,16 @@ function renderWeek(area) {
 
     const dayHeaders = days.map((d, i) => {
         const isToday = sameDay(d, today);
+        const isSun = isSunday(d);
+        const dateStr = toDateStr(d);
+        const holiday = isSgHoliday(dateStr);
         const names = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const cls = [isToday ? 'is-today' : '', isSun ? 'is-sunday' : '', holiday ? 'is-holiday' : ''].filter(Boolean).join(' ');
         return `
-            <div class="week-header-day ${isToday ? 'is-today' : ''}" data-date="${toDateStr(d)}">
+            <div class="week-header-day ${cls}" data-date="${dateStr}">
                 <div class="week-header-day-label">${names[d.getDay()]}</div>
                 <div class="week-header-day-num">${d.getDate()}</div>
+                ${holiday ? `<span class="holiday-badge" title="${holiday}">${holiday}</span>` : ''}
             </div>
         `;
     }).join('');
@@ -1659,11 +1761,14 @@ function renderWeek(area) {
 
     const dayCols = days.map((d, di) => {
         const dateStr = toDateStr(d);
+        const isSun = isSunday(d);
+        const holiday = isSgHoliday(dateStr);
         const dayEvents = getVisibleEventsForDate(dateStr);
         const hourRows = hours.map(h => `<div class="hour-row" data-date="${dateStr}" data-hour="${h}" onclick="handleCellClick(event,'${dateStr}',${h})"></div>`).join('');
         const eventBlocks = dayEvents.map(ev => renderEventBlock(ev)).join('');
+        const cls = [isSun ? 'is-sunday' : '', holiday ? 'is-holiday' : ''].filter(Boolean).join(' ');
         return `
-            <div class="day-col" data-date="${dateStr}">
+            <div class="day-col ${cls}" data-date="${dateStr}">
                 ${hourRows}
                 ${eventBlocks}
             </div>
@@ -1745,9 +1850,14 @@ function render3Day(area) {
 
     const dayHeaders = days.map(d => {
         const isToday = sameDay(d, today);
-        return `<div class="week-header-day ${isToday ? 'is-today' : ''}" data-date="${toDateStr(d)}">
+        const isSun = isSunday(d);
+        const dateStr = toDateStr(d);
+        const holiday = isSgHoliday(dateStr);
+        const cls = [isToday ? 'is-today' : '', isSun ? 'is-sunday' : '', holiday ? 'is-holiday' : ''].filter(Boolean).join(' ');
+        return `<div class="week-header-day ${cls}" data-date="${dateStr}">
             <div class="week-header-day-label">${names[d.getDay()]}</div>
             <div class="week-header-day-num">${d.getDate()}</div>
+            ${holiday ? `<span class="holiday-badge">${holiday}</span>` : ''}
         </div>`;
     }).join('');
 
@@ -1758,10 +1868,13 @@ function render3Day(area) {
 
     const dayCols = days.map(d => {
         const dateStr = toDateStr(d);
+        const isSun = isSunday(d);
+        const holiday = isSgHoliday(dateStr);
+        const cls = [isSun ? 'is-sunday' : '', holiday ? 'is-holiday' : ''].filter(Boolean).join(' ');
         const dayEvents = getVisibleEventsForDate(dateStr);
         const hourRows = hours.map(h => `<div class="hour-row" data-date="${dateStr}" data-hour="${h}" onclick="handleCellClick(event,'${dateStr}',${h})"></div>`).join('');
         const eventBlocks = dayEvents.map(ev => renderEventBlock(ev)).join('');
-        return `<div class="day-col" data-date="${dateStr}">${hourRows}${eventBlocks}</div>`;
+        return `<div class="day-col ${cls}" data-date="${dateStr}">${hourRows}${eventBlocks}</div>`;
     }).join('');
 
     area.innerHTML = `
@@ -1787,6 +1900,10 @@ function renderAgenda(area) {
         const dateStr = toDateStr(d);
         const evs = getVisibleEventsForDate(dateStr);
         const isToday = sameDay(d, today);
+        const isSun = isSunday(d);
+        const holiday = isSgHoliday(dateStr);
+        const headerCls = [isToday ? 'is-today' : '', isSun ? 'is-sunday' : '', holiday ? 'is-holiday' : ''].filter(Boolean).join(' ');
+
         const evRows = evs.map(ev => {
             const m = getMember(ev.assignee_id);
             const color = m?.color || '#C4956A';
@@ -1804,15 +1921,20 @@ function renderAgenda(area) {
             </div>`;
         }).join('');
 
+        const holidayTag = holiday ? `<div class="agenda-holiday-tag">🇸🇬 ${holiday}</div>` : '';
+
         return `<div class="agenda-day-group">
-            <div class="agenda-day-header ${isToday ? 'is-today' : ''}" onclick="openNewModal('${dateStr}')">
+            <div class="agenda-day-header ${headerCls}" onclick="openNewModal('${dateStr}')">
                 <div class="agenda-day-num">${d.getDate()}</div>
                 <div class="agenda-day-info">
                     <div class="agenda-day-name">${dayNames[d.getDay()]}</div>
                     <div class="agenda-day-month">${monthNames[d.getMonth()]} ${d.getFullYear()}</div>
                 </div>
             </div>
-            <div class="agenda-events">${evRows || '<div class="agenda-empty-day">No appointments</div>'}</div>
+            <div class="agenda-events">
+                ${holidayTag}
+                ${evRows || '<div class="agenda-empty-day">No appointments</div>'}
+            </div>
         </div>`;
     }).join('');
 
@@ -1860,6 +1982,8 @@ function renderMonth(area) {
 function renderMonthCell(date, otherMonth, today) {
     const dateStr = toDateStr(date);
     const isToday = sameDay(date, today);
+    const isSun = isSunday(date);
+    const holiday = isSgHoliday(dateStr);
     const evs = getVisibleEventsForDate(dateStr);
     const maxShow = 3;
     const pills = evs.slice(0, maxShow).map(ev => {
@@ -1867,9 +1991,11 @@ function renderMonthCell(date, otherMonth, today) {
         return `<span class="month-event-pill" style="background:${m?.color||'#C4956A'}22;color:${m?.color||'#C4956A'};" onclick="showEventDetail('${esc(ev.id)}');event.stopPropagation();">${esc(ev.title)}</span>`;
     }).join('');
     const more = evs.length > maxShow ? `<div class="month-more">+${evs.length - maxShow} more</div>` : '';
+    const cls = [otherMonth ? 'other-month' : '', isToday ? 'today' : '', isSun ? 'is-sunday' : '', holiday ? 'is-holiday' : ''].filter(Boolean).join(' ');
     return `
-        <div class="month-cell ${otherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}" onclick="handleMonthCellClick('${dateStr}')">
+        <div class="month-cell ${cls}" onclick="handleMonthCellClick('${dateStr}')">
             <div class="month-cell-num">${date.getDate()}</div>
+            ${holiday ? `<span class="month-holiday-label">🇸🇬 ${holiday}</span>` : ''}
             ${pills}
             ${more}
         </div>
