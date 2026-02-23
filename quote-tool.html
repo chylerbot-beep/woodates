@@ -1099,6 +1099,8 @@
                 delete state.selections[code];
             }
 
+            _hasUnsavedChanges = true; // mark unsaved so auto-save and beforeunload can react
+
             // Update individual card and subtotal
             const item = DATABASE.find(i => i.code === code);
             const subtotalEl = document.getElementById(`subtotal-${code}`);
@@ -1689,9 +1691,22 @@
 
         // ── Save quote to Supabase ─────────────────────────────
         let _quoteSavedId = null; // track the DB row id for updates
+        let _hasUnsavedChanges = false; // track unsaved state for beforeunload warning
 
-        async function saveQuoteToSupabase() {
+        // Retry helper: retries an async fn up to `retries` times with exponential backoff
+        async function withRetry(fn, retries = 3) {
+            for (let i = 0; i < retries; i++) {
+                try { return await fn(); }
+                catch (err) {
+                    if (i === retries - 1) throw err;
+                    await new Promise(r => setTimeout(r, 800 * (i + 1)));
+                }
+            }
+        }
+
+        async function saveQuoteToSupabase({ silent = false } = {}) {
             if (!_sb || !_currentUserId) return; // auth not ready
+            if (!silent) showSaveStatus('Saving…', 'saving');
             try {
                 // Calculate current total
                 let subtotal = PRELIMS.reduce((s,p) => s + (typeof p.amount==='number' ? p.amount : 0), 0);
@@ -1718,22 +1733,40 @@
                 };
 
                 let result;
-                if (_quoteSavedId) {
-                    // Update existing record
-                    result = await _sb.from('quotes').update(payload).eq('id', _quoteSavedId).select().single();
-                } else {
-                    // Insert new record
-                    result = await _sb.from('quotes').insert([payload]).select().single();
-                    if (result.data) _quoteSavedId = result.data.id;
-                }
+                await withRetry(async () => {
+                    if (_quoteSavedId) {
+                        // Update existing record
+                        result = await _sb.from('quotes').update(payload).eq('id', _quoteSavedId).select().single();
+                    } else {
+                        // Insert new record
+                        result = await _sb.from('quotes').insert([payload]).select().single();
+                        if (result.data) _quoteSavedId = result.data.id;
+                    }
+                    if (result.error) throw result.error;
+                });
 
-                if (result.error) throw result.error;
-                showSaveStatus('Quote saved to portal ✓', 'success');
+                _hasUnsavedChanges = false;
+                if (!silent) showSaveStatus('Quote saved to portal ✓', 'success');
             } catch(err) {
                 console.error('Quote save error:', err);
-                showSaveStatus('Save failed — check connection', 'error');
+                if (!silent) showSaveStatus('Save failed — check connection', 'error');
             }
         }
+
+        // Auto-save every 60 seconds if there's an active quote with selections
+        setInterval(async () => {
+            if (_hasUnsavedChanges && _quoteSavedId && Object.keys(state.selections).length > 0) {
+                await saveQuoteToSupabase({ silent: true });
+            }
+        }, 60_000);
+
+        // Warn before closing tab if there are unsaved changes
+        window.addEventListener('beforeunload', (e) => {
+            if (_hasUnsavedChanges) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
 
         function showSaveStatus(msg, type) {
             let el = document.getElementById('_quote_save_status');
@@ -1777,7 +1810,8 @@
             if (!qid || !_sb) return false;
 
             try {
-                const { data, error } = await _sb.from('quotes').select('*').eq('id', qid).single();
+                // Security: also filter by user_id so a designer cannot load another designer's quote by guessing the UUID
+                const { data, error } = await _sb.from('quotes').select('*').eq('id', qid).eq('user_id', _currentUserId).single();
                 if (error || !data) return false;
 
                 _quoteSavedId = data.id;
