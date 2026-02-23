@@ -780,19 +780,19 @@
     </div>
   </div>
   <div class="main-nav" id="main-nav">
-    <div class="main-nav-tab active" onclick="switchMainNav('chyler', this)">Chyler Leads</div>
-    <div class="main-nav-tab" onclick="switchMainNav('woodates', this)">Woodates Leads</div>
-    <div class="main-nav-tab" onclick="switchMainNav('signed', this)">Chyler Signed</div>
+    <div class="main-nav-tab active" data-action="switchMainNav" data-nav="chyler">Chyler Leads</div>
+    <div class="main-nav-tab" data-action="switchMainNav" data-nav="woodates">Woodates Leads</div>
+    <div class="main-nav-tab" data-action="switchMainNav" data-nav="signed">Chyler Signed</div>
   </div>
   <div class="sub-nav" id="sub-nav-chyler">
-    <div class="sub-tab active" onclick="switchSubTab('pipeline', this)">Pipeline</div>
-    <div class="sub-tab" onclick="switchSubTab('progression', this)">Progression</div>
-    <div class="sub-tab" onclick="switchSubTab('masterlist', this)">Master List</div>
+    <div class="sub-tab active" data-action="switchSubTab" data-tab="pipeline">Pipeline</div>
+    <div class="sub-tab" data-action="switchSubTab" data-tab="progression">Progression</div>
+    <div class="sub-tab" data-action="switchSubTab" data-tab="masterlist">Master List</div>
   </div>
   <div class="sub-nav" id="sub-nav-woodates" style="display:none">
-    <div class="sub-tab active" data-view="pipeline" onclick="switchWdtView('pipeline', this)">Pipeline</div>
-    <div class="sub-tab" data-view="progression" onclick="switchWdtView('progression', this)">Progression</div>
-    <div class="sub-tab" data-view="master" onclick="switchWdtView('master', this)">Master List</div>
+    <div class="sub-tab active" data-view="pipeline" data-action="switchWdtView" data-view="pipeline">Pipeline</div>
+    <div class="sub-tab" data-view="progression" data-action="switchWdtView" data-view="progression">Progression</div>
+    <div class="sub-tab" data-view="master" data-action="switchWdtView" data-view="master">Master List</div>
   </div>
   <div class="sub-nav" id="sub-nav-signed" style="display:none"></div>
 </header>
@@ -813,12 +813,12 @@
     </select>
   </div>
   <div class="status-filter-row">
-    <div class="status-filter-pill sf-all selected" onclick="setPipelineFilter('ALL', this)"><span class="pill-count" id="pill-count-all"></span>All</div>
-    <div class="status-filter-pill sf-active" onclick="setPipelineFilter('ACTIVE', this)"><span class="pill-count" id="pill-count-active"></span>Active</div>
-    <div class="status-filter-pill sf-signed" onclick="setPipelineFilter('SIGNED', this)"><span class="pill-count" id="pill-count-signed"></span>Signed</div>
-    <div class="status-filter-pill sf-lapsed" onclick="setPipelineFilter('LAPSED', this)"><span class="pill-count" id="pill-count-lapsed"></span>Lapsed</div>
-    <div class="status-filter-pill sf-keyco" onclick="setPipelineFilter('KEYCO', this)"><span class="pill-count" id="pill-count-keyco"></span>Key Collection</div>
-    <div class="status-filter-pill sf-reachout" onclick="setPipelineFilter('REACHOUT', this)">🔔 Reach Out</div>
+    <div class="status-filter-pill sf-all selected" data-action="setPipelineFilter" data-filter="ALL"><span class="pill-count" id="pill-count-all"></span>All</div>
+    <div class="status-filter-pill sf-active" data-action="setPipelineFilter" data-filter="ACTIVE"><span class="pill-count" id="pill-count-active"></span>Active</div>
+    <div class="status-filter-pill sf-signed" data-action="setPipelineFilter" data-filter="SIGNED"><span class="pill-count" id="pill-count-signed"></span>Signed</div>
+    <div class="status-filter-pill sf-lapsed" data-action="setPipelineFilter" data-filter="LAPSED"><span class="pill-count" id="pill-count-lapsed"></span>Lapsed</div>
+    <div class="status-filter-pill sf-keyco" data-action="setPipelineFilter" data-filter="KEYCO"><span class="pill-count" id="pill-count-keyco"></span>Key Collection</div>
+    <div class="status-filter-pill sf-reachout" data-action="setPipelineFilter" data-filter="REACHOUT">🔔 Reach Out</div>
   </div>
 
   <!-- REACH OUT SECTION -->
@@ -851,7 +851,7 @@
       <span class="section-title" style="color:var(--keyco)">Long Key Collection</span>
       <span class="section-count" id="cnt-keyco"></span>
     </div>
-    <button class="toggle-btn" onclick="toggleSection('keyco-body', this)">Hide</button>
+    <button class="toggle-btn" data-action="toggleSection" data-target="keyco-body">Hide</button>
   </div>
   <div class="collapsible-content" id="keyco-body" style="max-height:2000px">
     <div class="cards-grid" id="cards-keyco"></div>
@@ -865,7 +865,7 @@
       <span class="section-title" style="color:var(--signed)">Signed</span>
       <span class="section-count" id="cnt-signed-pipeline"></span>
     </div>
-    <button class="toggle-btn" onclick="toggleSection('signed-body-pipeline', this)">Hide</button>
+    <button class="toggle-btn" data-action="toggleSection" data-target="signed-body-pipeline">Hide</button>
   </div>
   <div class="collapsible-content" id="signed-body-pipeline" style="max-height:2000px">
     <div class="cards-grid" id="cards-signed-pipeline"></div>
@@ -879,7 +879,7 @@
       <span class="section-title" style="color:var(--lapsed)">Lapsed</span>
       <span class="section-count" id="cnt-lapsed"></span>
     </div>
-    <button class="toggle-btn" onclick="toggleSection('lapsed-body', this)">Hide</button>
+    <button class="toggle-btn" data-action="toggleSection" data-target="lapsed-body">Hide</button>
   </div>
   <div class="collapsible-content" id="lapsed-body" style="max-height:9999px">
     <div class="cards-grid" id="cards-lapsed"></div>
@@ -895,15 +895,15 @@
       <div class="page-subtitle">Full pipeline tracking — all columns A–T</div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <button class="btn-new-row" onclick="openNewRowModal()">
+      <button class="btn-new-row" data-action="openNewRowModal">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         New
       </button>
-      <button class="btn-edit-toggle" id="edit-toggle-btn" onclick="toggleEditMode()">
+      <button class="btn-edit-toggle" id="edit-toggle-btn" data-action="toggleEditMode">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Edit
       </button>
-      <button class="btn-download" onclick="downloadExcel()">
+      <button class="btn-download" data-action="downloadExcel">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download Excel
       </button>
@@ -1011,10 +1011,10 @@
       </select>
     </div>
     <div class="status-filter-row">
-      <div class="status-filter-pill sf-all selected" onclick="setWdtPipelineFilter('ALL',this)"><span class="pill-count" id="wdt-pill-all"></span>All</div>
-      <div class="status-filter-pill sf-active" onclick="setWdtPipelineFilter('ACTIVE',this)"><span class="pill-count" id="wdt-pill-active"></span>Active</div>
-      <div class="status-filter-pill sf-signed" onclick="setWdtPipelineFilter('SIGNED',this)"><span class="pill-count" id="wdt-pill-signed"></span>Signed</div>
-      <div class="status-filter-pill sf-lapsed" onclick="setWdtPipelineFilter('LAPSED',this)"><span class="pill-count" id="wdt-pill-lapsed"></span>Lapsed</div>
+      <div class="status-filter-pill sf-all selected" data-action="setWdtPipelineFilter" data-filter="ALL"><span class="pill-count" id="wdt-pill-all"></span>All</div>
+      <div class="status-filter-pill sf-active" data-action="setWdtPipelineFilter" data-filter="ACTIVE"><span class="pill-count" id="wdt-pill-active"></span>Active</div>
+      <div class="status-filter-pill sf-signed" data-action="setWdtPipelineFilter" data-filter="SIGNED"><span class="pill-count" id="wdt-pill-signed"></span>Signed</div>
+      <div class="status-filter-pill sf-lapsed" data-action="setWdtPipelineFilter" data-filter="LAPSED"><span class="pill-count" id="wdt-pill-lapsed"></span>Lapsed</div>
     </div>
     <div id="wdt-section-active">
       <div class="section-header">
@@ -1033,7 +1033,7 @@
           <span class="section-title" style="color:var(--signed)">Signed</span>
           <span class="section-count" id="wdt-cnt-signed"></span>
         </div>
-        <button class="toggle-btn" onclick="toggleSection('wdt-signed-body',this)">Hide</button>
+        <button class="toggle-btn" data-action="toggleSection" data-target="wdt-signed-body">Hide</button>
       </div>
       <div class="collapsible-content" id="wdt-signed-body" style="max-height:2000px">
         <div class="cards-grid" id="wdt-cards-signed"></div>
@@ -1046,7 +1046,7 @@
           <span class="section-title" style="color:var(--lapsed)">Lapsed</span>
           <span class="section-count" id="wdt-cnt-lapsed"></span>
         </div>
-        <button class="toggle-btn" onclick="toggleSection('wdt-lapsed-body',this)">Hide</button>
+        <button class="toggle-btn" data-action="toggleSection" data-target="wdt-lapsed-body">Hide</button>
       </div>
       <div class="collapsible-content" id="wdt-lapsed-body" style="max-height:9999px">
         <div class="cards-grid" id="wdt-cards-lapsed"></div>
@@ -1057,15 +1057,15 @@
   <!-- ── WDT PROGRESSION VIEW ── -->
   <div id="wdt-view-progression" style="display:none">
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
-      <button class="btn-new-row" onclick="openWdtModal()">
+      <button class="btn-new-row" data-action="openWdtModal">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         New
       </button>
-      <button class="btn-edit-toggle" id="wdt-edit-toggle-btn" onclick="toggleWdtEditMode()">
+      <button class="btn-edit-toggle" id="wdt-edit-toggle-btn" data-action="toggleWdtEditMode">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Edit
       </button>
-      <button class="btn-download" onclick="downloadWdtExcel()">
+      <button class="btn-download" data-action="downloadWdtExcel">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download Excel
       </button>
@@ -1149,15 +1149,15 @@
       <div class="page-subtitle">Signed clients — deposit tracking</div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <button class="btn-edit-toggle" id="signed-edit-toggle-btn" onclick="toggleSignedEditMode()">
+      <button class="btn-edit-toggle" id="signed-edit-toggle-btn" data-action="toggleSignedEditMode">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Edit
       </button>
-      <button class="btn-download" onclick="downloadSignedExcel()">
+      <button class="btn-download" data-action="downloadSignedExcel">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download Excel
       </button>
-      <button class="btn-new-row" onclick="openSignedModal()">
+      <button class="btn-new-row" data-action="openSignedModal">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Add Client
       </button>
@@ -1190,7 +1190,7 @@
 <!-- ══ WDT ADD ROW MODAL ══ -->
 <div class="modal-overlay" id="wdt-row-modal">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeWdtModal()">✕</button>
+    <button class="modal-close" data-action="closeWdtModal">✕</button>
     <div class="modal-title">Add Woodates Lead</div>
     <div class="modal-grid">
       <div class="modal-field">
@@ -1230,8 +1230,8 @@
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-modal-cancel" onclick="closeWdtModal()">Cancel</button>
-      <button class="btn-modal-save" onclick="saveWdtRow()">Add Lead</button>
+      <button class="btn-modal-cancel" data-action="closeWdtModal">Cancel</button>
+      <button class="btn-modal-save" data-action="saveWdtRow">Add Lead</button>
     </div>
   </div>
 </div>
@@ -1239,7 +1239,7 @@
 <!-- ══ SIGNED ADD MODAL ══ -->
 <div class="modal-overlay" id="signed-add-modal">
   <div class="modal-box" style="max-width:420px">
-    <button class="modal-close" onclick="closeSignedModal()">✕</button>
+    <button class="modal-close" data-action="closeSignedModal">✕</button>
     <div class="modal-title">Add Signed Client</div>
     <div class="modal-grid">
       <div class="modal-field">
@@ -1266,8 +1266,8 @@
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-modal-cancel" onclick="closeSignedModal()">Cancel</button>
-      <button class="btn-modal-save" onclick="saveSignedRow()">Add Client</button>
+      <button class="btn-modal-cancel" data-action="closeSignedModal">Cancel</button>
+      <button class="btn-modal-save" data-action="saveSignedRow">Add Client</button>
     </div>
   </div>
 </div>
@@ -1275,7 +1275,7 @@
 <!-- ══ ADD ROW MODAL ══ -->
 <div class="modal-overlay" id="new-row-modal">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeNewRowModal()">✕</button>
+    <button class="modal-close" data-action="closeNewRowModal">✕</button>
     <div class="modal-title">Add New Lead</div>
     <div class="modal-grid">
       <div class="modal-field">
@@ -1339,8 +1339,8 @@
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-modal-cancel" onclick="closeNewRowModal()">Cancel</button>
-      <button class="btn-modal-save" onclick="saveNewRow()">Add Lead</button>
+      <button class="btn-modal-cancel" data-action="closeNewRowModal">Cancel</button>
+      <button class="btn-modal-save" data-action="saveNewRow">Add Lead</button>
     </div>
   </div>
 </div>
@@ -1558,7 +1558,7 @@ function activeCard(r) {
     return `<span title="${PIPELINE_STAGES[i]||key}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${bg};margin:0 1px;flex-shrink:0"></span>`;
   }).join('');
 
-  return `<div class="card active-card" onclick="goToProgression('${esc(r.Name)}')" style="cursor:pointer">
+  return `<div class="card active-card" data-action="goToProgression" data-name="${esc(r.Name)}" style="cursor:pointer">
     <div class="card-name">${esc(r.Name)}</div>
     <div class="card-meta">
       ${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}
@@ -1574,7 +1574,7 @@ function activeCard(r) {
 function reachoutCard(r) {
   const kc = parseKeyCollectionQuarter(r.Comments);
   const kcStr = kc ? `Q${kc.q} ${kc.year}` : '';
-  return `<div class="card reachout-card" onclick="goToProgression('${esc(r.Name)}')" style="cursor:pointer">
+  return `<div class="card reachout-card" data-action="goToProgression" data-name="${esc(r.Name)}" style="cursor:pointer">
     <div class="reachout-badge">🔔 Reach Out Now</div>
     <div class="card-name">${esc(r.Name)}</div>
     <div class="card-meta">${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}</div>
@@ -1587,7 +1587,7 @@ function reachoutCard(r) {
 function keycoCard(r) {
   const kc = parseKeyCollectionQuarter(r.Comments);
   const kcStr = kc ? `Q${kc.q} ${kc.year}` : '';
-  return `<div class="card keyco-card" onclick="goToProgression('${esc(r.Name)}')" style="cursor:pointer">
+  return `<div class="card keyco-card" data-action="goToProgression" data-name="${esc(r.Name)}" style="cursor:pointer">
     <div class="card-name">${esc(r.Name)}</div>
     <div class="card-meta">${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}</div>
     <div class="card-phone">${r.Phone}</div>
@@ -1597,7 +1597,7 @@ function keycoCard(r) {
   </div>`;
 }
 function miniSignedCard(r) {
-  return `<div class="card signed-card" onclick="goToProgression('${esc(r.Name)}')" style="cursor:pointer">
+  return `<div class="card signed-card" data-action="goToProgression" data-name="${esc(r.Name)}" style="cursor:pointer">
     <div class="card-name">${esc(r.Name)}</div>
     <div class="card-meta">
       ${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}
@@ -1608,7 +1608,7 @@ function miniSignedCard(r) {
   </div>`;
 }
 function lapsedCard(r) {
-  return `<div class="card lapsed-card" onclick="goToProgression('${esc(r.Name)}')" style="cursor:pointer">
+  return `<div class="card lapsed-card" data-action="goToProgression" data-name="${esc(r.Name)}" style="cursor:pointer">
     <div class="card-name">${esc(r.Name)}</div>
     <div class="card-meta">
       ${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}
@@ -2219,7 +2219,7 @@ function wdtCard(r, cls) {
     return `<span title="${s.label}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${bg};margin:0 1px;flex-shrink:0"></span>`;
   }).join('');
 
-  return `<div class="card ${cls}"${clickable ? ` onclick="goToWdtProgression('${esc(r.Name)}')" style="cursor:pointer"` : ''}>
+  return `<div class="card ${cls}"${clickable ? ` data-action="goToWdtProgression" data-name="${esc(r.Name)}" style="cursor:pointer"` : ''}>
     <div class="card-name">${esc(r.Name)}</div>
     <div class="card-meta">
       ${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}
@@ -2740,6 +2740,38 @@ async function supabaseUpdateCell(table, rowId, fieldName, value, colMap) {
   initWdtMaster();
   renderSigned();
 })();
+
+
+    // Event delegation - replaces all onclick attributes
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const { nav, tab, view, filter, target, step, name } = btn.dataset;
+        if (action === 'switchMainNav') switchMainNav(nav, btn);
+        else if (action === 'switchSubTab') switchSubTab(tab, btn);
+        else if (action === 'switchWdtView') switchWdtView(view, btn);
+        else if (action === 'setPipelineFilter') setPipelineFilter(filter, btn);
+        else if (action === 'setWdtPipelineFilter') setWdtPipelineFilter(filter, btn);
+        else if (action === 'toggleSection') toggleSection(target, btn);
+        else if (action === 'openNewRowModal') openNewRowModal();
+        else if (action === 'toggleEditMode') toggleEditMode();
+        else if (action === 'downloadExcel') downloadExcel();
+        else if (action === 'openWdtModal') openWdtModal();
+        else if (action === 'toggleWdtEditMode') toggleWdtEditMode();
+        else if (action === 'downloadWdtExcel') downloadWdtExcel();
+        else if (action === 'toggleSignedEditMode') toggleSignedEditMode();
+        else if (action === 'downloadSignedExcel') downloadSignedExcel();
+        else if (action === 'openSignedModal') openSignedModal();
+        else if (action === 'closeWdtModal') closeWdtModal();
+        else if (action === 'saveWdtRow') saveWdtRow();
+        else if (action === 'closeSignedModal') closeSignedModal();
+        else if (action === 'saveSignedRow') saveSignedRow();
+        else if (action === 'closeNewRowModal') closeNewRowModal();
+        else if (action === 'saveNewRow') saveNewRow();
+        else if (action === 'goToProgression') goToProgression(name);
+        else if (action === 'goToWdtProgression') goToWdtProgression(name);
+    });
 
 </script>
 </body>
