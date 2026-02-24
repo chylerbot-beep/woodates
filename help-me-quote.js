@@ -170,8 +170,16 @@ const { createClient } = supabase;
 
                 if (uploadErr) throw uploadErr;
 
-                const { data: urlData } = _supabase.storage.from('ai-quotes').getPublicUrl(path);
-                floorPlanUrl = urlData.publicUrl;
+
+                // Use a signed URL (7-day expiry) to protect client floor plans from public access
+                const { data: signedData, error: signedErr } = await _supabase
+                    .storage
+                    .from('ai-quotes')
+                    .createSignedUrl(path, 60 * 60 * 24 * 7);
+                if (signedErr) throw signedErr;
+                floorPlanUrl = signedData.signedUrl;
+
+
             }
 
             // Build answers object
