@@ -80,71 +80,82 @@ function isSunday(date) { return date.getDay() === 0; }
 
 // ── INIT ──────────────────────────────────────────────────────
 async function init() {
-    const { data: { session } } = await _supabase.auth.getSession();
-    if (!session) { window.location.href = 'index.html'; return; }
+    try {
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (!session) { window.location.href = 'index.html'; return; }
 
-    _currentUser = session.user;
+        _currentUser = session.user;
 
-    // Get role
-    const { data: profile } = await _supabase
-        .from('profiles')
-        .select('role, full_name')
-        .eq('id', _currentUser.id)
-        .single();
+        // Get role
+        const { data: profile, error: profileErr } = await _supabase
+            .from('profiles')
+            .select('role, full_name')
+            .eq('id', _currentUser.id)
+            .single();
 
-    _isAdmin = profile?.role === 'admin';
-    document.getElementById('userDisplay') && (document.getElementById('userDisplay').textContent = profile?.full_name || _currentUser.email);
+        if (profileErr) throw profileErr;
 
-    await loadTeam();
-    setupUI();
+        _isAdmin = profile?.role === 'admin';
+        document.getElementById('userDisplay') && (document.getElementById('userDisplay').textContent = profile?.full_name || _currentUser.email);
 
-    // Default to agenda on mobile
-    if (window.innerWidth <= 768) {
-        _currentView = 'agenda';
-        document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'agenda'));
+        await loadTeam();
+        setupUI();
+
+        // Default to agenda on mobile
+        if (window.innerWidth <= 768) {
+            _currentView = 'agenda';
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'agenda'));
+        }
+
+        renderMiniCal();
+        await loadEvents();
+        renderCalendar();
+    } catch (err) {
+        showToast('Failed to initialise. Please refresh the page.');
     }
-
-    renderMiniCal();
-    await loadEvents();
-    renderCalendar();
 }
 
 // ── LOAD TEAM ─────────────────────────────────────────────────
 async function loadTeam() {
-    // Try to load from profiles table
-    const { data: profiles } = await _supabase
-        .from('profiles')
-        .select('id, full_name, role')
-        .order('full_name');
+    try {
+        const { data: profiles, error } = await _supabase
+            .from('profiles')
+            .select('id, full_name, role')
+            .order('full_name');
 
-    if (profiles && profiles.length > 0) {
-        _teamMembers = profiles.map((p, i) => ({
-            id: p.id,
-            name: p.full_name || 'Unknown',
-            role: p.role === 'admin' ? 'Admin' : 'Interior Designer',
-            color: DESIGNER_COLORS[i % DESIGNER_COLORS.length],
-            visible: true,
-        }));
-    } else {
-        // Fallback: just show current user
-        _teamMembers = [{
-            id: _currentUser.id,
-            name: document.getElementById('userDisplay').textContent,
-            role: _isAdmin ? 'Admin' : 'Interior Designer',
-            color: DESIGNER_COLORS[0],
-            visible: true,
-        }];
-    }
+        if (profiles && profiles.length > 0) {
+            _teamMembers = profiles.map((p, i) => ({
+                id: p.id,
+                name: p.full_name || 'Unknown',
+                role: p.role === 'admin' ? 'Admin' : 'Interior Designer',
+                color: DESIGNER_COLORS[i % DESIGNER_COLORS.length],
+                visible: true,
+            }));
+        } else {
+            // Fallback: just show current user
+            _teamMembers = [{
+                id: _currentUser.id,
+                name: document.getElementById('userDisplay').textContent,
+                role: _isAdmin ? 'Admin' : 'Interior Designer',
+                color: DESIGNER_COLORS[0],
+                visible: true,
+            }];
+        }
 
-    _visibleMembers = new Set(_teamMembers.map(m => m.id));
+        _visibleMembers = new Set(_teamMembers.map(m => m.id));
 
-    // Designers only ever see their own schedule — hide the team toggle sidebar
-    if (!_isAdmin) {
+        // Designers only ever see their own schedule — hide the team toggle sidebar
+        if (!_isAdmin) {
+            _visibleMembers = new Set([_currentUser.id]);
+            document.getElementById('teamSection').style.display = 'none';
+        }
+
+        renderTeamList();
+    } catch (err) {
+        showToast('Failed to load team members.');
+        _teamMembers = [{ id: _currentUser.id, name: 'Me', role: 'Interior Designer', color: DESIGNER_COLORS[0], visible: true }];
         _visibleMembers = new Set([_currentUser.id]);
-        document.getElementById('teamSection').style.display = 'none';
     }
-
-    renderTeamList();
 }
 
 function renderTeamList() {
@@ -174,17 +185,22 @@ function toggleMember(id) {
 
 // ── LOAD EVENTS ───────────────────────────────────────────────
 async function loadEvents() {
-    const { data, error } = await _supabase
-        .from('appointments')
-        .select('*')
-        .order('start_time', { ascending: true });
+    try {
+        const { data, error } = await _supabase
+            .from('appointments')
+            .select('*')
+            .order('start_time', { ascending: true });
 
-    if (error) {
-        // Table may not exist yet - use empty array
+        if (error) {
+            // Table may not exist yet - use empty array
+            _events = [];
+            return;
+        }
+        _events = data || [];
+    } catch (err) {
         _events = [];
-        return;
+        showToast('Failed to load appointments.');
     }
-    _events = data || [];
 }
 
 // ── SETUP UI ──────────────────────────────────────────────────
@@ -914,23 +930,28 @@ async function saveAppointment() {
     const btn = document.getElementById('apptSaveBtn');
     btn.disabled = true; btn.textContent = 'Saving…';
 
-    let error;
-    if (_editingEventId) {
-        ({ error } = await _supabase.from('appointments').update(payload).eq('id', _editingEventId));
-    } else {
-        ({ error } = await _supabase.from('appointments').insert([payload]));
+    try {
+        let error;
+        if (_editingEventId) {
+            ({ error } = await _supabase.from('appointments').update(payload).eq('id', _editingEventId));
+        } else {
+            ({ error } = await _supabase.from('appointments').insert([payload]));
+        }
+
+        if (error) {
+            showToast('Error saving: ' + (error.code === '42P01' ? 'Appointments table not set up yet.' : error.message));
+            return;
+        }
+
+        showToast(_editingEventId ? 'Appointment updated.' : 'Appointment added.', 'success');
+        closeApptModal();
+        await loadEvents();
+        renderCalendar();
+    } catch (err) {
+        showToast('Error saving appointment: ' + (err.message || 'Unknown error'));
+    } finally {
+        btn.disabled = false; btn.textContent = _editingEventId ? 'Update Appointment' : 'Save Appointment';
     }
-
-    btn.disabled = false; btn.textContent = _editingEventId ? 'Update Appointment' : 'Save Appointment';
-
-    if (error) {
-        showToast('Error saving: ' + (error.code === '42P01' ? 'Appointments table not set up yet.' : error.message)); return;
-    }
-
-    showToast(_editingEventId ? 'Appointment updated.' : 'Appointment added.', 'success');
-    closeApptModal();
-    await loadEvents();
-    renderCalendar();
 }
 
 // ── SAVE LEAVE ────────────────────────────────────────────────
@@ -976,45 +997,52 @@ async function saveLeave() {
     }));
 
     let error;
-    if (_editingEventId) {
-        // Delete old rows for this leave group then re-insert
-        const oldEv = _events.find(e => e.id === _editingEventId);
-        if (oldEv) {
-            // Delete all rows with same leave group (same assignee + leave_end_date + date range)
-            await _supabase.from('appointments').delete().eq('id', _editingEventId);
+    try {
+        if (_editingEventId) {
+            // Delete old rows for this leave group then re-insert
+            const oldEv = _events.find(e => e.id === _editingEventId);
+            if (oldEv) {
+                await _supabase.from('appointments').delete().eq('id', _editingEventId);
+            }
+            ({ error } = await _supabase.from('appointments').insert(rows));
+        } else {
+            ({ error } = await _supabase.from('appointments').insert(rows));
         }
-        ({ error } = await _supabase.from('appointments').insert(rows));
-    } else {
-        ({ error } = await _supabase.from('appointments').insert(rows));
+
+        if (error) throw error;
+
+        showToast('Leave saved.', 'success');
+        closeApptModal();
+        await loadEvents();
+        renderCalendar();
+    } catch (err) {
+        showToast('Error saving leave: ' + (err.message || 'Unknown error'));
+    } finally {
+        btn.disabled = false; btn.textContent = 'Save Leave';
     }
-
-    btn.disabled = false; btn.textContent = 'Save Leave';
-
-    if (error) {
-        showToast('Error saving leave: ' + error.message); return;
-    }
-
-    showToast('Leave saved.', 'success');
-    closeApptModal();
-    await loadEvents();
-    renderCalendar();
 }
 
 // ── DELETE ────────────────────────────────────────────────────
 async function deleteEvent(id) {
-    if (!confirm('Delete this appointment?')) return;
-    const { error } = await _supabase.from('appointments').delete().eq('id', id);
-    if (error) { showToast('Error deleting.'); return; }
-    showToast('Appointment deleted.', 'success');
-    closeModal('eventDetailModal');
-    await loadEvents();
-    renderCalendar();
+    showConfirm('Delete this appointment? This cannot be undone.', async () => {
+        try {
+            const { error } = await _supabase.from('appointments').delete().eq('id', id);
+            if (error) throw error;
+            showToast('Appointment deleted.', 'success');
+            closeModal('eventDetailModal');
+            await loadEvents();
+            renderCalendar();
+        } catch (err) {
+            showToast('Error deleting appointment: ' + (err.message || 'Unknown error'));
+        }
+    });
 }
 
 async function deleteEditingEvent() {
     if (!_editingEventId) return;
+    const idToDelete = _editingEventId;
     closeApptModal();
-    await deleteEvent(_editingEventId);
+    deleteEvent(idToDelete);
 }
 
 // ── DATE HELPERS ──────────────────────────────────────────────
@@ -1073,3 +1101,29 @@ init();
         else if (action === 'openNewModal') openNewModal(btn.dataset.date);
         else if (action === 'handleMonthCellClick') handleMonthCellClick(btn.dataset.date);
     });
+// ── Confirm Modal ─────────────────────────────────────────────
+function showConfirm(message, onConfirm) {
+  let overlay = document.getElementById('_confirm_overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = '_confirm_overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;padding:16px;';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:12px;padding:28px 28px 20px;max-width:380px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.18);font-family:DM Sans,sans-serif;">
+        <p id="_confirm_msg" style="margin:0 0 20px;font-size:0.95rem;color:#3D2B1F;line-height:1.5;font-weight:500;"></p>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button id="_confirm_cancel" style="padding:9px 18px;border:1px solid #D6C5B8;border-radius:8px;background:#fff;font-family:DM Sans,sans-serif;font-size:0.85rem;font-weight:600;color:#6B5B4E;cursor:pointer;">Cancel</button>
+          <button id="_confirm_ok" style="padding:9px 18px;border:none;border-radius:8px;background:#C0392B;font-family:DM Sans,sans-serif;font-size:0.85rem;font-weight:600;color:#fff;cursor:pointer;">Confirm</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
+    document.getElementById('_confirm_cancel').addEventListener('click', () => { overlay.style.display = 'none'; });
+  }
+  document.getElementById('_confirm_msg').textContent = message;
+  overlay.style.display = 'flex';
+  const okBtn = document.getElementById('_confirm_ok');
+  const newOk = okBtn.cloneNode(true);
+  okBtn.parentNode.replaceChild(newOk, okBtn);
+  newOk.addEventListener('click', () => { overlay.style.display = 'none'; onConfirm(); });
+}

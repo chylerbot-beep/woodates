@@ -263,7 +263,6 @@ const { createClient } = supabase;
 
       const statusEl = document.getElementById('saveStatus');
       if (error) {
-        console.error('Save error:', error.message, error.details, error.hint);
         statusEl.textContent = 'Save failed ✗';
         statusEl.style.color = '#B85C5C';
       } else {
@@ -531,10 +530,11 @@ const { createClient } = supabase;
 
     function resetAll() {
       if (isReadonly) return;
-      if (!confirm('Reset all checkboxes and notes? Project name and client info will be kept.')) return;
-      state = {};
-      buildUI();
-      triggerSave();
+      showConfirm('Reset all checkboxes and notes? Project name and client info will be kept.', () => {
+        state = {};
+        buildUI();
+        triggerSave();
+      });
     }
 
     // Event Listeners
@@ -576,3 +576,29 @@ function showToast(msg, type='error') {
         else if (action === 'toggleTask') toggleTask(Number(btn.dataset.pidx), Number(btn.dataset.tidx));
         else if (action === 'removeDesigner') removeDesigner(Number(btn.dataset.idx));
     });
+// ── Confirm Modal ─────────────────────────────────────────────
+function showConfirm(message, onConfirm) {
+  let overlay = document.getElementById('_confirm_overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = '_confirm_overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;padding:16px;';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:12px;padding:28px 28px 20px;max-width:380px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.18);font-family:DM Sans,sans-serif;">
+        <p id="_confirm_msg" style="margin:0 0 20px;font-size:0.95rem;color:#3D2B1F;line-height:1.5;font-weight:500;"></p>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button id="_confirm_cancel" style="padding:9px 18px;border:1px solid #D6C5B8;border-radius:8px;background:#fff;font-family:DM Sans,sans-serif;font-size:0.85rem;font-weight:600;color:#6B5B4E;cursor:pointer;">Cancel</button>
+          <button id="_confirm_ok" style="padding:9px 18px;border:none;border-radius:8px;background:#C0392B;font-family:DM Sans,sans-serif;font-size:0.85rem;font-weight:600;color:#fff;cursor:pointer;">Confirm</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
+    document.getElementById('_confirm_cancel').addEventListener('click', () => { overlay.style.display = 'none'; });
+  }
+  document.getElementById('_confirm_msg').textContent = message;
+  overlay.style.display = 'flex';
+  const okBtn = document.getElementById('_confirm_ok');
+  const newOk = okBtn.cloneNode(true);
+  okBtn.parentNode.replaceChild(newOk, okBtn);
+  newOk.addEventListener('click', () => { overlay.style.display = 'none'; onConfirm(); });
+}

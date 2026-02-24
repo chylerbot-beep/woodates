@@ -554,7 +554,7 @@ const DATABASE = [
         }
 
         function loadBTOPreset() {
-            if (!confirm("Load the standard 4-Room BTO $32,888 package?\n\nThis will replace all current selections.")) return;
+            showConfirm('Load the standard 4-Room BTO $32,888 package? This will replace all current selections.', () => {
 
             state.selections = {
                 // MASONRY
@@ -605,6 +605,7 @@ const DATABASE = [
             initTabs();
             renderItemList();
             updateSummary();
+            });
         }
 
 
@@ -873,7 +874,6 @@ const DATABASE = [
                 const filename = `Woodates_Quote_${state.quoteId}_${(state.client.name || 'Client').replace(/\s+/g, '_')}.xlsx`;
                 XL.writeFile(wb, filename, { bookType: 'xlsx' });
             } catch (err) {
-                console.error('Excel export error:', err);
                 showToast('Could not generate Excel file: ' + err.message);
             }
         }
@@ -972,7 +972,6 @@ const DATABASE = [
                 _hasUnsavedChanges = false;
                 if (!silent) showSaveStatus('Quote saved to portal ✓', 'success');
             } catch(err) {
-                console.error('Quote save error:', err);
                 if (!silent) showSaveStatus('Save failed — check connection', 'error');
             }
         }
@@ -1012,13 +1011,13 @@ const DATABASE = [
         }
 
         function resetQuote() {
-            if (confirm("Are you sure you want to clear all selections and start over?")) {
+            showConfirm('Clear all selections and start over?', () => {
                 state.selections = {};
-                updateSelection(); // trigger refresh
+                updateSelection();
                 updateSummary();
                 renderItemList();
                 goToStep(1);
-            }
+            });
         }
 
         // Form interceptor
@@ -1062,7 +1061,6 @@ const DATABASE = [
                 showSaveStatus('Quote loaded from portal ✓', 'success');
                 return true;
             } catch(err) {
-                console.error('Quote load error:', err);
                 return false;
             }
         }
@@ -1106,3 +1104,29 @@ function showToast(msg, type='error') {
         else if (action === 'loadBTOPreset') loadBTOPreset();
         else if (action === 'setActiveTab') setActiveTab(btn.dataset.tab);
     });
+// ── Confirm Modal ─────────────────────────────────────────────
+function showConfirm(message, onConfirm) {
+  let overlay = document.getElementById('_confirm_overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = '_confirm_overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;padding:16px;';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:12px;padding:28px 28px 20px;max-width:380px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.18);font-family:DM Sans,sans-serif;">
+        <p id="_confirm_msg" style="margin:0 0 20px;font-size:0.95rem;color:#3D2B1F;line-height:1.5;font-weight:500;"></p>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button id="_confirm_cancel" style="padding:9px 18px;border:1px solid #D6C5B8;border-radius:8px;background:#fff;font-family:DM Sans,sans-serif;font-size:0.85rem;font-weight:600;color:#6B5B4E;cursor:pointer;">Cancel</button>
+          <button id="_confirm_ok" style="padding:9px 18px;border:none;border-radius:8px;background:#C0392B;font-family:DM Sans,sans-serif;font-size:0.85rem;font-weight:600;color:#fff;cursor:pointer;">Confirm</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
+    document.getElementById('_confirm_cancel').addEventListener('click', () => { overlay.style.display = 'none'; });
+  }
+  document.getElementById('_confirm_msg').textContent = message;
+  overlay.style.display = 'flex';
+  const okBtn = document.getElementById('_confirm_ok');
+  const newOk = okBtn.cloneNode(true);
+  okBtn.parentNode.replaceChild(newOk, okBtn);
+  newOk.addEventListener('click', () => { overlay.style.display = 'none'; onConfirm(); });
+}

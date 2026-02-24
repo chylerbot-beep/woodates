@@ -12,43 +12,50 @@ const { createClient } = supabase;
         const projectsBody = document.getElementById('projectsBody');
 
         async function init() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) {
-                window.location.href = 'index.html';
-                return;
+            try {
+                const { data: { session } } = await _supabase.auth.getSession();
+                if (!session) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                // Check admin role
+                const { data: profile, error: profileErr } = await _supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (profileErr || !profile || profile.role !== 'admin') {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                document.body.style.display = 'flex';
+                fetchAllProjects();
+                fetchCompletedQuotes();
+                fetchAiQuoteRequests();
+            } catch (err) {
+                showToast('Failed to initialise. Please refresh the page.');
             }
-
-            // Check admin role
-            const { data: profile } = await _supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', session.user.id)
-                .single();
-
-            if (!profile || profile.role !== 'admin') {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            document.body.style.display = 'flex';
-            fetchAllProjects();
-            fetchCompletedQuotes();
-            fetchAiQuoteRequests();
         }
 
         async function fetchAllProjects() {
-            const { data: projects, error } = await _supabase
-                .from('projects')
-                .select('*, profiles(full_name)')
-                .order('updated_at', { ascending: false });
+            try {
+                const { data: projects, error } = await _supabase
+                    .from('projects')
+                    .select('*, profiles(full_name)')
+                    .order('updated_at', { ascending: false });
 
-            const cards = document.getElementById('projectsCards');
+                const cards = document.getElementById('projectsCards');
 
-            if (error || !projects || projects.length === 0) {
-                projectsBody.innerHTML = '<tr><td colspan="6" class="no-data">No projects found.</td></tr>';
-                cards.innerHTML = '<div class="m-empty">No projects found.</div>';
-                return;
-            }
+                if (error) throw error;
+
+                if (!projects || projects.length === 0) {
+                    projectsBody.innerHTML = '<tr><td colspan="6" class="no-data">No projects found.</td></tr>';
+                    cards.innerHTML = '<div class="m-empty">No projects found.</div>';
+                    return;
+                }
 
             projectsBody.innerHTML = projects.map(p => {
                 const date = new Date(p.updated_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -99,19 +106,28 @@ const { createClient } = supabase;
                     </div>
                 `;
             }).join('') + '</div>';
+            } catch (err) {
+                const cards = document.getElementById('projectsCards');
+                projectsBody.innerHTML = '<tr><td colspan="6" class="no-data">Failed to load projects.</td></tr>';
+                cards.innerHTML = '<div class="m-empty">Failed to load projects.</div>';
+                showToast('Error loading projects: ' + (err.message || 'Unknown error'));
+            }
         }
 
         // ── COMPLETED QUOTES ──────────────────────────────────────────────
         async function fetchCompletedQuotes() {
             const body = document.getElementById('completedQuotesBody');
             const cards = document.getElementById('completedQuotesCards');
+            try {
             const { data: quotes, error } = await _supabase
                 .from('quotes')
                 .select('*, profiles(full_name)')
                 .eq('status', 'completed')
                 .order('created_at', { ascending: false });
 
-            if (error || !quotes || quotes.length === 0) {
+            if (error) throw error;
+
+            if (!quotes || quotes.length === 0) {
                 body.innerHTML = '<tr><td colspan="7" class="no-data">No quotes yet.</td></tr>';
                 cards.innerHTML = '<div class="m-empty">No quotes yet.</div>';
                 return;
@@ -171,6 +187,11 @@ const { createClient } = supabase;
                     </div>
                 `;
             }).join('') + '</div>';
+            } catch (err) {
+                body.innerHTML = '<tr><td colspan="7" class="no-data">Failed to load quotes.</td></tr>';
+                cards.innerHTML = '<div class="m-empty">Failed to load quotes.</div>';
+                showToast('Error loading quotes: ' + (err.message || 'Unknown error'));
+            }
         }
 
         // ── AI QUOTE REQUESTS ─────────────────────────────────────────────
@@ -179,12 +200,15 @@ const { createClient } = supabase;
         async function fetchAiQuoteRequests() {
             const body = document.getElementById('aiQuotesBody');
             const cards = document.getElementById('aiQuotesCards');
+            try {
             const { data: requests, error } = await _supabase
                 .from('ai_quote_requests')
                 .select('*, profiles(full_name)')
                 .order('created_at', { ascending: false });
 
-            if (error || !requests || requests.length === 0) {
+            if (error) throw error;
+
+            if (!requests || requests.length === 0) {
                 body.innerHTML = '<tr><td colspan="6" class="no-data">No quotes yet.</td></tr>';
                 cards.innerHTML = '<div class="m-empty">No quotes yet.</div>';
                 return;
@@ -245,6 +269,11 @@ const { createClient } = supabase;
                     </div>
                 `;
             }).join('') + '</div>';
+            } catch (err) {
+                body.innerHTML = '<tr><td colspan="6" class="no-data">Failed to load requests.</td></tr>';
+                cards.innerHTML = '<div class="m-empty">Failed to load requests.</div>';
+                showToast('Error loading AI quote requests: ' + (err.message || 'Unknown error'));
+            }
         }
 
         function openModal(id) {
@@ -325,43 +354,57 @@ const { createClient } = supabase;
         async function markComplete(id) {
             const targetId = id || currentRequestId;
             if (!targetId) return;
-            if (!confirm('Mark this AI quote request as complete? The designer will see it as completed.')) return;
+            showConfirm('Mark this AI quote request as complete? The designer will see it as completed.', async () => {
+                const { error } = await _supabase
+                    .from('ai_quote_requests')
+                    .update({ status: 'completed' })
+                    .eq('id', targetId);
 
-            const { error } = await _supabase
-                .from('ai_quote_requests')
-                .update({ status: 'completed' })
-                .eq('id', targetId);
+                if (error) { showToast('Error updating status.'); return; }
 
-            if (error) { showToast('Error updating status.'); return; }
-
-            // Refresh the table
-            fetchAiQuoteRequests();
-            closeModal();
+                fetchAiQuoteRequests();
+                closeModal();
+            });
         }
 
         // ── DELETE FUNCTIONS ──────────────────────────────────────────────
         async function deleteProject(id, label) {
-            if (!confirm(`Delete project "${label}"? This cannot be undone.`)) return;
-            const { error } = await _supabase.from('projects').delete().eq('id', id);
-            if (error) { showToast('Error deleting project.'); return; }
-            showToast('Project deleted.', 'success');
-            fetchAllProjects();
+            showConfirm(`Delete project "${label}"? This cannot be undone.`, async () => {
+                try {
+                    const { error } = await _supabase.from('projects').delete().eq('id', id);
+                    if (error) throw error;
+                    showToast('Project deleted.', 'success');
+                    fetchAllProjects();
+                } catch (err) {
+                    showToast('Error deleting project: ' + (err.message || 'Unknown error'));
+                }
+            });
         }
 
         async function deleteQuote(id, label) {
-            if (!confirm(`Delete quote "${label}"? This cannot be undone.`)) return;
-            const { error } = await _supabase.from('quotes').delete().eq('id', id);
-            if (error) { showToast('Error deleting quote.'); return; }
-            showToast('Quote deleted.', 'success');
-            fetchCompletedQuotes();
+            showConfirm(`Delete quote "${label}"? This cannot be undone.`, async () => {
+                try {
+                    const { error } = await _supabase.from('quotes').delete().eq('id', id);
+                    if (error) throw error;
+                    showToast('Quote deleted.', 'success');
+                    fetchCompletedQuotes();
+                } catch (err) {
+                    showToast('Error deleting quote: ' + (err.message || 'Unknown error'));
+                }
+            });
         }
 
         async function deleteHelpMeQuote(id, label) {
-            if (!confirm(`Delete Help Me Quote request from "${label}"? This cannot be undone.`)) return;
-            const { error } = await _supabase.from('ai_quote_requests').delete().eq('id', id);
-            if (error) { showToast('Error deleting request.'); return; }
-            showToast('Request deleted.', 'success');
-            fetchAiQuoteRequests();
+            showConfirm(`Delete Help Me Quote request from "${label}"? This cannot be undone.`, async () => {
+                try {
+                    const { error } = await _supabase.from('ai_quote_requests').delete().eq('id', id);
+                    if (error) throw error;
+                    showToast('Request deleted.', 'success');
+                    fetchAiQuoteRequests();
+                } catch (err) {
+                    showToast('Error deleting request: ' + (err.message || 'Unknown error'));
+                }
+            });
         }
 
         init();
@@ -395,4 +438,30 @@ function showToast(msg, type='error') {
   t.style.background=bg; t.style.color=color;
   t.textContent=msg; t.style.opacity='1';
   clearTimeout(t._hide); t._hide=setTimeout(()=>{ t.style.opacity='0'; },4000);
+}
+// ── Confirm Modal ─────────────────────────────────────────────
+function showConfirm(message, onConfirm) {
+  let overlay = document.getElementById('_confirm_overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = '_confirm_overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;padding:16px;';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:12px;padding:28px 28px 20px;max-width:380px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.18);font-family:DM Sans,sans-serif;">
+        <p id="_confirm_msg" style="margin:0 0 20px;font-size:0.95rem;color:#3D2B1F;line-height:1.5;font-weight:500;"></p>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button id="_confirm_cancel" style="padding:9px 18px;border:1px solid #D6C5B8;border-radius:8px;background:#fff;font-family:DM Sans,sans-serif;font-size:0.85rem;font-weight:600;color:#6B5B4E;cursor:pointer;">Cancel</button>
+          <button id="_confirm_ok" style="padding:9px 18px;border:none;border-radius:8px;background:#C0392B;font-family:DM Sans,sans-serif;font-size:0.85rem;font-weight:600;color:#fff;cursor:pointer;">Confirm</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
+    document.getElementById('_confirm_cancel').addEventListener('click', () => { overlay.style.display = 'none'; });
+  }
+  document.getElementById('_confirm_msg').textContent = message;
+  overlay.style.display = 'flex';
+  const okBtn = document.getElementById('_confirm_ok');
+  const newOk = okBtn.cloneNode(true);
+  okBtn.parentNode.replaceChild(newOk, okBtn);
+  newOk.addEventListener('click', () => { overlay.style.display = 'none'; onConfirm(); });
 }
