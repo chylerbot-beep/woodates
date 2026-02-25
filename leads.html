@@ -1,307 +1,206 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Leads | Woodates</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪵</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<style>
-:root {
-  --cream: #F5F0E8; --cream-dark: #EDE8DF; --white: #FFFFFF;
-  --dark: #1A1A18; --muted: #8A8278; --border: #D6CEC4; --border-light: #E8E2D9;
-  --active: #C4956A; --active-bg: #FAF3EC; --active-border: #E8C9A8;
-  --signed: #5A8A6A; --signed-bg: #EEF6F0; --signed-border: #B2D4BB;
-  --lapsed: #B05A5A; --lapsed-bg: #F8EDED; --lapsed-border: #DCAFAF;
-  --keyco: #7A6A3A; --keyco-bg: #F7F2E4; --keyco-border: #D4C48A;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--cream); color: var(--dark); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
-
-/* HEADER */
-header { background: var(--white); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-.header-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; }
-.brand { display: flex; flex-direction: column; gap: 0; }
-.brand-sub { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.15em; color: var(--active); text-transform: uppercase; }
-.brand-name { font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: var(--dark); line-height: 1; }
-.home-btn { padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--white); color: var(--dark); font-family: 'DM Sans', sans-serif; font-size: 0.8rem; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 6px; }
-.home-btn:hover { background: var(--cream); }
-
-/* MAIN NAV */
-.main-nav { display: flex; border-top: 1px solid var(--border); padding: 0 24px; gap: 0; }
-.main-tab { padding: 10px 18px; font-size: 0.85rem; font-weight: 500; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
-.main-tab:hover { color: var(--dark); }
-.main-tab.active { color: var(--dark); border-bottom-color: var(--dark); font-weight: 600; }
-
-/* SUB NAV */
-.sub-nav { display: flex; gap: 0; padding: 0 24px; background: var(--cream-dark); border-bottom: 1px solid var(--border); }
-.sub-tab { padding: 8px 16px; font-size: 0.78rem; font-weight: 500; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.05em; }
-.sub-tab:hover { color: var(--dark); }
-.sub-tab.active { color: var(--active); border-bottom-color: var(--active); font-weight: 700; }
-
-/* PAGES */
-.page { display: none; padding: 24px; }
-.page.active { display: block; }
-
-/* PAGE HEADER */
-.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-.page-title { font-family: 'DM Serif Display', serif; font-size: 2rem; }
-.page-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
-.header-actions { display: flex; gap: 8px; align-items: center; }
-
-/* BUTTONS */
-.btn { padding: 7px 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid; transition: all 0.15s; }
-.btn-outline { background: var(--white); border-color: var(--border); color: var(--dark); }
-.btn-outline:hover { background: var(--cream); }
-.btn-green { background: var(--signed-bg); border-color: var(--signed-border); color: var(--signed); }
-.btn-green:hover { background: var(--signed); color: white; }
-
-/* FILTERS */
-.filters { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
-.search-box { flex: 1; min-width: 220px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; background: var(--white); color: var(--dark); outline: none; }
-.search-box:focus { border-color: var(--active); }
-.filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; background: var(--white); color: var(--dark); cursor: pointer; outline: none; }
-.filter-select:focus { border-color: var(--active); }
-
-/* TABLE */
-.table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); background: var(--white); }
-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-thead th { background: var(--cream-dark); padding: 10px 12px; text-align: left; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); white-space: nowrap; border-bottom: 1px solid var(--border); }
-tbody tr { border-bottom: 1px solid var(--border-light); transition: background 0.1s; }
-tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: var(--cream); }
-tbody td { padding: 9px 12px; vertical-align: middle; }
-.td-muted { color: var(--muted); font-size: 0.75rem; }
-.td-name { font-weight: 600; }
-.td-comment { color: var(--muted); font-size: 0.73rem; max-width: 180px; white-space: normal; line-height: 1.3; }
-
-/* TAGS */
-.tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.68rem; font-weight: 600; white-space: nowrap; }
-.tag-type { background: #EEF0FB; color: #4A55A2; }
-.tag-pm { background: var(--cream-dark); color: var(--muted); }
-
-/* STATUS BADGES */
-.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; white-space: nowrap; }
-.badge-ACTIVE { background: var(--active-bg); color: var(--active); border: 1px solid var(--active-border); }
-.badge-SIGNED { background: var(--signed-bg); color: var(--signed); border: 1px solid var(--signed-border); }
-.badge-LAPSED { background: var(--lapsed-bg); color: var(--lapsed); border: 1px solid var(--lapsed-border); }
-.badge-KEYCO { background: var(--keyco-bg); color: var(--keyco); border: 1px solid var(--keyco-border); }
-
-/* CELL VALUES */
-.cell-yes { color: var(--signed); font-weight: 600; font-size: 0.75rem; }
-.cell-no { color: var(--lapsed); font-size: 0.75rem; }
-.cell-pending { color: var(--active); font-size: 0.75rem; }
-.cell-sched { color: #4A55A2; font-size: 0.75rem; }
-.cell-dash { color: #CCC; }
-
-/* PIPELINE CARDS */
-.pipeline-section { margin-bottom: 24px; }
-.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.section-title { font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; display: flex; align-items: center; gap: 8px; }
-.section-count { background: var(--cream-dark); color: var(--muted); padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
-.kanban { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
-.card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 0.8rem; }
-.card-name { font-weight: 700; margin-bottom: 4px; }
-.card-meta { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
-.card-phone { color: var(--muted); font-size: 0.73rem; }
-.card-comment { color: var(--muted); font-size: 0.7rem; margin-top: 4px; line-height: 1.3; }
-.card-stage { color: var(--active); font-size: 0.7rem; font-weight: 600; margin-top: 4px; }
-.card-date { color: var(--muted); font-size: 0.7rem; margin-top: 4px; }
-.card.active-card { border-left: 3px solid var(--active); }
-.card.signed-card { border-left: 3px solid var(--signed); }
-.card.lapsed-card { border-left: 3px solid var(--lapsed); opacity: 0.8; }
-.card.keyco-card { border-left: 3px solid var(--keyco); }
-.stage-col-header { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-.stage-num { background: var(--active-bg); color: var(--active); padding: 1px 6px; border-radius: 10px; font-weight: 700; }
-.pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-.pill { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: 1px solid; transition: all 0.15s; }
-.pill-all { background: var(--cream-dark); border-color: var(--border); color: var(--muted); }
-.pill-all.active, .pill-all:hover { background: var(--dark); border-color: var(--dark); color: white; }
-.pill-active { background: var(--active-bg); border-color: var(--active-border); color: var(--active); }
-.pill-active.active, .pill-active:hover { background: var(--active); border-color: var(--active); color: white; }
-.pill-signed { background: var(--signed-bg); border-color: var(--signed-border); color: var(--signed); }
-.pill-signed.active, .pill-signed:hover { background: var(--signed); border-color: var(--signed); color: white; }
-.pill-lapsed { background: var(--lapsed-bg); border-color: var(--lapsed-border); color: var(--lapsed); }
-.pill-lapsed.active, .pill-lapsed:hover { background: var(--lapsed); border-color: var(--lapsed); color: white; }
-.pill-keyco { background: var(--keyco-bg); border-color: var(--keyco-border); color: var(--keyco); }
-.pill-keyco.active, .pill-keyco:hover { background: var(--keyco); border-color: var(--keyco); color: white; }
-
-/* SIGNED TABLE */
-.signed-badge-paid { color: var(--signed); font-weight: 700; font-size: 0.75rem; }
-.signed-badge-empty { color: #CCC; }
-</style>
-</head>
-<body>
-
-<header>
-  <div class="header-top">
-    <div class="brand">
-      <span class="brand-sub">Woodates</span>
-      <span class="brand-name">Leads</span>
-    </div>
-    <a href="/" class="home-btn">← Home</a>
-  </div>
-  <nav class="main-nav">
-    <div class="main-tab active">Chyler Leads</div>
-    <div class="main-tab">Woodates Leads</div>
-    <div class="main-tab">Chyler Signed</div>
-  </nav>
-</header>
-
-<!-- CHYLER SUB NAV -->
-<div id="subnav-chyler" class="sub-nav">
-  <div class="sub-tab active">Pipeline</div>
-  <div class="sub-tab">Progression</div>
-  <div class="sub-tab">Master List</div>
-</div>
-<!-- WOODATES SUB NAV -->
-<div id="subnav-woodates" class="sub-nav" style="display:none">
-  <div class="sub-tab active">Pipeline</div>
-  <div class="sub-tab">Progression</div>
-  <div class="sub-tab">Master List</div>
-</div>
-
-<!-- ═══════════════════════════════════ CHYLER PIPELINE ═══ -->
-<div id="page-pipeline" class="page active">
-  <div class="page-header">
-    <div><div class="page-title">Pipeline</div><div class="page-sub">Live status overview</div></div>
-  </div>
-  <div class="filters">
-    <input class="search-box" id="pl-search" placeholder="Search name, phone, PM…">
-    <select class="filter-select" id="pl-pm"><option value="">All PMs</option></select>
-  </div>
-  <div class="pills">
-    <div class="pill pill-all active">All</div>
-    <div class="pill pill-active">Active</div>
-    <div class="pill pill-signed">Signed</div>
-    <div class="pill pill-lapsed">Lapsed</div>
-    <div class="pill pill-keyco">Key Collection</div>
-  </div>
-  <div id="pipeline-content"></div>
-</div>
-
-<!-- ═══════════════════════════════════ CHYLER PROGRESSION ═══ -->
-<div id="page-progression" class="page">
-  <div class="page-header">
-    <div><div class="page-title">Progression</div><div class="page-sub">Full pipeline tracking — all columns A–T</div></div>
-    <div class="header-actions">
-      <button class="btn btn-green">⬇ Download Excel</button>
-    </div>
-  </div>
-  <div class="filters">
-    <input class="search-box" id="prog-search" placeholder="Search name, phone, PM, status…">
-    <select class="filter-select" id="prog-status">
-      <option value="">All Statuses</option>
-      <option value="ACTIVE">Active</option>
-      <option value="SIGNED">Signed</option>
-      <option value="LAPSED">Lapsed</option>
-      <option value="LONG KEY COLLECTION">Long Key Collection</option>
-    </select>
-    <select class="filter-select" id="prog-pm"><option value="">All PMs</option></select>
-  </div>
-  <div class="table-wrap">
-    <table>
-      <thead><tr>
-        <th>#</th><th>Date</th><th>Source</th><th>Phone</th><th>Type</th><th>Name</th><th>Stage</th>
-        <th>Comments</th><th>Resp?</th><th>GC</th><th>PM</th>
-        <th>1st Meet</th><th>2D</th><th>Quot</th><th>2nd Meet</th>
-        <th>Rev 2D</th><th>Rev Quot</th><th>Site</th><th>Dep 1</th><th>Dep 2</th><th>Status</th>
-      </tr></thead>
-      <tbody id="prog-tbody"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════ CHYLER MASTER ═══ -->
-<div id="page-master" class="page">
-  <div class="page-header">
-    <div><div class="page-title">Master List</div><div class="page-sub">All Chyler leads</div></div>
-  </div>
-  <div class="filters">
-    <input class="search-box" id="master-search" placeholder="Search name, phone…">
-    <select class="filter-select" id="master-type"><option value="">All Types</option></select>
-  </div>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Phone</th><th>Name</th><th>Property Type</th></tr></thead>
-      <tbody id="master-tbody"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════ WOODATES PIPELINE ═══ -->
-<div id="page-wdt-pipeline" class="page">
-  <div class="page-header">
-    <div><div class="page-title">Pipeline</div><div class="page-sub">Woodates company leads</div></div>
-  </div>
-  <div class="filters">
-    <input class="search-box" id="wpl-search" placeholder="Search name, phone, PM…">
-    <select class="filter-select" id="wpl-pm"><option value="">All PMs</option></select>
-  </div>
-  <div id="wdt-pipeline-content"></div>
-</div>
-
-<!-- ═══════════════════════════════════ WOODATES PROGRESSION ═══ -->
-<div id="page-wdt-progression" class="page">
-  <div class="page-header">
-    <div><div class="page-title">Progression</div><div class="page-sub">Woodates leads tracking</div></div>
-    <div class="header-actions">
-      <button class="btn btn-green">⬇ Download Excel</button>
-    </div>
-  </div>
-  <div class="filters">
-    <input class="search-box" id="wprog-search" placeholder="Search name, phone, PM…">
-    <select class="filter-select" id="wprog-pm"><option value="">All PMs</option></select>
-  </div>
-  <div class="table-wrap">
-    <table>
-      <thead><tr>
-        <th>#</th><th>Date</th><th>Phone</th><th>Type</th><th>Name</th><th>Stage</th>
-        <th>Comments</th><th>Resp?</th><th>GC</th><th>PM</th>
-        <th>1st Meet</th><th>2D</th><th>Quot</th><th>2nd Meet</th>
-        <th>Rev 2D</th><th>Rev Quot</th><th>Site</th><th>Dep 1</th><th>Dep 2</th><th>Status</th>
-      </tr></thead>
-      <tbody id="wprog-tbody"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════ WOODATES MASTER ═══ -->
-<div id="page-wdt-master" class="page">
-  <div class="page-header">
-    <div><div class="page-title">Master List</div><div class="page-sub">Woodates leads</div></div>
-  </div>
-  <div class="filters">
-    <input class="search-box" id="wmaster-search" placeholder="Search name, phone…">
-  </div>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Phone</th><th>Name</th><th>Property Type</th></tr></thead>
-      <tbody id="wmaster-tbody"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════ SIGNED ═══ -->
-<div id="page-signed" class="page">
-  <div class="page-header">
-    <div><div class="page-title">Chyler × Woodates Signed</div><div class="page-sub">All signed clients</div></div>
-    <div class="header-actions">
-      <button class="btn btn-green">⬇ Download Excel</button>
-    </div>
-  </div>
-  <div class="filters">
-    <input class="search-box" id="signed-search" placeholder="Search name…">
-    <select class="filter-select" id="signed-year"><option value="">All Years</option></select>
-  </div>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Year</th><th>Name</th><th>1st Deposit</th><th>2nd Deposit</th></tr></thead>
-      <tbody id="signed-tbody"></tbody>
-    </table>
-  </div>
-</div>
-
-<script src="leads.js?v=3"></script>
-</body>
-</html>
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/leads.html b/leads.html
+index 17da8a6b6982ab2c67d6d3918da4a717d58d1346..ae4baec2cfdca365b0bf1e3b335a9b73e22321b0 100644
+--- a/leads.html
++++ b/leads.html
+@@ -120,94 +120,94 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
+ .pill-active { background: var(--active-bg); border-color: var(--active-border); color: var(--active); }
+ .pill-active.active, .pill-active:hover { background: var(--active); border-color: var(--active); color: white; }
+ .pill-signed { background: var(--signed-bg); border-color: var(--signed-border); color: var(--signed); }
+ .pill-signed.active, .pill-signed:hover { background: var(--signed); border-color: var(--signed); color: white; }
+ .pill-lapsed { background: var(--lapsed-bg); border-color: var(--lapsed-border); color: var(--lapsed); }
+ .pill-lapsed.active, .pill-lapsed:hover { background: var(--lapsed); border-color: var(--lapsed); color: white; }
+ .pill-keyco { background: var(--keyco-bg); border-color: var(--keyco-border); color: var(--keyco); }
+ .pill-keyco.active, .pill-keyco:hover { background: var(--keyco); border-color: var(--keyco); color: white; }
+ 
+ /* SIGNED TABLE */
+ .signed-badge-paid { color: var(--signed); font-weight: 700; font-size: 0.75rem; }
+ .signed-badge-empty { color: #CCC; }
+ </style>
+ </head>
+ <body>
+ 
+ <header>
+   <div class="header-top">
+     <div class="brand">
+       <span class="brand-sub">Woodates</span>
+       <span class="brand-name">Leads</span>
+     </div>
+     <a href="/" class="home-btn">← Home</a>
+   </div>
+   <nav class="main-nav">
+-    <div class="main-tab active">Chyler Leads</div>
+-    <div class="main-tab">Woodates Leads</div>
+-    <div class="main-tab">Chyler Signed</div>
++    <div class="main-tab active" data-section="chyler">Chyler Leads</div>
++    <div class="main-tab" data-section="woodates">Woodates Leads</div>
++    <div class="main-tab" data-section="signed">Chyler Signed</div>
+   </nav>
+ </header>
+ 
+ <!-- CHYLER SUB NAV -->
+ <div id="subnav-chyler" class="sub-nav">
+-  <div class="sub-tab active">Pipeline</div>
+-  <div class="sub-tab">Progression</div>
+-  <div class="sub-tab">Master List</div>
++  <div class="sub-tab active" data-tab="pipeline">Pipeline</div>
++  <div class="sub-tab" data-tab="progression">Progression</div>
++  <div class="sub-tab" data-tab="master">Master List</div>
+ </div>
+ <!-- WOODATES SUB NAV -->
+ <div id="subnav-woodates" class="sub-nav" style="display:none">
+-  <div class="sub-tab active">Pipeline</div>
+-  <div class="sub-tab">Progression</div>
+-  <div class="sub-tab">Master List</div>
++  <div class="sub-tab active" data-tab="wdt-pipeline">Pipeline</div>
++  <div class="sub-tab" data-tab="wdt-progression">Progression</div>
++  <div class="sub-tab" data-tab="wdt-master">Master List</div>
+ </div>
+ 
+ <!-- ═══════════════════════════════════ CHYLER PIPELINE ═══ -->
+ <div id="page-pipeline" class="page active">
+   <div class="page-header">
+     <div><div class="page-title">Pipeline</div><div class="page-sub">Live status overview</div></div>
+   </div>
+   <div class="filters">
+     <input class="search-box" id="pl-search" placeholder="Search name, phone, PM…">
+     <select class="filter-select" id="pl-pm"><option value="">All PMs</option></select>
+   </div>
+   <div class="pills">
+-    <div class="pill pill-all active">All</div>
+-    <div class="pill pill-active">Active</div>
+-    <div class="pill pill-signed">Signed</div>
+-    <div class="pill pill-lapsed">Lapsed</div>
+-    <div class="pill pill-keyco">Key Collection</div>
++    <div class="pill pill-all active" data-prefix="pl" data-filter="ALL">All</div>
++    <div class="pill pill-active" data-prefix="pl" data-filter="ACTIVE">Active</div>
++    <div class="pill pill-signed" data-prefix="pl" data-filter="SIGNED">Signed</div>
++    <div class="pill pill-lapsed" data-prefix="pl" data-filter="LAPSED">Lapsed</div>
++    <div class="pill pill-keyco" data-prefix="pl" data-filter="LONG KEY COLLECTION">Key Collection</div>
+   </div>
+   <div id="pipeline-content"></div>
+ </div>
+ 
+ <!-- ═══════════════════════════════════ CHYLER PROGRESSION ═══ -->
+ <div id="page-progression" class="page">
+   <div class="page-header">
+     <div><div class="page-title">Progression</div><div class="page-sub">Full pipeline tracking — all columns A–T</div></div>
+     <div class="header-actions">
+-      <button class="btn btn-green">⬇ Download Excel</button>
++      <button class="btn btn-green" id="btn-dl-chyler">⬇ Download Excel</button>
+     </div>
+   </div>
+   <div class="filters">
+     <input class="search-box" id="prog-search" placeholder="Search name, phone, PM, status…">
+     <select class="filter-select" id="prog-status">
+       <option value="">All Statuses</option>
+       <option value="ACTIVE">Active</option>
+       <option value="SIGNED">Signed</option>
+       <option value="LAPSED">Lapsed</option>
+       <option value="LONG KEY COLLECTION">Long Key Collection</option>
+     </select>
+     <select class="filter-select" id="prog-pm"><option value="">All PMs</option></select>
+   </div>
+   <div class="table-wrap">
+     <table>
+       <thead><tr>
+         <th>#</th><th>Date</th><th>Source</th><th>Phone</th><th>Type</th><th>Name</th><th>Stage</th>
+         <th>Comments</th><th>Resp?</th><th>GC</th><th>PM</th>
+         <th>1st Meet</th><th>2D</th><th>Quot</th><th>2nd Meet</th>
+         <th>Rev 2D</th><th>Rev Quot</th><th>Site</th><th>Dep 1</th><th>Dep 2</th><th>Status</th>
+       </tr></thead>
+       <tbody id="prog-tbody"></tbody>
+     </table>
+   </div>
+ </div>
+@@ -224,84 +224,84 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
+   <div class="table-wrap">
+     <table>
+       <thead><tr><th>Phone</th><th>Name</th><th>Property Type</th></tr></thead>
+       <tbody id="master-tbody"></tbody>
+     </table>
+   </div>
+ </div>
+ 
+ <!-- ═══════════════════════════════════ WOODATES PIPELINE ═══ -->
+ <div id="page-wdt-pipeline" class="page">
+   <div class="page-header">
+     <div><div class="page-title">Pipeline</div><div class="page-sub">Woodates company leads</div></div>
+   </div>
+   <div class="filters">
+     <input class="search-box" id="wpl-search" placeholder="Search name, phone, PM…">
+     <select class="filter-select" id="wpl-pm"><option value="">All PMs</option></select>
+   </div>
+   <div id="wdt-pipeline-content"></div>
+ </div>
+ 
+ <!-- ═══════════════════════════════════ WOODATES PROGRESSION ═══ -->
+ <div id="page-wdt-progression" class="page">
+   <div class="page-header">
+     <div><div class="page-title">Progression</div><div class="page-sub">Woodates leads tracking</div></div>
+     <div class="header-actions">
+-      <button class="btn btn-green">⬇ Download Excel</button>
++      <button class="btn btn-green" id="btn-dl-woodates">⬇ Download Excel</button>
+     </div>
+   </div>
+   <div class="filters">
+     <input class="search-box" id="wprog-search" placeholder="Search name, phone, PM…">
+     <select class="filter-select" id="wprog-pm"><option value="">All PMs</option></select>
+   </div>
+   <div class="table-wrap">
+     <table>
+       <thead><tr>
+         <th>#</th><th>Date</th><th>Phone</th><th>Type</th><th>Name</th><th>Stage</th>
+         <th>Comments</th><th>Resp?</th><th>GC</th><th>PM</th>
+         <th>1st Meet</th><th>2D</th><th>Quot</th><th>2nd Meet</th>
+         <th>Rev 2D</th><th>Rev Quot</th><th>Site</th><th>Dep 1</th><th>Dep 2</th><th>Status</th>
+       </tr></thead>
+       <tbody id="wprog-tbody"></tbody>
+     </table>
+   </div>
+ </div>
+ 
+ <!-- ═══════════════════════════════════ WOODATES MASTER ═══ -->
+ <div id="page-wdt-master" class="page">
+   <div class="page-header">
+     <div><div class="page-title">Master List</div><div class="page-sub">Woodates leads</div></div>
+   </div>
+   <div class="filters">
+     <input class="search-box" id="wmaster-search" placeholder="Search name, phone…">
+   </div>
+   <div class="table-wrap">
+     <table>
+       <thead><tr><th>Phone</th><th>Name</th><th>Property Type</th></tr></thead>
+       <tbody id="wmaster-tbody"></tbody>
+     </table>
+   </div>
+ </div>
+ 
+ <!-- ═══════════════════════════════════ SIGNED ═══ -->
+ <div id="page-signed" class="page">
+   <div class="page-header">
+     <div><div class="page-title">Chyler × Woodates Signed</div><div class="page-sub">All signed clients</div></div>
+     <div class="header-actions">
+-      <button class="btn btn-green">⬇ Download Excel</button>
++      <button class="btn btn-green" id="btn-dl-signed">⬇ Download Excel</button>
+     </div>
+   </div>
+   <div class="filters">
+     <input class="search-box" id="signed-search" placeholder="Search name…">
+     <select class="filter-select" id="signed-year"><option value="">All Years</option></select>
+   </div>
+   <div class="table-wrap">
+     <table>
+       <thead><tr><th>Year</th><th>Name</th><th>1st Deposit</th><th>2nd Deposit</th></tr></thead>
+       <tbody id="signed-tbody"></tbody>
+     </table>
+   </div>
+ </div>
+ 
+ <script src="leads.js?v=3"></script>
+ </body>
+ </html>
+\ No newline at end of file
+ 
+EOF
+)
