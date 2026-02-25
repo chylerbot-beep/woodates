@@ -142,29 +142,33 @@ const { createClient } = supabase;
             const body = document.getElementById('completedQuotesBody');
             const cards = document.getElementById('completedQuotesCards');
             try {
-            const { data: quotes, error } = await _supabase
+            let quotes = null;
+            let { data, error } = await _supabase
                 .from('quotes')
                 .select('*')
+                .eq('status', 'completed')
                 .order('created_at', { ascending: false });
 
+            // Backward compatibility: older schemas may not have quotes.status.
+            if (error && /column\s+quotes\.status\s+does not exist/i.test(error.message || '')) {
+                ({ data, error } = await _supabase
+                    .from('quotes')
+                    .select('*')
+                    .order('created_at', { ascending: false }));
+            }
+
             if (error) throw error;
+            quotes = data || [];
 
-            // Some environments do not have quotes.status.
-            // If status exists, keep "Completed Quotes" semantics; otherwise show available quotes.
-            const hasStatusColumn = (quotes || []).some(q => Object.prototype.hasOwnProperty.call(q, 'status'));
-            const displayQuotes = hasStatusColumn
-                ? (quotes || []).filter(q => String(q.status || '').toLowerCase() === 'completed')
-                : (quotes || []);
-
-            if (!displayQuotes.length) {
+            if (!quotes.length) {
                 body.innerHTML = '<tr><td colspan="7" class="no-data">No quotes yet.</td></tr>';
                 cards.innerHTML = '<div class="m-empty">No quotes yet.</div>';
                 return;
             }
 
-            const profilesById = await fetchProfilesMap(displayQuotes.map(q => q.user_id));
+            const profilesById = await fetchProfilesMap(quotes.map(q => q.user_id));
 
-            body.innerHTML = displayQuotes.map(q => {
+            body.innerHTML = quotes.map(q => {
                 const date = new Date(q.created_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
                 const designer = resolveDesignerName(q, profilesById);
                 const quoteTotal = q.total ?? q.total_amount;
@@ -184,7 +188,7 @@ const { createClient } = supabase;
                 `;
             }).join('');
 
-            cards.innerHTML = '<div class="card-list">' + displayQuotes.map(q => {
+            cards.innerHTML = '<div class="card-list">' + quotes.map(q => {
                 const date = new Date(q.created_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
                 const designer = resolveDesignerName(q, profilesById);
                 const quoteTotal = q.total ?? q.total_amount;
