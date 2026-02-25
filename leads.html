@@ -142,23 +142,23 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
     <a href="/" class="home-btn">← Home</a>
   </div>
   <nav class="main-nav">
-    <div class="main-tab active">Chyler Leads</div>
-    <div class="main-tab">Woodates Leads</div>
-    <div class="main-tab">Chyler Signed</div>
+    <div class="main-tab active" data-section="chyler">Chyler Leads</div>
+    <div class="main-tab" data-section="woodates">Woodates Leads</div>
+    <div class="main-tab" data-section="signed">Chyler Signed</div>
   </nav>
 </header>
 
 <!-- CHYLER SUB NAV -->
 <div id="subnav-chyler" class="sub-nav">
-  <div class="sub-tab active">Pipeline</div>
-  <div class="sub-tab">Progression</div>
-  <div class="sub-tab">Master List</div>
+  <div class="sub-tab active" data-tab="pipeline">Pipeline</div>
+  <div class="sub-tab" data-tab="progression">Progression</div>
+  <div class="sub-tab" data-tab="master">Master List</div>
 </div>
 <!-- WOODATES SUB NAV -->
 <div id="subnav-woodates" class="sub-nav" style="display:none">
-  <div class="sub-tab active">Pipeline</div>
-  <div class="sub-tab">Progression</div>
-  <div class="sub-tab">Master List</div>
+  <div class="sub-tab active" data-tab="wdt-pipeline">Pipeline</div>
+  <div class="sub-tab" data-tab="wdt-progression">Progression</div>
+  <div class="sub-tab" data-tab="wdt-master">Master List</div>
 </div>
 
 <!-- ═══════════════════════════════════ CHYLER PIPELINE ═══ -->
@@ -171,11 +171,11 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
     <select class="filter-select" id="pl-pm"><option value="">All PMs</option></select>
   </div>
   <div class="pills">
-    <div class="pill pill-all active">All</div>
-    <div class="pill pill-active">Active</div>
-    <div class="pill pill-signed">Signed</div>
-    <div class="pill pill-lapsed">Lapsed</div>
-    <div class="pill pill-keyco">Key Collection</div>
+    <div class="pill pill-all active" data-prefix="pl" data-filter="ALL">All</div>
+    <div class="pill pill-active" data-prefix="pl" data-filter="ACTIVE">Active</div>
+    <div class="pill pill-signed" data-prefix="pl" data-filter="SIGNED">Signed</div>
+    <div class="pill pill-lapsed" data-prefix="pl" data-filter="LAPSED">Lapsed</div>
+    <div class="pill pill-keyco" data-prefix="pl" data-filter="LONG KEY COLLECTION">Key Collection</div>
   </div>
   <div id="pipeline-content"></div>
 </div>
@@ -185,7 +185,7 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
   <div class="page-header">
     <div><div class="page-title">Progression</div><div class="page-sub">Full pipeline tracking — all columns A–T</div></div>
     <div class="header-actions">
-      <button class="btn btn-green">⬇ Download Excel</button>
+      <button class="btn btn-green" id="btn-dl-chyler">⬇ Download Excel</button>
     </div>
   </div>
   <div class="filters">
@@ -246,7 +246,7 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
   <div class="page-header">
     <div><div class="page-title">Progression</div><div class="page-sub">Woodates leads tracking</div></div>
     <div class="header-actions">
-      <button class="btn btn-green">⬇ Download Excel</button>
+      <button class="btn btn-green" id="btn-dl-woodates">⬇ Download Excel</button>
     </div>
   </div>
   <div class="filters">
@@ -287,7 +287,7 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
   <div class="page-header">
     <div><div class="page-title">Chyler × Woodates Signed</div><div class="page-sub">All signed clients</div></div>
     <div class="header-actions">
-      <button class="btn btn-green">⬇ Download Excel</button>
+      <button class="btn btn-green" id="btn-dl-signed">⬇ Download Excel</button>
     </div>
   </div>
   <div class="filters">
