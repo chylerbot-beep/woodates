@@ -1120,6 +1120,18 @@ function depositBadge(v) {
   return `<span class="status-badge SIGNED" style="border-radius:6px">✓ ${esc(v)}</span>`;
 }
 
+let signedCurrentFilter = 'ALL';
+
+function setSignedFilter(filter, el) {
+  signedCurrentFilter = filter || 'ALL';
+  const wrap = document.getElementById('signed-stat-row');
+  if (wrap) {
+    wrap.querySelectorAll('.stat-pill').forEach(p => p.classList.remove('is-active'));
+    if (el) el.classList.add('is-active');
+  }
+  renderSigned();
+}
+
 function renderSigned() {
   const years = [...new Set(SIGNED_DATA.map(r=>r.Year))].sort();
   
@@ -1129,16 +1141,24 @@ function renderSigned() {
   const one = SIGNED_DATA.filter(r=>r['Deposit 1']&&!r['Deposit 2']).length;
   const pending = SIGNED_DATA.filter(r=>!r['Deposit 1']).length;
   document.getElementById('signed-stat-row').innerHTML = `
-    <div class="stat-pill s-total"><span class="count">${total}</span>Total</div>
-    <div class="stat-pill s-signed"><span class="count">${both}</span>Both Deposits</div>
-    <div class="stat-pill s-active"><span class="count">${one}</span>Deposit 1 Only</div>
-    <div class="stat-pill s-lapsed"><span class="count">${pending}</span>Pending</div>
+    <div class="stat-pill s-total ${signedCurrentFilter==='ALL'?'is-active':''}" data-action="setSignedFilter" data-filter="ALL" style="cursor:pointer"><span class="count">${total}</span>Total</div>
+    <div class="stat-pill s-signed ${signedCurrentFilter==='BOTH'?'is-active':''}" data-action="setSignedFilter" data-filter="BOTH" style="cursor:pointer"><span class="count">${both}</span>Both Deposits</div>
+    <div class="stat-pill s-active ${signedCurrentFilter==='ONE'?'is-active':''}" data-action="setSignedFilter" data-filter="ONE" style="cursor:pointer"><span class="count">${one}</span>Deposit 1 Only</div>
+    <div class="stat-pill s-lapsed ${signedCurrentFilter==='PENDING'?'is-active':''}" data-action="setSignedFilter" data-filter="PENDING" style="cursor:pointer"><span class="count">${pending}</span>Pending</div>
   `;
+
+  const filtered = SIGNED_DATA.filter(r => {
+    if (signedCurrentFilter === 'BOTH') return !!r['Deposit 1'] && !!r['Deposit 2'];
+    if (signedCurrentFilter === 'ONE') return !!r['Deposit 1'] && !r['Deposit 2'];
+    if (signedCurrentFilter === 'PENDING') return !r['Deposit 1'];
+    return true;
+  });
 
   let html = '';
   let idx = 1;
   years.forEach(year => {
-    const group = SIGNED_DATA.filter(r=>r.Year===year);
+    const group = filtered.filter(r=>r.Year===year);
+    if (!group.length) return;
     html += `<tr><td colspan="5" class="master-section-header signed-header">${year}</td></tr>`;
     group.forEach((r, gi) => {
       const rowId = r.id || (year * 1000 + gi);
@@ -1160,6 +1180,7 @@ function renderSigned() {
       </tr>`;
     });
   });
+  if (!html) html = '<tr><td colspan="5" class="no-data">No clients in this filter.</td></tr>';
   document.getElementById('signed-tbody').innerHTML = html;
 }
 
@@ -1498,6 +1519,7 @@ function bindFilterListeners() {
         else if (action === 'toggleSignedEditMode') toggleSignedEditMode();
         else if (action === 'downloadSignedExcel') downloadSignedExcel();
         else if (action === 'openSignedModal') openSignedModal();
+        else if (action === 'setSignedFilter') setSignedFilter(filter, btn);
         else if (action === 'closeWdtModal') closeWdtModal();
         else if (action === 'saveWdtRow') saveWdtRow();
         else if (action === 'closeSignedModal') closeSignedModal();
