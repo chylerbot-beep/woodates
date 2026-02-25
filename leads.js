@@ -272,6 +272,15 @@ function lapsedCard(r) {
   </div>`;
 }
 
+function normalizeStatus(raw, fallback = 'ACTIVE') {
+  const v = String(raw || '').trim().toUpperCase();
+  if (!v) return fallback;
+  if (v === 'LONG' || v === 'LONG KEY' || v === 'KEY COLLECTION') return 'LONG KEY COLLECTION';
+  if (v === 'LONG KEY COLLECTION') return 'LONG KEY COLLECTION';
+  if (v === 'ACTIVE' || v === 'SIGNED' || v === 'LAPSED') return v;
+  return v;
+}
+
 // ── PROGRESSION ──
 let progFiltered = [...CHYLER_DATA];
 
@@ -286,11 +295,12 @@ function initProgression() {
 
 function filterProgression() {
   const q = document.getElementById('prog-search').value.toLowerCase();
-  const st = document.getElementById('prog-status-filter').value;
+  const st = normalizeStatus(document.getElementById('prog-status-filter').value, '');
   const pm = document.getElementById('prog-pm-filter').value;
   progFiltered = CHYLER_DATA.filter(r => {
-    const matchQ = !q || [r.Name, r.Phone+'', r.PM, r.Comments, r.Type, r['FINAL STATUS']].some(v=>v&&v.toLowerCase().includes(q));
-    return matchQ && (!st||r['FINAL STATUS']===st) && (!pm||r.PM===pm);
+    const normalizedStatus = normalizeStatus(r['FINAL STATUS'], '');
+    const matchQ = !q || [r.Name, r.Phone+'', r.PM, r.Comments, r.Type, normalizedStatus].some(v=>v&&String(v).toLowerCase().includes(q));
+    return matchQ && (!st||normalizedStatus===st) && (!pm||r.PM===pm);
   });
   renderProgression(progFiltered);
 }
@@ -328,7 +338,7 @@ function renderProgression(data) {
   }
 
   document.getElementById('prog-tbody').innerHTML = data.map(r => {
-    const st=r['FINAL STATUS'];
+    const st=normalizeStatus(r['FINAL STATUS'], '');
     const stClass=st==='LONG KEY COLLECTION'?'LONG':st;
     const stLabel=st==='LONG KEY COLLECTION'?'Key Collection':st;
     const editable = editMode ? 'contenteditable="true"' : '';
@@ -720,9 +730,9 @@ const WDT_MASTER = [
 
 // Derive status from data
 function getWdtStatus(r) {
-  if(r.Status) return r.Status;
+  if(r.Status) return normalizeStatus(r.Status);
   if(r['1st Deposit']) return 'SIGNED';
-  if(r['Responsive?']==='YES') return 'ACTIVE';
+  if(String(r['Responsive?']||'').toUpperCase()==='YES') return 'ACTIVE';
   return 'ACTIVE';
 }
 
@@ -910,12 +920,12 @@ function initWdtProgression() {
 
 function filterWdtProgression() {
   const q = (document.getElementById('wdt-prog-search').value||'').toLowerCase();
-  const status = document.getElementById('wdt-prog-status-filter').value;
+  const status = normalizeStatus(document.getElementById('wdt-prog-status-filter').value, '');
   const pm = document.getElementById('wdt-prog-pm-filter').value;
   wdtProgFiltered = WDT_DATA.filter(r => {
     if(status && getWdtStatus(r)!==status) return false;
     if(pm && r.PM!==pm) return false;
-    if(q && ![r.Name,r.Phone,r.PM,r.Type,r.Status].some(v=>v&&String(v).toLowerCase().includes(q))) return false;
+    if(q && ![r.Name,r.Phone,r.PM,r.Type,getWdtStatus(r)].some(v=>v&&String(v).toLowerCase().includes(q))) return false;
     return true;
   });
   renderWdtProgression(wdtProgFiltered);
