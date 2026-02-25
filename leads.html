@@ -1,202 +1,1353 @@
-diff --git a/leads.html b/leads.html
-index 17da8a6b6982ab2c67d6d3918da4a717d58d1346..ae4baec2cfdca365b0bf1e3b335a9b73e22321b0 100644
---- a/leads.html
-+++ b/leads.html
-@@ -120,94 +120,94 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
- .pill-active { background: var(--active-bg); border-color: var(--active-border); color: var(--active); }
- .pill-active.active, .pill-active:hover { background: var(--active); border-color: var(--active); color: white; }
- .pill-signed { background: var(--signed-bg); border-color: var(--signed-border); color: var(--signed); }
- .pill-signed.active, .pill-signed:hover { background: var(--signed); border-color: var(--signed); color: white; }
- .pill-lapsed { background: var(--lapsed-bg); border-color: var(--lapsed-border); color: var(--lapsed); }
- .pill-lapsed.active, .pill-lapsed:hover { background: var(--lapsed); border-color: var(--lapsed); color: white; }
- .pill-keyco { background: var(--keyco-bg); border-color: var(--keyco-border); color: var(--keyco); }
- .pill-keyco.active, .pill-keyco:hover { background: var(--keyco); border-color: var(--keyco); color: white; }
- 
- /* SIGNED TABLE */
- .signed-badge-paid { color: var(--signed); font-weight: 700; font-size: 0.75rem; }
- .signed-badge-empty { color: #CCC; }
- </style>
- </head>
- <body>
- 
- <header>
-   <div class="header-top">
-     <div class="brand">
-       <span class="brand-sub">Woodates</span>
-       <span class="brand-name">Leads</span>
-     </div>
-     <a href="/" class="home-btn">← Home</a>
-   </div>
-   <nav class="main-nav">
--    <div class="main-tab active">Chyler Leads</div>
--    <div class="main-tab">Woodates Leads</div>
--    <div class="main-tab">Chyler Signed</div>
-+    <div class="main-tab active" data-section="chyler">Chyler Leads</div>
-+    <div class="main-tab" data-section="woodates">Woodates Leads</div>
-+    <div class="main-tab" data-section="signed">Chyler Signed</div>
-   </nav>
- </header>
- 
- <!-- CHYLER SUB NAV -->
- <div id="subnav-chyler" class="sub-nav">
--  <div class="sub-tab active">Pipeline</div>
--  <div class="sub-tab">Progression</div>
--  <div class="sub-tab">Master List</div>
-+  <div class="sub-tab active" data-tab="pipeline">Pipeline</div>
-+  <div class="sub-tab" data-tab="progression">Progression</div>
-+  <div class="sub-tab" data-tab="master">Master List</div>
- </div>
- <!-- WOODATES SUB NAV -->
- <div id="subnav-woodates" class="sub-nav" style="display:none">
--  <div class="sub-tab active">Pipeline</div>
--  <div class="sub-tab">Progression</div>
--  <div class="sub-tab">Master List</div>
-+  <div class="sub-tab active" data-tab="wdt-pipeline">Pipeline</div>
-+  <div class="sub-tab" data-tab="wdt-progression">Progression</div>
-+  <div class="sub-tab" data-tab="wdt-master">Master List</div>
- </div>
- 
- <!-- ═══════════════════════════════════ CHYLER PIPELINE ═══ -->
- <div id="page-pipeline" class="page active">
-   <div class="page-header">
-     <div><div class="page-title">Pipeline</div><div class="page-sub">Live status overview</div></div>
-   </div>
-   <div class="filters">
-     <input class="search-box" id="pl-search" placeholder="Search name, phone, PM…">
-     <select class="filter-select" id="pl-pm"><option value="">All PMs</option></select>
-   </div>
-   <div class="pills">
--    <div class="pill pill-all active">All</div>
--    <div class="pill pill-active">Active</div>
--    <div class="pill pill-signed">Signed</div>
--    <div class="pill pill-lapsed">Lapsed</div>
--    <div class="pill pill-keyco">Key Collection</div>
-+    <div class="pill pill-all active" data-prefix="pl" data-filter="ALL">All</div>
-+    <div class="pill pill-active" data-prefix="pl" data-filter="ACTIVE">Active</div>
-+    <div class="pill pill-signed" data-prefix="pl" data-filter="SIGNED">Signed</div>
-+    <div class="pill pill-lapsed" data-prefix="pl" data-filter="LAPSED">Lapsed</div>
-+    <div class="pill pill-keyco" data-prefix="pl" data-filter="LONG KEY COLLECTION">Key Collection</div>
-   </div>
-   <div id="pipeline-content"></div>
- </div>
- 
- <!-- ═══════════════════════════════════ CHYLER PROGRESSION ═══ -->
- <div id="page-progression" class="page">
-   <div class="page-header">
-     <div><div class="page-title">Progression</div><div class="page-sub">Full pipeline tracking — all columns A–T</div></div>
-     <div class="header-actions">
--      <button class="btn btn-green">⬇ Download Excel</button>
-+      <button class="btn btn-green" id="btn-dl-chyler">⬇ Download Excel</button>
-     </div>
-   </div>
-   <div class="filters">
-     <input class="search-box" id="prog-search" placeholder="Search name, phone, PM, status…">
-     <select class="filter-select" id="prog-status">
-       <option value="">All Statuses</option>
-       <option value="ACTIVE">Active</option>
-       <option value="SIGNED">Signed</option>
-       <option value="LAPSED">Lapsed</option>
-       <option value="LONG KEY COLLECTION">Long Key Collection</option>
-     </select>
-     <select class="filter-select" id="prog-pm"><option value="">All PMs</option></select>
-   </div>
-   <div class="table-wrap">
-     <table>
-       <thead><tr>
-         <th>#</th><th>Date</th><th>Source</th><th>Phone</th><th>Type</th><th>Name</th><th>Stage</th>
-         <th>Comments</th><th>Resp?</th><th>GC</th><th>PM</th>
-         <th>1st Meet</th><th>2D</th><th>Quot</th><th>2nd Meet</th>
-         <th>Rev 2D</th><th>Rev Quot</th><th>Site</th><th>Dep 1</th><th>Dep 2</th><th>Status</th>
-       </tr></thead>
-       <tbody id="prog-tbody"></tbody>
-     </table>
-   </div>
- </div>
-@@ -224,84 +224,84 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
-   <div class="table-wrap">
-     <table>
-       <thead><tr><th>Phone</th><th>Name</th><th>Property Type</th></tr></thead>
-       <tbody id="master-tbody"></tbody>
-     </table>
-   </div>
- </div>
- 
- <!-- ═══════════════════════════════════ WOODATES PIPELINE ═══ -->
- <div id="page-wdt-pipeline" class="page">
-   <div class="page-header">
-     <div><div class="page-title">Pipeline</div><div class="page-sub">Woodates company leads</div></div>
-   </div>
-   <div class="filters">
-     <input class="search-box" id="wpl-search" placeholder="Search name, phone, PM…">
-     <select class="filter-select" id="wpl-pm"><option value="">All PMs</option></select>
-   </div>
-   <div id="wdt-pipeline-content"></div>
- </div>
- 
- <!-- ═══════════════════════════════════ WOODATES PROGRESSION ═══ -->
- <div id="page-wdt-progression" class="page">
-   <div class="page-header">
-     <div><div class="page-title">Progression</div><div class="page-sub">Woodates leads tracking</div></div>
-     <div class="header-actions">
--      <button class="btn btn-green">⬇ Download Excel</button>
-+      <button class="btn btn-green" id="btn-dl-woodates">⬇ Download Excel</button>
-     </div>
-   </div>
-   <div class="filters">
-     <input class="search-box" id="wprog-search" placeholder="Search name, phone, PM…">
-     <select class="filter-select" id="wprog-pm"><option value="">All PMs</option></select>
-   </div>
-   <div class="table-wrap">
-     <table>
-       <thead><tr>
-         <th>#</th><th>Date</th><th>Phone</th><th>Type</th><th>Name</th><th>Stage</th>
-         <th>Comments</th><th>Resp?</th><th>GC</th><th>PM</th>
-         <th>1st Meet</th><th>2D</th><th>Quot</th><th>2nd Meet</th>
-         <th>Rev 2D</th><th>Rev Quot</th><th>Site</th><th>Dep 1</th><th>Dep 2</th><th>Status</th>
-       </tr></thead>
-       <tbody id="wprog-tbody"></tbody>
-     </table>
-   </div>
- </div>
- 
- <!-- ═══════════════════════════════════ WOODATES MASTER ═══ -->
- <div id="page-wdt-master" class="page">
-   <div class="page-header">
-     <div><div class="page-title">Master List</div><div class="page-sub">Woodates leads</div></div>
-   </div>
-   <div class="filters">
-     <input class="search-box" id="wmaster-search" placeholder="Search name, phone…">
-   </div>
-   <div class="table-wrap">
-     <table>
-       <thead><tr><th>Phone</th><th>Name</th><th>Property Type</th></tr></thead>
-       <tbody id="wmaster-tbody"></tbody>
-     </table>
-   </div>
- </div>
- 
- <!-- ═══════════════════════════════════ SIGNED ═══ -->
- <div id="page-signed" class="page">
-   <div class="page-header">
-     <div><div class="page-title">Chyler × Woodates Signed</div><div class="page-sub">All signed clients</div></div>
-     <div class="header-actions">
--      <button class="btn btn-green">⬇ Download Excel</button>
-+      <button class="btn btn-green" id="btn-dl-signed">⬇ Download Excel</button>
-     </div>
-   </div>
-   <div class="filters">
-     <input class="search-box" id="signed-search" placeholder="Search name…">
-     <select class="filter-select" id="signed-year"><option value="">All Years</option></select>
-   </div>
-   <div class="table-wrap">
-     <table>
-       <thead><tr><th>Year</th><th>Name</th><th>1st Deposit</th><th>2nd Deposit</th></tr></thead>
-       <tbody id="signed-tbody"></tbody>
-     </table>
-   </div>
- </div>
- 
- <script src="leads.js?v=3"></script>
- </body>
- </html>
-\ No newline at end of file
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪵</text></svg>">
+    <meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leads | Woodates</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --cream-dark: #EDE8DF;
+    --white: #FFFFFF;
+    --dark: #1A1A18;
+    --dark-mid: #3D3B36;
+    --muted: #8A8278;
+    --border: #D6CEC4;
+    --border-light: #E8E2D9;
+    --shadow: 0 4px 20px rgba(0,0,0,0.06);
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+
+    --active: #C4956A;
+    --active-bg: #FAF3EC;
+    --active-border: #E8C9A8;
+
+    --signed: #5A8A6A;
+    --signed-bg: #EEF6F0;
+    --signed-border: #B2D4BB;
+
+    --lapsed: #B05A5A;
+    --lapsed-bg: #F8EDED;
+    --lapsed-border: #DCAFAF;
+
+    --keyco: #7A6A3A;
+    --keyco-bg: #F7F2E4;
+    --keyco-border: #D4C48A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--cream); color: var(--dark); font-family: 'DM Sans', sans-serif; min-height: 100vh; display: none; }
+
+  /* ── AUTH GUARD OVERLAY ── */
+  #auth-checking {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    background: var(--cream);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 14px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  #auth-checking p { color: var(--muted); font-size: 0.9rem; }
+  .auth-spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--active);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #access-denied {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--cream);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    font-family: 'DM Sans', sans-serif;
+    text-align: center;
+    padding: 24px;
+  }
+  #access-denied h2 { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--dark); }
+  #access-denied p { color: var(--muted); font-size: 0.9rem; max-width: 360px; }
+  #access-denied a {
+    margin-top: 8px;
+    display: inline-block;
+    padding: 10px 24px;
+    background: var(--active);
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+  }
+  #access-denied a:hover { background: var(--dark); }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 200;
+    box-shadow: var(--shadow-sm);
+  }
+  .header-top {
+    padding: 20px 40px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+  }
+
+  /* ── MAIN NAV ── */
+  .main-nav {
+    display: flex;
+    gap: 0;
+    padding: 0 40px;
+    background: var(--white);
+    border-top: 1px solid var(--border-light);
+  }
+  .brand p {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--active);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .brand h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.7rem;
+    color: var(--dark);
+    line-height: 1;
+  }
+
+  .main-nav-tab {
+    padding: 14px 22px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .main-nav-tab:hover { color: var(--dark); }
+  .main-nav-tab.active { color: var(--dark); border-bottom-color: var(--active); }
+
+  /* ── SUB TABS ── */
+  .sub-nav {
+    display: flex;
+    gap: 0;
+    padding: 0 40px;
+    background: var(--white);
+    border-top: 1px solid var(--border-light);
+  }
+  .sub-tab {
+    padding: 10px 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .sub-tab:hover { color: var(--dark); }
+  .sub-tab.active { color: var(--active); border-bottom-color: var(--active); }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn-outline {
+    border: 1px solid var(--border);
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--dark);
+    background: transparent;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { background: var(--dark); color: white; border-color: var(--dark); }
+
+  /* ── PAGES ── */
+  .page { display: none; padding: 36px 40px; max-width: 1600px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* ── PAGE HEADER ── */
+  .page-header { margin-bottom: 28px; }
+  .page-title { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--dark); }
+  .page-subtitle { color: var(--muted); font-size: 0.82rem; margin-top: 4px; letter-spacing: 0.02em; }
+
+  /* ── STAT PILLS ── */
+  .stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+  .stat-pill {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .stat-pill .count {
+    font-size: 1.3rem;
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    line-height: 1;
+  }
+  .stat-pill.s-active { background: var(--active-bg); border-color: var(--active-border); color: var(--active); }
+  .stat-pill.s-signed { background: var(--signed-bg); border-color: var(--signed-border); color: var(--signed); }
+  .stat-pill.s-lapsed { background: var(--lapsed-bg); border-color: var(--lapsed-border); color: var(--lapsed); }
+  .stat-pill.s-keyco  { background: var(--keyco-bg);  border-color: var(--keyco-border);  color: var(--keyco); }
+  .stat-pill.s-total  { background: var(--cream-dark); border-color: var(--border); color: var(--muted); }
+
+  /* ── FILTERS ── */
+  .filters { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
+  .search-box, .filter-select {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 14px;
+    color: var(--dark);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box { flex: 1; min-width: 200px; }
+  .search-box::placeholder { color: var(--muted); }
+  .search-box:focus, .filter-select:focus { border-color: var(--active); }
+  .filter-select { cursor: pointer; }
+
+  /* ── SECTION HEADERS ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 32px 0 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .section-label { display: flex; align-items: center; gap: 10px; }
+  .section-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .section-count {
+    font-size: 0.72rem;
+    background: var(--cream-dark);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-weight: 600;
+  }
+  .toggle-btn {
+    font-size: 0.75rem;
+    color: var(--muted);
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 14px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .toggle-btn:hover { color: var(--dark); border-color: var(--dark); }
+
+  /* ── KANBAN ── */
+  .pipeline-wrap { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 10px; }
+  .stage-col { min-width: 210px; max-width: 230px; flex-shrink: 0; }
+  .stage-col-header {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background: var(--cream-dark);
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid var(--border-light);
+  }
+  .stage-col-header .stage-num {
+    color: var(--active);
+    font-size: 1.3rem;
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+  }
+  .card:hover { border-color: var(--active-border); box-shadow: var(--shadow); transform: translateY(-1px); }
+
+  .card.active-card  { border-left: 3px solid var(--active); }
+  .card.signed-card  { border-left: 3px solid var(--signed); background: var(--signed-bg); }
+  .card.lapsed-card  { border-left: 3px solid var(--lapsed); opacity: 0.8; }
+  .card.keyco-card   { border-left: 3px solid var(--keyco); background: var(--keyco-bg); }
+
+  .card-name { font-size: 0.9rem; font-weight: 700; color: var(--dark); margin-bottom: 8px; }
+  .card-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+
+  .tag {
+    font-size: 0.68rem;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 600;
+    background: var(--cream-dark);
+    color: var(--muted);
+    border: 1px solid var(--border-light);
+  }
+  .tag.type-tag { background: var(--active-bg); color: var(--active); border-color: var(--active-border); }
+  .tag.pm-tag   { background: #F0EDF8; color: #7A5FA0; border-color: #D8CEED; }
+  .tag.stage-tag { background: #EBF3FB; color: #3A6EA8; border-color: #B8D4EE; font-size: 0.68rem; }
+
+  .card-phone { font-size: 0.75rem; color: var(--muted); }
+  .card-comment {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 8px;
+    font-style: italic;
+    border-top: 1px solid var(--border-light);
+    padding-top: 8px;
+    line-height: 1.5;
+  }
+  .card-date { font-size: 0.68rem; color: #B0A89A; margin-top: 5px; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar { height: 3px; background: var(--border-light); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--active-border), var(--active)); border-radius: 2px; transition: width 0.4s; }
+
+  /* ── GRID ── */
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+
+  /* ── COLLAPSIBLE ── */
+  .collapsible-content { overflow: hidden; transition: max-height 0.4s ease; }
+  .collapsible-content.collapsed { max-height: 0 !important; }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    background: var(--white);
+    border-radius: 12px;
+    overflow: auto;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    max-height: calc(100vh - 300px);
+  }
+  .w-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; text-align: left; }
+  .w-table th {
+    background: #F9F7F4;
+    padding: 12px 14px;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6B5B4E;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .w-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .w-table tr:last-child td { border-bottom: none; }
+  .w-table tr:hover td { background: #FAF8F5; }
+
+  /* Editable table cells */
+  .w-table td[contenteditable="true"] {
+    outline: none;
+    cursor: text;
+  }
+  .w-table td[contenteditable="true"]:focus {
+    background: #FFFBF5;
+    box-shadow: inset 0 0 0 2px var(--active-border);
+    border-radius: 4px;
+  }
+  .edit-mode .w-table td[contenteditable="true"] {
+    background: rgba(196,149,106,0.04);
+  }
+
+  /* Edit mode banner */
+  .edit-banner {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--active-bg);
+    border: 1px solid var(--active-border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.8rem;
+    color: var(--active);
+    font-weight: 600;
+  }
+  .edit-banner.visible { display: flex; }
+  .edit-banner svg { flex-shrink: 0; }
+
+  /* Edit toggle button styling */
+  .btn-edit-toggle {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--border);
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--dark);
+    background: var(--white);
+    transition: all 0.2s;
+  }
+  .btn-edit-toggle.active {
+    background: var(--active);
+    border-color: var(--active);
+    color: white;
+  }
+  .btn-edit-toggle:hover:not(.active) { background: var(--cream-dark); }
+
+  /* Download button */
+  .btn-download {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--signed-border);
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--signed);
+    background: var(--signed-bg);
+    transition: all 0.2s;
+  }
+  .btn-download:hover { background: var(--signed); color: white; border-color: var(--signed); }
+
+  /* ── STATUS BADGES ── */
+  .status-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .status-badge.ACTIVE { background: var(--active-bg); color: var(--active); border-color: var(--active-border); }
+  .status-badge.SIGNED { background: var(--signed-bg); color: var(--signed); border-color: var(--signed-border); }
+  .status-badge.LAPSED { background: var(--lapsed-bg); color: var(--lapsed); border-color: var(--lapsed-border); }
+  .status-badge.LONG   { background: var(--keyco-bg);  color: var(--keyco);  border-color: var(--keyco-border); }
+
+  .check { color: var(--signed); font-weight: 700; }
+  .cross { color: var(--lapsed); }
+
+  /* ── Conditional formatting for YES/NO/PENDING ── */
+  .cell-yes { color: var(--signed); font-weight: 700; }
+  .cell-no { color: var(--lapsed); }
+  .cell-pending { color: var(--keyco); font-style: italic; font-size: 0.75rem; }
+  .cell-scheduled { color: #5A7AAA; font-weight: 600; font-size: 0.75rem; }
+
+  /* ── Master list section headers ── */
+  .master-section-header {
+    padding: 8px 14px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .master-section-header.active-header { background: var(--active-bg); color: var(--active); }
+  .master-section-header.signed-header { background: var(--signed-bg); color: var(--signed); }
+  .master-section-header.lapsed-header { background: var(--lapsed-bg); color: var(--lapsed); }
+  .master-section-header.keyco-header  { background: var(--keyco-bg);  color: var(--keyco); }
+
+  /* ── PILL COUNT (number shown inside filter pill) ── */
+  .pill-count {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    line-height: 1;
+    margin-right: 7px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .status-filter-pill .pill-count { opacity: 0.85; }
+  .status-filter-pill.selected .pill-count,
+  .status-filter-pill:hover .pill-count { opacity: 1; }
+
+  /* ── PIPELINE STATUS FILTER PILLS ── */
+  .status-filter-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .status-filter-pill {
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 1.5px solid;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .status-filter-pill.sf-all { background: var(--cream-dark); border-color: var(--border); color: var(--muted); }
+  .status-filter-pill.sf-all.selected,
+  .status-filter-pill.sf-all:hover { background: var(--dark); border-color: var(--dark); color: white; }
+  .status-filter-pill.sf-active { background: var(--active-bg); border-color: var(--active-border); color: var(--active); }
+  .status-filter-pill.sf-active.selected,
+  .status-filter-pill.sf-active:hover { background: var(--active); border-color: var(--active); color: white; }
+  .status-filter-pill.sf-signed { background: var(--signed-bg); border-color: var(--signed-border); color: var(--signed); }
+  .status-filter-pill.sf-signed.selected,
+  .status-filter-pill.sf-signed:hover { background: var(--signed); border-color: var(--signed); color: white; }
+  .status-filter-pill.sf-lapsed { background: var(--lapsed-bg); border-color: var(--lapsed-border); color: var(--lapsed); }
+  .status-filter-pill.sf-lapsed.selected,
+  .status-filter-pill.sf-lapsed:hover { background: var(--lapsed); border-color: var(--lapsed); color: white; }
+  .status-filter-pill.sf-keyco { background: var(--keyco-bg); border-color: var(--keyco-border); color: var(--keyco); }
+  .status-filter-pill.sf-keyco.selected,
+  .status-filter-pill.sf-keyco:hover { background: var(--keyco); border-color: var(--keyco); color: white; }
+  .status-filter-pill.sf-reachout { background: #EEF0FB; border-color: #B8BEEC; color: #4A55A2; }
+  .status-filter-pill.sf-reachout.selected,
+  .status-filter-pill.sf-reachout:hover { background: #4A55A2; border-color: #4A55A2; color: white; }
+
+  /* ── REACH OUT CARD ── */
+  .card.reachout-card { border-left: 3px solid #4A55A2; background: #EEF0FB; }
+  .reachout-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: #4A55A2;
+    color: white;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+
+  /* ── NEW ROW BUTTON ── */
+  .btn-new-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--active-border);
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--active);
+    background: var(--active-bg);
+    transition: all 0.2s;
+  }
+  .btn-new-row:hover { background: var(--active); color: white; border-color: var(--active); }
+
+  /* ── MOBILE IMPROVEMENTS ── */
+  @media (max-width: 768px) {
+    .header-top { padding: 14px 16px; flex-wrap: wrap; gap: 12px; }
+    .brand h1 { font-size: 1.4rem; }
+    .main-nav { padding: 0 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; scrollbar-width: none; }
+    .main-nav::-webkit-scrollbar { display: none; }
+    .main-nav-tab { padding: 12px 16px; font-size: 0.78rem; }
+    .sub-nav { padding: 0 16px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .sub-nav::-webkit-scrollbar { display: none; }
+    .sub-tab { padding: 10px 14px; font-size: 0.72rem; white-space: nowrap; }
+    .page { padding: 20px 16px; }
+    .page-title { font-size: 1.5rem; }
+    .pipeline-wrap { gap: 10px; }
+    .stage-col { min-width: 180px; }
+    .filters { gap: 8px; }
+    .search-box { min-width: 0; flex: 1; }
+    .filter-select { font-size: 0.82rem; }
+    .stat-row { gap: 8px; }
+    .stat-pill { padding: 8px 12px; font-size: 0.78rem; }
+    .stat-pill .count { font-size: 1.1rem; }
+    .cards-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+    .header-actions { padding-bottom: 0; }
+    /* Progression page header on mobile */
+    #page-progression .page-header { flex-direction: column; align-items: stretch; }
+    #page-progression .page-header > div:last-child { flex-wrap: wrap; }
+    /* Stack filters but keep status+PM side by side */
+    #page-progression .filters,
+    #wdt-view-progression .filters { flex-direction: row; flex-wrap: wrap; }
+    #page-progression .filters .search-box,
+    #wdt-view-progression .filters .search-box { width: 100%; flex: 0 0 100%; }
+    #page-progression .filters .filter-select,
+    #wdt-view-progression .filters .filter-select { flex: 1; min-width: 0; }
+    /* Pipeline PM + Type side by side */
+    #pipeline-filters,
+    #wdt-pipeline-filters { flex-direction: row; flex-wrap: wrap; }
+    #pipeline-filters .search-box,
+    #wdt-pipeline-filters .search-box { width: 100%; flex: 0 0 100%; }
+    #pipeline-filters .filter-select,
+    #wdt-pipeline-filters .filter-select { flex: 1; min-width: 0; }
+    /* Table wrap full width on mobile */
+    .table-wrap { max-height: calc(100vh - 260px); }
+    /* New modal fields */
+    .modal-overlay { padding: 16px; }
+    .modal-box { padding: 20px; }
+    .modal-grid { grid-template-columns: 1fr !important; }
+    /* Larger touch targets for table cells */
+    .w-table td, .w-table th { padding: 10px 12px; font-size: 0.8rem; }
+  }
+  @media (max-width: 480px) {
+    .header-top { padding: 12px 16px; }
+    .brand h1 { font-size: 1.25rem; }
+    .header-actions { padding-bottom: 0; }
+    .status-filter-row { gap: 6px; }
+    .status-filter-pill { padding: 6px 12px; font-size: 0.72rem; }
+    .page { padding: 16px 12px; }
+    .page-title { font-size: 1.3rem; }
+    .page-subtitle { font-size: 0.8rem; }
+    .card-name { font-size: 0.88rem; }
+    .card-comment { font-size: 0.75rem; }
+    .section-title { font-size: 0.7rem; }
+    .stat-pill { font-size: 0.75rem; padding: 7px 10px; }
+    .filters { flex-direction: column; }
+    .search-box { min-width: 100%; }
+    /* Keep status+PM filters side by side even on tiny screens */
+    #page-progression .filters .filter-select,
+    #wdt-view-progression .filters .filter-select { flex: 1; min-width: 0; width: auto; }
+    #page-progression .filters,
+    #wdt-view-progression .filters { flex-direction: row; flex-wrap: wrap; }
+    #page-progression .filters .search-box,
+    #wdt-view-progression .filters .search-box { flex: 0 0 100%; min-width: 0; }
+    /* Pipeline PM + Type side by side on tiny screens */
+    #pipeline-filters,
+    #wdt-pipeline-filters { flex-direction: row; flex-wrap: wrap; }
+    #pipeline-filters .search-box,
+    #wdt-pipeline-filters .search-box { flex: 0 0 100%; min-width: 0; }
+    #pipeline-filters .filter-select,
+    #wdt-pipeline-filters .filter-select { flex: 1; min-width: 0; width: auto; }
+    .btn-edit-toggle, .btn-download, .btn-new-row { padding: 8px 14px; font-size: 0.8rem; }
+  }
+
+  /* ── ADD ROW MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 28px;
+    width: 100%;
+    max-width: 640px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    position: relative;
+  }
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--dark);
+    margin-bottom: 20px;
+  }
+  .modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .modal-field { display: flex; flex-direction: column; gap: 5px; }
+  .modal-field label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .modal-field input, .modal-field select {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 12px;
+    color: var(--dark);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .modal-field input:focus, .modal-field select:focus { border-color: var(--active); background: var(--white); }
+  .modal-field.span-2 { grid-column: span 2; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-modal-cancel {
+    border: 1px solid var(--border);
+    padding: 9px 20px;
+    border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+  .btn-modal-cancel:hover { background: var(--cream-dark); color: var(--dark); }
+  .btn-modal-save {
+    border: none;
+    padding: 9px 24px;
+    border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: var(--active);
+    color: white;
+    transition: all 0.2s;
+  }
+  .btn-modal-save:hover { background: var(--dark); }
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 18px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 1.3rem;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--dark); }
+</style>
+</head>
+<body>
+
+<!-- Auth checking overlay -->
+<div id="auth-checking">
+  <div class="auth-spinner"></div>
+  <p>Verifying access…</p>
+</div>
+
+<!-- Access denied screen -->
+<div id="access-denied">
+  <h2>Access Restricted</h2>
+  <p>This page is only available to Woodates administrators. Please log in with an admin account.</p>
+  <a href="index.html">← Back to Portal</a>
+</div>
+
+<header>
+  <div class="header-top">
+    <div class="brand">
+      <p>Woodates</p>
+      <h1>Leads</h1>
+    </div>
+    <div class="header-actions">
+      <a href="index.html" class="btn-outline">← Home</a>
+    </div>
+  </div>
+  <div class="main-nav" id="main-nav">
+    <div class="main-nav-tab active" data-action="switchMainNav" data-nav="chyler">Chyler Leads</div>
+    <div class="main-nav-tab" data-action="switchMainNav" data-nav="woodates">Woodates Leads</div>
+    <div class="main-nav-tab" data-action="switchMainNav" data-nav="signed">Chyler Signed</div>
+  </div>
+  <div class="sub-nav" id="sub-nav-chyler">
+    <div class="sub-tab active" data-action="switchSubTab" data-tab="pipeline">Pipeline</div>
+    <div class="sub-tab" data-action="switchSubTab" data-tab="progression">Progression</div>
+    <div class="sub-tab" data-action="switchSubTab" data-tab="masterlist">Master List</div>
+  </div>
+  <div class="sub-nav" id="sub-nav-woodates" style="display:none">
+    <div class="sub-tab active" data-view="pipeline" data-action="switchWdtView" data-view="pipeline">Pipeline</div>
+    <div class="sub-tab" data-view="progression" data-action="switchWdtView" data-view="progression">Progression</div>
+    <div class="sub-tab" data-view="master" data-action="switchWdtView" data-view="master">Master List</div>
+  </div>
+  <div class="sub-nav" id="sub-nav-signed" style="display:none"></div>
+</header>
+
+<!-- ══ PIPELINE PAGE ══ -->
+<div class="page active" id="page-pipeline">
+  <div class="page-header">
+    <div class="page-title">Active Pipeline</div>
+    <div class="page-subtitle">Kanban view — As of 11 Feb 2026</div>
+  </div>
+  <div class="filters" id="pipeline-filters">
+    <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterPipeline()" id="pipeline-search">
+    <select class="filter-select" onchange="filterPipeline()" id="pipeline-pm-filter">
+      <option value="">All PMs</option>
+    </select>
+    <select class="filter-select" onchange="filterPipeline()" id="pipeline-type-filter">
+      <option value="">All Types</option>
+    </select>
+  </div>
+  <div class="status-filter-row">
+    <div class="status-filter-pill sf-all selected" data-action="setPipelineFilter" data-filter="ALL"><span class="pill-count" id="pill-count-all"></span>All</div>
+    <div class="status-filter-pill sf-active" data-action="setPipelineFilter" data-filter="ACTIVE"><span class="pill-count" id="pill-count-active"></span>Active</div>
+    <div class="status-filter-pill sf-signed" data-action="setPipelineFilter" data-filter="SIGNED"><span class="pill-count" id="pill-count-signed"></span>Signed</div>
+    <div class="status-filter-pill sf-lapsed" data-action="setPipelineFilter" data-filter="LAPSED"><span class="pill-count" id="pill-count-lapsed"></span>Lapsed</div>
+    <div class="status-filter-pill sf-keyco" data-action="setPipelineFilter" data-filter="KEYCO"><span class="pill-count" id="pill-count-keyco"></span>Key Collection</div>
+    <div class="status-filter-pill sf-reachout" data-action="setPipelineFilter" data-filter="REACHOUT">🔔 Reach Out</div>
+  </div>
+
+  <!-- REACH OUT SECTION -->
+  <div id="section-reachout" style="display:none">
+    <div class="section-header">
+      <div class="section-label">
+        <div class="section-dot" style="background:#4A55A2"></div>
+        <span class="section-title" style="color:#4A55A2">Reach Out Now</span>
+        <span class="section-count" id="cnt-reachout"></span>
+      </div>
+    </div>
+    <div class="cards-grid" id="cards-reachout"></div>
+  </div>
+
+  <div id="section-active">
+  <div class="section-header">
+    <div class="section-label">
+      <div class="section-dot" style="background:var(--active)"></div>
+      <span class="section-title" style="color:var(--active)">Active Pipeline</span>
+      <span class="section-count" id="cnt-active"></span>
+    </div>
+  </div>
+  <div class="pipeline-wrap" id="kanban-active"></div>
+  </div>
+
+  <div id="section-keyco">
+  <div class="section-header">
+    <div class="section-label">
+      <div class="section-dot" style="background:var(--keyco)"></div>
+      <span class="section-title" style="color:var(--keyco)">Long Key Collection</span>
+      <span class="section-count" id="cnt-keyco"></span>
+    </div>
+    <button class="toggle-btn" data-action="toggleSection" data-target="keyco-body">Hide</button>
+  </div>
+  <div class="collapsible-content" id="keyco-body" style="max-height:2000px">
+    <div class="cards-grid" id="cards-keyco"></div>
+  </div>
+  </div>
+
+  <div id="section-signed">
+  <div class="section-header">
+    <div class="section-label">
+      <div class="section-dot" style="background:var(--signed)"></div>
+      <span class="section-title" style="color:var(--signed)">Signed</span>
+      <span class="section-count" id="cnt-signed-pipeline"></span>
+    </div>
+    <button class="toggle-btn" data-action="toggleSection" data-target="signed-body-pipeline">Hide</button>
+  </div>
+  <div class="collapsible-content" id="signed-body-pipeline" style="max-height:2000px">
+    <div class="cards-grid" id="cards-signed-pipeline"></div>
+  </div>
+  </div>
+
+  <div id="section-lapsed">
+  <div class="section-header">
+    <div class="section-label">
+      <div class="section-dot" style="background:var(--lapsed)"></div>
+      <span class="section-title" style="color:var(--lapsed)">Lapsed</span>
+      <span class="section-count" id="cnt-lapsed"></span>
+    </div>
+    <button class="toggle-btn" data-action="toggleSection" data-target="lapsed-body">Hide</button>
+  </div>
+  <div class="collapsible-content" id="lapsed-body" style="max-height:9999px">
+    <div class="cards-grid" id="cards-lapsed"></div>
+  </div>
+  </div>
+</div>
+
+<!-- ══ PROGRESSION PAGE ══ -->
+<div class="page" id="page-progression">
+  <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div>
+      <div class="page-title">Progression</div>
+      <div class="page-subtitle">Full pipeline tracking — all columns A–T</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn-new-row" data-action="openNewRowModal">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New
+      </button>
+      <button class="btn-edit-toggle" id="edit-toggle-btn" data-action="toggleEditMode">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit
+      </button>
+      <button class="btn-download" data-action="downloadExcel">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Excel
+      </button>
+    </div>
+  </div>
+
+  <div class="edit-banner" id="edit-banner">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Editing mode is on — click any cell to edit. Changes will save when you turn off editing.
+  </div>
+
+  <div class="filters">
+    <input class="search-box" type="text" placeholder="Search by name, phone, PM, status…" oninput="filterProgression()" id="prog-search">
+    <select class="filter-select" onchange="filterProgression()" id="prog-status-filter">
+      <option value="">All Statuses</option>
+      <option value="ACTIVE">Active</option>
+      <option value="SIGNED">Signed</option>
+      <option value="LAPSED">Lapsed</option>
+      <option value="LONG KEY COLLECTION">Long Key Collection</option>
+    </select>
+    <select class="filter-select" onchange="filterProgression()" id="prog-pm-filter">
+      <option value="">All PMs</option>
+    </select>
+  </div>
+
+  <div class="table-wrap" id="prog-table-wrap">
+    <table class="w-table" id="prog-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Source</th>
+          <th>Phone</th>
+          <th>Type</th>
+          <th>Name</th>
+          <th>Current Status</th>
+          <th>Comments</th>
+          <th>Responsive?</th>
+          <th>GC Created</th>
+          <th>PM</th>
+          <th>1st Meet</th>
+          <th>2D</th>
+          <th>Quotation</th>
+          <th>2nd Meet</th>
+          <th>Revised 2D</th>
+          <th>Revised Quot.</th>
+          <th>Site Visit</th>
+          <th>1st Deposit</th>
+          <th>2nd Deposit</th>
+          <th>Final Status</th>
+        </tr>
+      </thead>
+      <tbody id="prog-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ MASTER LIST PAGE ══ -->
+<div class="page" id="page-masterlist">
+  <div class="page-header">
+    <div class="page-title">Master List</div>
+    <div class="page-subtitle">91 leads — As of 11 Feb 2026</div>
+  </div>
+  <div class="filters">
+    <input class="search-box" type="text" placeholder="Search by name, phone, property type…" oninput="filterMaster()" id="master-search">
+    <select class="filter-select" onchange="filterMaster()" id="master-type-filter">
+      <option value="">All Property Types</option>
+    </select>
+  </div>
+  <div class="table-wrap" style="max-width:600px">
+    <table class="w-table" id="master-table">
+      <thead>
+        <tr>
+          <th style="width:40px">#</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Property Type</th>
+        </tr>
+      </thead>
+      <tbody id="master-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ WOODATES LEADS PAGE ══ -->
+<div class="page" id="page-woodates">
+  <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+    <div>
+      <div class="page-title">Woodates Company Leads</div>
+      <div class="page-subtitle">Pipeline tracking — As of 2 Feb 2026</div>
+    </div>
+  </div>
+
+  <!-- Sub-view tabs within Woodates are now in the main header sub-nav -->
+
+  <!-- ── WDT PIPELINE VIEW ── -->
+  <div id="wdt-view-pipeline">
+    <div class="filters" id="wdt-pipeline-filters">
+      <input class="search-box" type="text" placeholder="Search by name, phone, PM…" oninput="filterWdtPipeline()" id="wdt-pipeline-search">
+      <select class="filter-select" onchange="filterWdtPipeline()" id="wdt-pipeline-pm-filter">
+        <option value="">All PMs</option>
+      </select>
+      <select class="filter-select" onchange="filterWdtPipeline()" id="wdt-pipeline-type-filter">
+        <option value="">All Types</option>
+      </select>
+    </div>
+    <div class="status-filter-row">
+      <div class="status-filter-pill sf-all selected" data-action="setWdtPipelineFilter" data-filter="ALL"><span class="pill-count" id="wdt-pill-all"></span>All</div>
+      <div class="status-filter-pill sf-active" data-action="setWdtPipelineFilter" data-filter="ACTIVE"><span class="pill-count" id="wdt-pill-active"></span>Active</div>
+      <div class="status-filter-pill sf-signed" data-action="setWdtPipelineFilter" data-filter="SIGNED"><span class="pill-count" id="wdt-pill-signed"></span>Signed</div>
+      <div class="status-filter-pill sf-lapsed" data-action="setWdtPipelineFilter" data-filter="LAPSED"><span class="pill-count" id="wdt-pill-lapsed"></span>Lapsed</div>
+    </div>
+    <div id="wdt-section-active">
+      <div class="section-header">
+        <div class="section-label">
+          <div class="section-dot" style="background:var(--active)"></div>
+          <span class="section-title" style="color:var(--active)">Active Pipeline</span>
+          <span class="section-count" id="wdt-cnt-active"></span>
+        </div>
+      </div>
+      <div class="pipeline-wrap" id="wdt-kanban-active"></div>
+    </div>
+    <div id="wdt-section-signed">
+      <div class="section-header">
+        <div class="section-label">
+          <div class="section-dot" style="background:var(--signed)"></div>
+          <span class="section-title" style="color:var(--signed)">Signed</span>
+          <span class="section-count" id="wdt-cnt-signed"></span>
+        </div>
+        <button class="toggle-btn" data-action="toggleSection" data-target="wdt-signed-body">Hide</button>
+      </div>
+      <div class="collapsible-content" id="wdt-signed-body" style="max-height:2000px">
+        <div class="cards-grid" id="wdt-cards-signed"></div>
+      </div>
+    </div>
+    <div id="wdt-section-lapsed">
+      <div class="section-header">
+        <div class="section-label">
+          <div class="section-dot" style="background:var(--lapsed)"></div>
+          <span class="section-title" style="color:var(--lapsed)">Lapsed</span>
+          <span class="section-count" id="wdt-cnt-lapsed"></span>
+        </div>
+        <button class="toggle-btn" data-action="toggleSection" data-target="wdt-lapsed-body">Hide</button>
+      </div>
+      <div class="collapsible-content" id="wdt-lapsed-body" style="max-height:9999px">
+        <div class="cards-grid" id="wdt-cards-lapsed"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WDT PROGRESSION VIEW ── -->
+  <div id="wdt-view-progression" style="display:none">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+      <button class="btn-new-row" data-action="openWdtModal">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New
+      </button>
+      <button class="btn-edit-toggle" id="wdt-edit-toggle-btn" data-action="toggleWdtEditMode">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit
+      </button>
+      <button class="btn-download" data-action="downloadWdtExcel">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Excel
+      </button>
+    </div>
+    <div class="edit-banner" id="wdt-edit-banner">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Editing mode is on — click any cell to edit. Changes will save when you turn off editing.
+    </div>
+    <div class="filters">
+      <input class="search-box" type="text" placeholder="Search by name, phone, PM, status…" oninput="filterWdtProgression()" id="wdt-prog-search">
+      <select class="filter-select" onchange="filterWdtProgression()" id="wdt-prog-status-filter">
+        <option value="">All Statuses</option>
+        <option value="ACTIVE">Active</option>
+        <option value="SIGNED">Signed</option>
+        <option value="LAPSED">Lapsed</option>
+      </select>
+      <select class="filter-select" onchange="filterWdtProgression()" id="wdt-prog-pm-filter">
+        <option value="">All PMs</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table class="w-table" id="wdt-prog-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Phone</th>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Current Stage</th>
+            <th>Comments</th>
+            <th>PM</th>
+            <th>Responsive?</th>
+            <th>GC Created</th>
+            <th>1st Meet</th>
+            <th>2D</th>
+            <th>1st Quote</th>
+            <th>2nd Meet</th>
+            <th>Revised 2D</th>
+            <th>Revised Quote</th>
+            <th>Site Visit</th>
+            <th>1st Deposit</th>
+            <th>2nd Deposit</th>
+          </tr>
+        </thead>
+        <tbody id="wdt-prog-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── WDT MASTER VIEW ── -->
+  <div id="wdt-view-master" style="display:none">
+    <div class="filters">
+      <input class="search-box" type="text" placeholder="Search by name, phone, property type…" oninput="filterWdtMaster()" id="wdt-master-search">
+      <select class="filter-select" onchange="filterWdtMaster()" id="wdt-master-type-filter">
+        <option value="">All Property Types</option>
+      </select>
+    </div>
+    <div class="table-wrap" style="max-width:600px">
+      <table class="w-table">
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Property Type</th>
+          </tr>
+        </thead>
+        <tbody id="wdt-master-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WOODATES SIGNED PAGE ══ -->
+<div class="page" id="page-woodates-signed">
+  <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:28px">
+    <div>
+      <div class="page-title">Chyler × Woodates Signed</div>
+      <div class="page-subtitle">Signed clients — deposit tracking</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn-edit-toggle" id="signed-edit-toggle-btn" data-action="toggleSignedEditMode">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit
+      </button>
+      <button class="btn-download" data-action="downloadSignedExcel">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Excel
+      </button>
+      <button class="btn-new-row" data-action="openSignedModal">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Client
+      </button>
+    </div>
+  </div>
+
+  <div class="edit-banner" id="signed-edit-banner">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Editing mode is on — click any cell to edit. Changes will save when you turn off editing.
+  </div>
+
+  <div class="stat-row" id="signed-stat-row"></div>
+
+  <div class="table-wrap" style="max-width:700px">
+    <table class="w-table" id="signed-table">
+      <thead>
+        <tr>
+          <th style="width:40px">#</th>
+          <th>Year</th>
+          <th>Name</th>
+          <th>Deposit 1</th>
+          <th>Deposit 2</th>
+        </tr>
+      </thead>
+      <tbody id="signed-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ WDT ADD ROW MODAL ══ -->
+<div class="modal-overlay" id="wdt-row-modal">
+  <div class="modal-box">
+    <button class="modal-close" data-action="closeWdtModal">✕</button>
+    <div class="modal-title">Add Woodates Lead</div>
+    <div class="modal-grid">
+      <div class="modal-field">
+        <label>Date</label>
+        <input type="text" id="wdt-new-date" placeholder="e.g. 20 Feb 2026">
+      </div>
+      <div class="modal-field">
+        <label>Phone</label>
+        <input type="text" id="wdt-new-phone" placeholder="e.g. 91234567">
+      </div>
+      <div class="modal-field">
+        <label>Property Type</label>
+        <select id="wdt-new-type">
+          <option value="">—</option>
+          <option>BTO</option><option>Resale</option><option>EC</option><option>Condo</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Name</label>
+        <input type="text" id="wdt-new-name" placeholder="Client name">
+      </div>
+      <div class="modal-field">
+        <label>PM</label>
+        <input type="text" id="wdt-new-pm" placeholder="e.g. QUEENIE">
+      </div>
+      <div class="modal-field">
+        <label>Status</label>
+        <select id="wdt-new-status">
+          <option value="ACTIVE">Active</option>
+          <option value="SIGNED">Signed</option>
+          <option value="LAPSED">Lapsed</option>
+        </select>
+      </div>
+      <div class="modal-field span-2">
+        <label>Comments</label>
+        <input type="text" id="wdt-new-comments" placeholder="Optional notes">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" data-action="closeWdtModal">Cancel</button>
+      <button class="btn-modal-save" data-action="saveWdtRow">Add Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SIGNED ADD MODAL ══ -->
+<div class="modal-overlay" id="signed-add-modal">
+  <div class="modal-box" style="max-width:420px">
+    <button class="modal-close" data-action="closeSignedModal">✕</button>
+    <div class="modal-title">Add Signed Client</div>
+    <div class="modal-grid">
+      <div class="modal-field">
+        <label>Year</label>
+        <input type="number" id="signed-new-year" value="2026" min="2020" max="2030">
+      </div>
+      <div class="modal-field">
+        <label>Name</label>
+        <input type="text" id="signed-new-name" placeholder="Client name">
+      </div>
+      <div class="modal-field">
+        <label>Deposit 1</label>
+        <select id="signed-new-dep1">
+          <option value="">—</option>
+          <option>PAID</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Deposit 2</label>
+        <select id="signed-new-dep2">
+          <option value="">—</option>
+          <option>PAID</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" data-action="closeSignedModal">Cancel</button>
+      <button class="btn-modal-save" data-action="saveSignedRow">Add Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD ROW MODAL ══ -->
+<div class="modal-overlay" id="new-row-modal">
+  <div class="modal-box">
+    <button class="modal-close" data-action="closeNewRowModal">✕</button>
+    <div class="modal-title">Add New Lead</div>
+    <div class="modal-grid">
+      <div class="modal-field">
+        <label>Date</label>
+        <input type="text" id="new-date" placeholder="e.g. 20 Feb 2026">
+      </div>
+      <div class="modal-field">
+        <label>Source</label>
+        <input type="text" id="new-source" placeholder="e.g. Ad">
+      </div>
+      <div class="modal-field">
+        <label>Phone</label>
+        <input type="text" id="new-phone" placeholder="e.g. 91234567">
+      </div>
+      <div class="modal-field">
+        <label>Property Type</label>
+        <select id="new-type">
+          <option value="">— Select —</option>
+          <option>BTO</option>
+          <option>Resale</option>
+          <option>Condo</option>
+          <option>EC</option>
+          <option>Resale</option>
+          <option>Bungalow</option>
+          <option>Current</option>
+        </select>
+      </div>
+      <div class="modal-field span-2">
+        <label>Name *</label>
+        <input type="text" id="new-name" placeholder="Customer name">
+      </div>
+      <div class="modal-field span-2">
+        <label>Comments</label>
+        <input type="text" id="new-comments" placeholder="Any notes…">
+      </div>
+      <div class="modal-field">
+        <label>Final Status</label>
+        <select id="new-status">
+          <option value="ACTIVE">Active</option>
+          <option value="LAPSED">Lapsed</option>
+          <option value="SIGNED">Signed</option>
+          <option value="LONG KEY COLLECTION">Long Key Collection</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Stage</label>
+        <select id="new-stage">
+          <option value="New Lead">New Lead</option>
+          <option value="Responsive">Responsive</option>
+          <option value="GC Created">GC Created</option>
+          <option value="1st Meeting">1st Meeting</option>
+          <option value="2D">2D</option>
+          <option value="Quotation">Quotation</option>
+          <option value="2nd Meeting">2nd Meeting</option>
+          <option value="Revised 2D">Revised 2D</option>
+          <option value="Revised Quotation">Revised Quotation</option>
+          <option value="Site Visit">Site Visit</option>
+          <option value="1st Deposit">1st Deposit</option>
+          <option value="2nd Deposit">2nd Deposit</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" data-action="closeNewRowModal">Cancel</button>
+      <button class="btn-modal-save" data-action="saveNewRow">Add Lead</button>
+    </div>
+  </div>
+</div>
+
+
+  <script src="leads.js"></script>
+</body>
+</html>
