@@ -1434,8 +1434,38 @@ async function supabaseUpdateCell(table, rowId, fieldName, value, colMap) {
   else { showSyncStatus('Saved ✓', 'success'); }
 }
 
+// ── CSP-safe filter bindings (no inline handlers required) ──
+function bindFilterListeners() {
+  const bindings = [
+    ['pipeline-search', 'input', filterPipeline],
+    ['pipeline-pm-filter', 'change', filterPipeline],
+    ['pipeline-type-filter', 'change', filterPipeline],
+    ['prog-search', 'input', filterProgression],
+    ['prog-status-filter', 'change', filterProgression],
+    ['prog-pm-filter', 'change', filterProgression],
+    ['master-search', 'input', filterMaster],
+    ['master-type-filter', 'change', filterMaster],
+    ['wdt-pipeline-search', 'input', filterWdtPipeline],
+    ['wdt-pipeline-pm-filter', 'change', filterWdtPipeline],
+    ['wdt-pipeline-type-filter', 'change', filterWdtPipeline],
+    ['wdt-prog-search', 'input', filterWdtProgression],
+    ['wdt-prog-status-filter', 'change', filterWdtProgression],
+    ['wdt-prog-pm-filter', 'change', filterWdtProgression],
+    ['wdt-master-search', 'input', filterWdtMaster],
+    ['wdt-master-type-filter', 'change', filterWdtMaster],
+  ];
+
+  bindings.forEach(([id, eventName, handler]) => {
+    const el = document.getElementById(id);
+    if (!el || el.dataset.bound === 'true') return;
+    el.addEventListener(eventName, handler);
+    el.dataset.bound = 'true';
+  });
+}
+
 // ── Boot ──────────────────────────────────────────────
 (async function boot() {
+  bindFilterListeners();
   await loadFromSupabase();
   initPipeline();
   initProgression();
