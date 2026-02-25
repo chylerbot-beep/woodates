@@ -109,17 +109,25 @@ function applyPipelineSectionVisibility() {
 }
 
 function initPipeline() {
+  const pmSel = document.getElementById('pipeline-pm-filter');
+  const prevPm = pmSel.value;
+  while(pmSel.options.length > 1) pmSel.remove(1);
   const pms = [...new Set(CHYLER_DATA.map(r=>r.PM).filter(Boolean))].sort();
   pms.forEach(pm => {
     const o=document.createElement('option'); o.value=pm; o.textContent=pm;
-    document.getElementById('pipeline-pm-filter').appendChild(o);
+    pmSel.appendChild(o);
   });
+  pmSel.value = prevPm;
+  const typeSel = document.getElementById('pipeline-type-filter');
+  const prevType = typeSel.value;
+  while(typeSel.options.length > 1) typeSel.remove(1);
   const types = [...new Set(CHYLER_DATA.map(r=>r.Type).filter(Boolean))].sort();
   types.forEach(t => {
     const o=document.createElement('option'); o.value=t; o.textContent=t;
-    document.getElementById('pipeline-type-filter').appendChild(o);
+    typeSel.appendChild(o);
   });
-  renderPipeline(CHYLER_DATA);
+  typeSel.value = prevType;
+  filterPipeline();
 }
 
 function filterPipeline() {
@@ -278,12 +286,16 @@ let progFiltered = [...CHYLER_DATA];
 
 function initProgression() {
   progFiltered = [...CHYLER_DATA];
+  const pmSel = document.getElementById('prog-pm-filter');
+  const prevPm = pmSel.value;
+  while(pmSel.options.length > 1) pmSel.remove(1);
   const pms = [...new Set(CHYLER_DATA.map(r=>r.PM).filter(Boolean))].sort();
   pms.forEach(pm => {
     const o=document.createElement('option'); o.value=pm; o.textContent=pm;
-    document.getElementById('prog-pm-filter').appendChild(o);
+    pmSel.appendChild(o);
   });
-  renderProgression(CHYLER_DATA);
+  pmSel.value = prevPm;
+  filterProgression();
 }
 
 function filterProgression() {
@@ -654,6 +666,7 @@ function openNewRowModal() {
   const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   document.getElementById('new-date').value = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
   document.getElementById('new-source').value = 'Ad';
+  if(window._pmPickers && window._pmPickers['new']) window._pmPickers['new'].reset();
   document.getElementById('new-name').focus();
 }
 function closeNewRowModal() {
@@ -671,7 +684,8 @@ function saveNewRow() {
     Phone: document.getElementById('new-phone').value||'',
     Type: document.getElementById('new-type').value||null,
     Name: name,
-    'Responsive?': null,'GC created': null, PM: null,
+    'Responsive?': null,'GC created': null,
+    PM: (window._pmPickers && window._pmPickers['new']) ? window._pmPickers['new'].getValue() || null : null,
     '1st meet': null,'2D': null,'Quotation': null,
     '2nd meet': null,'Revised 2D': null,'Revised Quotation': null,
     'Site visit': null,
@@ -769,17 +783,25 @@ function switchWdtView(view, el) {
 
 // ── WDT PIPELINE ──
 function initWdtPipeline() {
+  const pmSel = document.getElementById('wdt-pipeline-pm-filter');
+  const prevPm = pmSel.value;
+  while(pmSel.options.length > 1) pmSel.remove(1);
   const pms = [...new Set(WDT_DATA.map(r=>r.PM).filter(Boolean))].sort();
   pms.forEach(pm => {
     const o=document.createElement('option'); o.value=pm; o.textContent=pm;
-    document.getElementById('wdt-pipeline-pm-filter').appendChild(o);
+    pmSel.appendChild(o);
   });
+  pmSel.value = prevPm;
+  const typeSel = document.getElementById('wdt-pipeline-type-filter');
+  const prevType = typeSel.value;
+  while(typeSel.options.length > 1) typeSel.remove(1);
   const types = [...new Set(WDT_DATA.map(r=>r.Type).filter(Boolean))].sort();
   types.forEach(t => {
     const o=document.createElement('option'); o.value=t; o.textContent=t;
-    document.getElementById('wdt-pipeline-type-filter').appendChild(o);
+    typeSel.appendChild(o);
   });
-  renderWdtPipeline(WDT_DATA);
+  typeSel.value = prevType;
+  filterWdtPipeline();
 }
 
 function setWdtPipelineFilter(status, el) {
@@ -902,12 +924,16 @@ function wdtCard(r, cls) {
 // ── WDT PROGRESSION ──
 function initWdtProgression() {
   wdtProgFiltered = [...WDT_DATA];
+  const pmSel = document.getElementById('wdt-prog-pm-filter');
+  const prevPm = pmSel.value;
+  while(pmSel.options.length > 1) pmSel.remove(1);
   const pms = [...new Set(WDT_DATA.map(r=>r.PM).filter(Boolean))].sort();
   pms.forEach(pm => {
     const o=document.createElement('option'); o.value=pm; o.textContent=pm;
-    document.getElementById('wdt-prog-pm-filter').appendChild(o);
+    pmSel.appendChild(o);
   });
-  renderWdtProgression(WDT_DATA);
+  pmSel.value = prevPm;
+  filterWdtProgression();
 }
 
 function filterWdtProgression() {
@@ -1062,6 +1088,7 @@ function openWdtModal() {
   document.getElementById('wdt-row-modal').classList.add('open');
   const now=new Date(); const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   document.getElementById('wdt-new-date').value=`${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  if(window._pmPickers && window._pmPickers['wdt']) window._pmPickers['wdt'].reset();
 }
 function closeWdtModal() { document.getElementById('wdt-row-modal').classList.remove('open'); }
 function saveWdtRow() {
@@ -1075,7 +1102,7 @@ function saveWdtRow() {
     Type:document.getElementById('wdt-new-type').value||null,
     Name:name,
     'Responsive?':null,'GC created':null,
-    PM:document.getElementById('wdt-new-pm').value||null,
+    PM:(window._pmPickers && window._pmPickers['wdt']) ? window._pmPickers['wdt'].getValue() || null : null,
     '1st meet':null,'2D':null,'Quotation':null,
     '2nd meet':null,'Revised 2D':null,'Revised Quotation':null,'Site visit':null,
     Comments:document.getElementById('wdt-new-comments').value||null,
@@ -1437,11 +1464,102 @@ async function supabaseUpdateCell(table, rowId, fieldName, value, colMap) {
   initWdtProgression();
   initWdtMaster();
   renderSigned();
+  initAllPmPickers();
 })();
 
+// ── PM MULTI-PICKER (up to 2) ──────────────────────────────
+const ALL_PMS = ['QUEENIE','XUEQI','PENGFEI','SHAN','BOSS CHONG','DANIEL','SHELA'];
+
+function initPmPicker(pickerId, displayId, listId, hiddenId) {
+  const display = document.getElementById(displayId);
+  const list = document.getElementById(listId);
+  const hidden = document.getElementById(hiddenId);
+  let selected = [];
+
+  function renderDisplay() {
+    if(selected.length === 0) {
+      display.innerHTML = '<span class="pm-placeholder">— Select PM —</span>';
+    } else {
+      display.innerHTML = selected.map(pm =>
+        `<span class="pm-tag-chip">${pm}<span class="chip-remove" data-pm="${pm}" data-pickerid="${pickerId}">✕</span></span>`
+      ).join('');
+    }
+    hidden.value = selected.join(', ');
+    list.querySelectorAll('.pm-option').forEach(opt => {
+      const pm = opt.dataset.pm;
+      const isSel = selected.includes(pm);
+      const isDisabled = !isSel && selected.length >= 2;
+      opt.classList.toggle('selected', isSel);
+      opt.classList.toggle('disabled', isDisabled);
+      opt.querySelector('.pm-check').textContent = isSel ? '✓' : '';
+    });
+  }
+
+  list.innerHTML = ALL_PMS.map(pm =>
+    `<div class="pm-option" data-pm="${pm}" data-pickerid="${pickerId}"><span class="pm-check"></span>${pm}</div>`
+  ).join('');
+
+  display.addEventListener('click', (e) => {
+    if(e.target.classList.contains('chip-remove')) return;
+    const isOpen = list.classList.contains('open');
+    document.querySelectorAll('.pm-dropdown-list.open').forEach(l => l.classList.remove('open'));
+    document.querySelectorAll('.pm-selected-display.open').forEach(d => d.classList.remove('open'));
+    if(!isOpen) { display.classList.add('open'); list.classList.add('open'); }
+    e.stopPropagation();
+  });
+
+  list.addEventListener('click', (e) => {
+    const opt = e.target.closest('.pm-option');
+    if(!opt || opt.classList.contains('disabled')) return;
+    const pm = opt.dataset.pm;
+    if(selected.includes(pm)) {
+      selected = selected.filter(p => p !== pm);
+    } else if(selected.length < 2) {
+      selected.push(pm);
+    }
+    renderDisplay();
+    e.stopPropagation();
+  });
+
+  renderDisplay();
+
+  const api = {
+    reset() { selected = []; renderDisplay(); },
+    getValue() { return selected.join(', '); },
+    setValue(val) {
+      selected = val ? val.split(',').map(s=>s.trim()).filter(Boolean).slice(0,2) : [];
+      renderDisplay();
+    }
+  };
+  if(!window._pmPickers) window._pmPickers = {};
+  window._pmPickers[pickerId] = api;
+  return api;
+}
+
+function initAllPmPickers() {
+  initPmPicker('new', 'new-pm-display', 'new-pm-list', 'new-pm-value');
+  initPmPicker('wdt', 'wdt-new-pm-display', 'wdt-new-pm-list', 'wdt-new-pm-value');
+}
 
     // Event delegation - replaces all onclick attributes
     document.addEventListener('click', function(e) {
+        // Handle PM chip removal
+        if(e.target.classList.contains('chip-remove')) {
+          const pm = e.target.dataset.pm;
+          const pickerId = e.target.dataset.pickerid;
+          const picker = window._pmPickers && window._pmPickers[pickerId];
+          if(picker) {
+            const cur = picker.getValue().split(',').map(s=>s.trim()).filter(Boolean);
+            picker.setValue(cur.filter(p=>p!==pm).join(','));
+          }
+          e.stopPropagation();
+          return;
+        }
+        // Close PM dropdowns on outside click
+        if(!e.target.closest('.pm-picker')) {
+          document.querySelectorAll('.pm-dropdown-list.open').forEach(l => l.classList.remove('open'));
+          document.querySelectorAll('.pm-selected-display.open').forEach(d => d.classList.remove('open'));
+        }
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
         const action = btn.dataset.action;

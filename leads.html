@@ -753,7 +753,73 @@
     line-height: 1;
     transition: color 0.2s;
   }
-  .modal-close:hover { color: var(--dark); }
+  /* ── PM PICKER ── */
+  .pm-picker { position: relative; }
+  .pm-selected-display {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: var(--dark);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    min-height: 40px;
+    transition: border-color 0.2s;
+  }
+  .pm-selected-display:hover { border-color: var(--active); }
+  .pm-selected-display.open { border-color: var(--active); background: var(--white); }
+  .pm-tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #F0EDF8;
+    color: #7A5FA0;
+    border: 1px solid #D8CEED;
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .pm-tag-chip .chip-remove { cursor: pointer; font-size: 0.7rem; opacity: 0.7; }
+  .pm-tag-chip .chip-remove:hover { opacity: 1; }
+  .pm-placeholder { color: var(--muted); }
+  .pm-dropdown-list {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: var(--white);
+    border: 1px solid var(--active-border);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    z-index: 500;
+    overflow: hidden;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .pm-dropdown-list.open { display: block; }
+  .pm-option {
+    padding: 9px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.15s;
+    color: var(--dark);
+  }
+  .pm-option:hover { background: var(--cream); }
+  .pm-option.selected { background: var(--active-bg); color: var(--active); font-weight: 600; }
+  .pm-option.disabled { opacity: 0.4; cursor: not-allowed; }
+  .pm-option .pm-check { width: 16px; height: 16px; border-radius: 4px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; }
+  .pm-option.selected .pm-check { background: var(--active); border-color: var(--active); color: white; }
 </style>
 </head>
 <body>
@@ -1216,8 +1282,12 @@
         <input type="text" id="wdt-new-name" placeholder="Client name">
       </div>
       <div class="modal-field">
-        <label>PM</label>
-        <input type="text" id="wdt-new-pm" placeholder="e.g. QUEENIE">
+        <label>PM <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#aaa">(up to 2)</span></label>
+        <div id="wdt-new-pm-picker" class="pm-picker">
+          <div class="pm-selected-display" id="wdt-new-pm-display">— Select PM —</div>
+          <div class="pm-dropdown-list" id="wdt-new-pm-list"></div>
+        </div>
+        <input type="hidden" id="wdt-new-pm-value">
       </div>
       <div class="modal-field">
         <label>Status</label>
@@ -1313,6 +1383,14 @@
       <div class="modal-field span-2">
         <label>Comments</label>
         <input type="text" id="new-comments" placeholder="Any notes…">
+      </div>
+      <div class="modal-field">
+        <label>PM <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#aaa">(up to 2)</span></label>
+        <div id="new-pm-picker" class="pm-picker">
+          <div class="pm-selected-display" id="new-pm-display">— Select PM —</div>
+          <div class="pm-dropdown-list" id="new-pm-list"></div>
+        </div>
+        <input type="hidden" id="new-pm-value">
       </div>
       <div class="modal-field">
         <label>Final Status</label>
