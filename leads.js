@@ -272,6 +272,15 @@ function lapsedCard(r) {
   </div>`;
 }
 
+function normalizeStatus(raw, fallback = 'ACTIVE') {
+  const v = String(raw || '').trim().toUpperCase();
+  if (!v) return fallback;
+  if (v === 'LONG' || v === 'LONG KEY' || v === 'KEY COLLECTION') return 'LONG KEY COLLECTION';
+  if (v === 'LONG KEY COLLECTION') return 'LONG KEY COLLECTION';
+  if (v === 'ACTIVE' || v === 'SIGNED' || v === 'LAPSED') return v;
+  return v;
+}
+
 // ── PROGRESSION ──
 let progFiltered = [...CHYLER_DATA];
 
@@ -286,11 +295,12 @@ function initProgression() {
 
 function filterProgression() {
   const q = document.getElementById('prog-search').value.toLowerCase();
-  const st = document.getElementById('prog-status-filter').value;
+  const st = normalizeStatus(document.getElementById('prog-status-filter').value, '');
   const pm = document.getElementById('prog-pm-filter').value;
   progFiltered = CHYLER_DATA.filter(r => {
-    const matchQ = !q || [r.Name, r.Phone+'', r.PM, r.Comments, r.Type, r['FINAL STATUS']].some(v=>v&&v.toLowerCase().includes(q));
-    return matchQ && (!st||r['FINAL STATUS']===st) && (!pm||r.PM===pm);
+    const normalizedStatus = normalizeStatus(r['FINAL STATUS'], '');
+    const matchQ = !q || [r.Name, r.Phone+'', r.PM, r.Comments, r.Type, normalizedStatus].some(v=>v&&String(v).toLowerCase().includes(q));
+    return matchQ && (!st||normalizedStatus===st) && (!pm||r.PM===pm);
   });
   renderProgression(progFiltered);
 }
@@ -328,7 +338,7 @@ function renderProgression(data) {
   }
 
   document.getElementById('prog-tbody').innerHTML = data.map(r => {
-    const st=r['FINAL STATUS'];
+    const st=normalizeStatus(r['FINAL STATUS'], '');
     const stClass=st==='LONG KEY COLLECTION'?'LONG':st;
     const stLabel=st==='LONG KEY COLLECTION'?'Key Collection':st;
     const editable = editMode ? 'contenteditable="true"' : '';
@@ -720,9 +730,9 @@ const WDT_MASTER = [
 
 // Derive status from data
 function getWdtStatus(r) {
-  if(r.Status) return r.Status;
+  if(r.Status) return normalizeStatus(r.Status);
   if(r['1st Deposit']) return 'SIGNED';
-  if(r['Responsive?']==='YES') return 'ACTIVE';
+  if(String(r['Responsive?']||'').toUpperCase()==='YES') return 'ACTIVE';
   return 'ACTIVE';
 }
 
@@ -910,12 +920,12 @@ function initWdtProgression() {
 
 function filterWdtProgression() {
   const q = (document.getElementById('wdt-prog-search').value||'').toLowerCase();
-  const status = document.getElementById('wdt-prog-status-filter').value;
+  const status = normalizeStatus(document.getElementById('wdt-prog-status-filter').value, '');
   const pm = document.getElementById('wdt-prog-pm-filter').value;
   wdtProgFiltered = WDT_DATA.filter(r => {
     if(status && getWdtStatus(r)!==status) return false;
     if(pm && r.PM!==pm) return false;
-    if(q && ![r.Name,r.Phone,r.PM,r.Type,r.Status].some(v=>v&&String(v).toLowerCase().includes(q))) return false;
+    if(q && ![r.Name,r.Phone,r.PM,r.Type,getWdtStatus(r)].some(v=>v&&String(v).toLowerCase().includes(q))) return false;
     return true;
   });
   renderWdtProgression(wdtProgFiltered);
@@ -1110,6 +1120,18 @@ function depositBadge(v) {
   return `<span class="status-badge SIGNED" style="border-radius:6px">✓ ${esc(v)}</span>`;
 }
 
+let signedCurrentFilter = 'ALL';
+
+function setSignedFilter(filter, el) {
+  signedCurrentFilter = filter || 'ALL';
+  const wrap = document.getElementById('signed-stat-row');
+  if (wrap) {
+    wrap.querySelectorAll('.stat-pill').forEach(p => p.classList.remove('is-active'));
+    if (el) el.classList.add('is-active');
+  }
+  renderSigned();
+}
+
 function renderSigned() {
   const years = [...new Set(SIGNED_DATA.map(r=>r.Year))].sort();
   
@@ -1119,16 +1141,24 @@ function renderSigned() {
   const one = SIGNED_DATA.filter(r=>r['Deposit 1']&&!r['Deposit 2']).length;
   const pending = SIGNED_DATA.filter(r=>!r['Deposit 1']).length;
   document.getElementById('signed-stat-row').innerHTML = `
-    <div class="stat-pill s-total"><span class="count">${total}</span>Total</div>
-    <div class="stat-pill s-signed"><span class="count">${both}</span>Both Deposits</div>
-    <div class="stat-pill s-active"><span class="count">${one}</span>Deposit 1 Only</div>
-    <div class="stat-pill s-lapsed"><span class="count">${pending}</span>Pending</div>
+    <div class="stat-pill s-total ${signedCurrentFilter==='ALL'?'is-active':''}" data-action="setSignedFilter" data-filter="ALL" style="cursor:pointer"><span class="count">${total}</span>Total</div>
+    <div class="stat-pill s-signed ${signedCurrentFilter==='BOTH'?'is-active':''}" data-action="setSignedFilter" data-filter="BOTH" style="cursor:pointer"><span class="count">${both}</span>Both Deposits</div>
+    <div class="stat-pill s-active ${signedCurrentFilter==='ONE'?'is-active':''}" data-action="setSignedFilter" data-filter="ONE" style="cursor:pointer"><span class="count">${one}</span>Deposit 1 Only</div>
+    <div class="stat-pill s-lapsed ${signedCurrentFilter==='PENDING'?'is-active':''}" data-action="setSignedFilter" data-filter="PENDING" style="cursor:pointer"><span class="count">${pending}</span>Pending</div>
   `;
+
+  const filtered = SIGNED_DATA.filter(r => {
+    if (signedCurrentFilter === 'BOTH') return !!r['Deposit 1'] && !!r['Deposit 2'];
+    if (signedCurrentFilter === 'ONE') return !!r['Deposit 1'] && !r['Deposit 2'];
+    if (signedCurrentFilter === 'PENDING') return !r['Deposit 1'];
+    return true;
+  });
 
   let html = '';
   let idx = 1;
   years.forEach(year => {
-    const group = SIGNED_DATA.filter(r=>r.Year===year);
+    const group = filtered.filter(r=>r.Year===year);
+    if (!group.length) return;
     html += `<tr><td colspan="5" class="master-section-header signed-header">${year}</td></tr>`;
     group.forEach((r, gi) => {
       const rowId = r.id || (year * 1000 + gi);
@@ -1150,6 +1180,7 @@ function renderSigned() {
       </tr>`;
     });
   });
+  if (!html) html = '<tr><td colspan="5" class="no-data">No clients in this filter.</td></tr>';
   document.getElementById('signed-tbody').innerHTML = html;
 }
 
@@ -1424,8 +1455,38 @@ async function supabaseUpdateCell(table, rowId, fieldName, value, colMap) {
   else { showSyncStatus('Saved ✓', 'success'); }
 }
 
+// ── CSP-safe filter bindings (no inline handlers required) ──
+function bindFilterListeners() {
+  const bindings = [
+    ['pipeline-search', 'input', filterPipeline],
+    ['pipeline-pm-filter', 'change', filterPipeline],
+    ['pipeline-type-filter', 'change', filterPipeline],
+    ['prog-search', 'input', filterProgression],
+    ['prog-status-filter', 'change', filterProgression],
+    ['prog-pm-filter', 'change', filterProgression],
+    ['master-search', 'input', filterMaster],
+    ['master-type-filter', 'change', filterMaster],
+    ['wdt-pipeline-search', 'input', filterWdtPipeline],
+    ['wdt-pipeline-pm-filter', 'change', filterWdtPipeline],
+    ['wdt-pipeline-type-filter', 'change', filterWdtPipeline],
+    ['wdt-prog-search', 'input', filterWdtProgression],
+    ['wdt-prog-status-filter', 'change', filterWdtProgression],
+    ['wdt-prog-pm-filter', 'change', filterWdtProgression],
+    ['wdt-master-search', 'input', filterWdtMaster],
+    ['wdt-master-type-filter', 'change', filterWdtMaster],
+  ];
+
+  bindings.forEach(([id, eventName, handler]) => {
+    const el = document.getElementById(id);
+    if (!el || el.dataset.bound === 'true') return;
+    el.addEventListener(eventName, handler);
+    el.dataset.bound = 'true';
+  });
+}
+
 // ── Boot ──────────────────────────────────────────────
 (async function boot() {
+  bindFilterListeners();
   await loadFromSupabase();
   initPipeline();
   initProgression();
@@ -1458,6 +1519,7 @@ async function supabaseUpdateCell(table, rowId, fieldName, value, colMap) {
         else if (action === 'toggleSignedEditMode') toggleSignedEditMode();
         else if (action === 'downloadSignedExcel') downloadSignedExcel();
         else if (action === 'openSignedModal') openSignedModal();
+        else if (action === 'setSignedFilter') setSignedFilter(filter, btn);
         else if (action === 'closeWdtModal') closeWdtModal();
         else if (action === 'saveWdtRow') saveWdtRow();
         else if (action === 'closeSignedModal') closeSignedModal();
