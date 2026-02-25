@@ -142,23 +142,23 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
     <a href="/" class="home-btn">← Home</a>
   </div>
   <nav class="main-nav">
-    <div class="main-tab active" onclick="switchMain('chyler',this)">Chyler Leads</div>
-    <div class="main-tab" onclick="switchMain('woodates',this)">Woodates Leads</div>
-    <div class="main-tab" onclick="switchMain('signed',this)">Chyler Signed</div>
+    <div class="main-tab active">Chyler Leads</div>
+    <div class="main-tab">Woodates Leads</div>
+    <div class="main-tab">Chyler Signed</div>
   </nav>
 </header>
 
 <!-- CHYLER SUB NAV -->
 <div id="subnav-chyler" class="sub-nav">
-  <div class="sub-tab active" onclick="switchChylerTab('pipeline',this)">Pipeline</div>
-  <div class="sub-tab" onclick="switchChylerTab('progression',this)">Progression</div>
-  <div class="sub-tab" onclick="switchChylerTab('master',this)">Master List</div>
+  <div class="sub-tab active">Pipeline</div>
+  <div class="sub-tab">Progression</div>
+  <div class="sub-tab">Master List</div>
 </div>
 <!-- WOODATES SUB NAV -->
 <div id="subnav-woodates" class="sub-nav" style="display:none">
-  <div class="sub-tab active" onclick="switchWdtTab('wdt-pipeline',this)">Pipeline</div>
-  <div class="sub-tab" onclick="switchWdtTab('wdt-progression',this)">Progression</div>
-  <div class="sub-tab" onclick="switchWdtTab('wdt-master',this)">Master List</div>
+  <div class="sub-tab active">Pipeline</div>
+  <div class="sub-tab">Progression</div>
+  <div class="sub-tab">Master List</div>
 </div>
 
 <!-- ═══════════════════════════════════ CHYLER PIPELINE ═══ -->
@@ -167,15 +167,15 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
     <div><div class="page-title">Pipeline</div><div class="page-sub">Live status overview</div></div>
   </div>
   <div class="filters">
-    <input class="search-box" id="pl-search" placeholder="Search name, phone, PM…" oninput="renderPipeline()">
-    <select class="filter-select" id="pl-pm" onchange="renderPipeline()"><option value="">All PMs</option></select>
+    <input class="search-box" id="pl-search" placeholder="Search name, phone, PM…">
+    <select class="filter-select" id="pl-pm"><option value="">All PMs</option></select>
   </div>
   <div class="pills">
-    <div class="pill pill-all active" onclick="setPillFilter('pl','ALL',this)">All</div>
-    <div class="pill pill-active" onclick="setPillFilter('pl','ACTIVE',this)">Active</div>
-    <div class="pill pill-signed" onclick="setPillFilter('pl','SIGNED',this)">Signed</div>
-    <div class="pill pill-lapsed" onclick="setPillFilter('pl','LAPSED',this)">Lapsed</div>
-    <div class="pill pill-keyco" onclick="setPillFilter('pl','LONG KEY COLLECTION',this)">Key Collection</div>
+    <div class="pill pill-all active">All</div>
+    <div class="pill pill-active">Active</div>
+    <div class="pill pill-signed">Signed</div>
+    <div class="pill pill-lapsed">Lapsed</div>
+    <div class="pill pill-keyco">Key Collection</div>
   </div>
   <div id="pipeline-content"></div>
 </div>
@@ -185,19 +185,19 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
   <div class="page-header">
     <div><div class="page-title">Progression</div><div class="page-sub">Full pipeline tracking — all columns A–T</div></div>
     <div class="header-actions">
-      <button class="btn btn-green" onclick="downloadCSV('chyler')">⬇ Download Excel</button>
+      <button class="btn btn-green">⬇ Download Excel</button>
     </div>
   </div>
   <div class="filters">
-    <input class="search-box" id="prog-search" placeholder="Search name, phone, PM, status…" oninput="renderProgression()">
-    <select class="filter-select" id="prog-status" onchange="renderProgression()">
+    <input class="search-box" id="prog-search" placeholder="Search name, phone, PM, status…">
+    <select class="filter-select" id="prog-status">
       <option value="">All Statuses</option>
       <option value="ACTIVE">Active</option>
       <option value="SIGNED">Signed</option>
       <option value="LAPSED">Lapsed</option>
       <option value="LONG KEY COLLECTION">Long Key Collection</option>
     </select>
-    <select class="filter-select" id="prog-pm" onchange="renderProgression()"><option value="">All PMs</option></select>
+    <select class="filter-select" id="prog-pm"><option value="">All PMs</option></select>
   </div>
   <div class="table-wrap">
     <table>
@@ -218,8 +218,8 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
     <div><div class="page-title">Master List</div><div class="page-sub">All Chyler leads</div></div>
   </div>
   <div class="filters">
-    <input class="search-box" id="master-search" placeholder="Search name, phone…" oninput="renderMaster()">
-    <select class="filter-select" id="master-type" onchange="renderMaster()"><option value="">All Types</option></select>
+    <input class="search-box" id="master-search" placeholder="Search name, phone…">
+    <select class="filter-select" id="master-type"><option value="">All Types</option></select>
   </div>
   <div class="table-wrap">
     <table>
@@ -235,8 +235,8 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
     <div><div class="page-title">Pipeline</div><div class="page-sub">Woodates company leads</div></div>
   </div>
   <div class="filters">
-    <input class="search-box" id="wpl-search" placeholder="Search name, phone, PM…" oninput="renderWdtPipeline()">
-    <select class="filter-select" id="wpl-pm" onchange="renderWdtPipeline()"><option value="">All PMs</option></select>
+    <input class="search-box" id="wpl-search" placeholder="Search name, phone, PM…">
+    <select class="filter-select" id="wpl-pm"><option value="">All PMs</option></select>
   </div>
   <div id="wdt-pipeline-content"></div>
 </div>
@@ -246,12 +246,12 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
   <div class="page-header">
     <div><div class="page-title">Progression</div><div class="page-sub">Woodates leads tracking</div></div>
     <div class="header-actions">
-      <button class="btn btn-green" onclick="downloadCSV('woodates')">⬇ Download Excel</button>
+      <button class="btn btn-green">⬇ Download Excel</button>
     </div>
   </div>
   <div class="filters">
-    <input class="search-box" id="wprog-search" placeholder="Search name, phone, PM…" oninput="renderWdtProgression()">
-    <select class="filter-select" id="wprog-pm" onchange="renderWdtProgression()"><option value="">All PMs</option></select>
+    <input class="search-box" id="wprog-search" placeholder="Search name, phone, PM…">
+    <select class="filter-select" id="wprog-pm"><option value="">All PMs</option></select>
   </div>
   <div class="table-wrap">
     <table>
@@ -272,7 +272,7 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
     <div><div class="page-title">Master List</div><div class="page-sub">Woodates leads</div></div>
   </div>
   <div class="filters">
-    <input class="search-box" id="wmaster-search" placeholder="Search name, phone…" oninput="renderWdtMaster()">
+    <input class="search-box" id="wmaster-search" placeholder="Search name, phone…">
   </div>
   <div class="table-wrap">
     <table>
@@ -287,12 +287,12 @@ tbody td { padding: 9px 12px; vertical-align: middle; }
   <div class="page-header">
     <div><div class="page-title">Chyler × Woodates Signed</div><div class="page-sub">All signed clients</div></div>
     <div class="header-actions">
-      <button class="btn btn-green" onclick="downloadCSV('signed')">⬇ Download Excel</button>
+      <button class="btn btn-green">⬇ Download Excel</button>
     </div>
   </div>
   <div class="filters">
-    <input class="search-box" id="signed-search" placeholder="Search name…" oninput="renderSigned()">
-    <select class="filter-select" id="signed-year" onchange="renderSigned()"><option value="">All Years</option></select>
+    <input class="search-box" id="signed-search" placeholder="Search name…">
+    <select class="filter-select" id="signed-year"><option value="">All Years</option></select>
   </div>
   <div class="table-wrap">
     <table>
