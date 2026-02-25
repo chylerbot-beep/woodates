@@ -277,29 +277,27 @@ let progFiltered = [...CHYLER_DATA];
 
 function initProgression() {
   const pmSel = document.getElementById('prog-pm-filter');
-  const prevPm = pmSel.value;
   while(pmSel.options.length > 1) pmSel.remove(1);
   const pms = [...new Set(CHYLER_DATA.map(r=>r.PM).filter(Boolean))].sort();
   pms.forEach(pm => {
     const o=document.createElement('option'); o.value=pm; o.textContent=pm;
     pmSel.appendChild(o);
   });
-  // Only restore previous PM selection if it still exists in current data
-  pmSel.value = pms.includes(prevPm) ? prevPm : '';
+  pmSel.value = '';
+  document.getElementById('prog-status-filter').value = '';
+  document.getElementById('prog-search').value = '';
   filterProgression();
 }
 
 function filterProgression() {
-  const q = (document.getElementById('prog-search').value || '').toLowerCase();
-  const st = (document.getElementById('prog-status-filter').value || '').toUpperCase().trim();
-  const pm = (document.getElementById('prog-pm-filter').value || '').trim();
+  const q  = document.getElementById('prog-search').value.trim().toLowerCase();
+  const st = document.getElementById('prog-status-filter').value.trim();
+  const pm = document.getElementById('prog-pm-filter').value.trim();
   progFiltered = CHYLER_DATA.filter(r => {
-    const matchQ = !q || [r.Name, String(r.Phone||''), r.PM, r.Comments, r.Type, r['FINAL STATUS']].some(v=>v&&String(v).toLowerCase().includes(q));
-    const rowStatus = String(r['FINAL STATUS'] || '').toUpperCase().trim();
-    const matchSt = !st || rowStatus === st;
-    const rowPM = String(r.PM || '').trim();
-    const matchPm = !pm || rowPM === pm;
-    return matchQ && matchSt && matchPm;
+    if (q && ![r.Name, r.Phone, r.PM, r.Comments, r.Type, r['FINAL STATUS']].some(v => v && String(v).toLowerCase().includes(q))) return false;
+    if (st && (r['FINAL STATUS'] || '').toUpperCase().trim() !== st) return false;
+    if (pm && (r.PM || '').trim() !== pm) return false;
+    return true;
   });
   renderProgression(progFiltered);
 }
@@ -645,9 +643,9 @@ function switchSubTab(tab, el) {
   el.setAttribute('data-tab', tab);
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+tab).classList.add('active');
-  if(tab === 'progression') { initProgression(); }
-  else if(tab === 'pipeline') { filterPipeline(); }
-  else if(tab === 'master') { filterMaster(); }
+  if (tab === 'progression') initProgression();
+  else if (tab === 'pipeline') filterPipeline();
+  else if (tab === 'master') filterMaster();
 }
 
 function toggleSection(id, btn) {
@@ -1389,13 +1387,6 @@ async function loadFromSupabase() {
     if(wl.data?.length) { WDT_DATA.length=0;    wl.data.forEach(r=>WDT_DATA.push(dbToWdt(r))); }
     if(cs.data?.length) { SIGNED_DATA.length=0;  cs.data.forEach(r=>SIGNED_DATA.push(dbToSigned(r))); }
     showSyncStatus("Synced ✓", "success");
-    // DEBUG: log first few raw Supabase rows to console
-    if(cl.data?.length) {
-      console.log("[DEBUG] First 3 raw Supabase rows:", JSON.stringify(cl.data.slice(0,3), null, 2));
-      console.log("[DEBUG] First 3 mapped CHYLER_DATA rows:", JSON.stringify(CHYLER_DATA.slice(0,3), null, 2));
-      const statuses = [...new Set(CHYLER_DATA.map(r=>r["FINAL STATUS"]))];
-      console.log("[DEBUG] All unique FINAL STATUS values:", JSON.stringify(statuses));
-    }
     return true;
   } catch(e) {
     showSyncStatus('Offline — using local data', 'error');
