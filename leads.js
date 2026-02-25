@@ -90,7 +90,7 @@ function setPipelineFilter(status, el) {
   currentPipelineFilter = status;
   document.querySelectorAll('.status-filter-pill').forEach(p => p.classList.remove('selected'));
   el.classList.add('selected');
-  applyPipelineSectionVisibility();
+  filterPipeline();
 }
 
 function applyPipelineSectionVisibility() {
@@ -126,10 +126,11 @@ function filterPipeline() {
   const q = document.getElementById('pipeline-search').value.toLowerCase();
   const pm = document.getElementById('pipeline-pm-filter').value;
   const type = document.getElementById('pipeline-type-filter').value;
-  renderPipeline(CHYLER_DATA.filter(r => {
-    const matchQ = !q || [r.Name, r.Phone+'', r.PM, r.Comments, r.Type].some(v=>v&&v.toLowerCase().includes(q));
+  const filtered = CHYLER_DATA.filter(r => {
+    const matchQ = !q || [r.Name, r.Phone+'', r.PM, r.Comments, r.Type].some(v=>v&&String(v).toLowerCase().includes(q));
     return matchQ && (!pm||r.PM===pm) && (!type||r.Type===type);
-  }));
+  });
+  renderPipeline(filtered);
 }
 
 function renderPipeline(data) {
@@ -276,6 +277,7 @@ function lapsedCard(r) {
 let progFiltered = [...CHYLER_DATA];
 
 function initProgression() {
+  progFiltered = [...CHYLER_DATA];
   const pms = [...new Set(CHYLER_DATA.map(r=>r.PM).filter(Boolean))].sort();
   pms.forEach(pm => {
     const o=document.createElement('option'); o.value=pm; o.textContent=pm;
@@ -289,7 +291,7 @@ function filterProgression() {
   const st = document.getElementById('prog-status-filter').value;
   const pm = document.getElementById('prog-pm-filter').value;
   progFiltered = CHYLER_DATA.filter(r => {
-    const matchQ = !q || [r.Name, r.Phone+'', r.PM, r.Comments, r.Type, r['FINAL STATUS']].some(v=>v&&v.toLowerCase().includes(q));
+    const matchQ = !q || [r.Name, String(r.Phone||''), r.PM, r.Comments, r.Type, r['FINAL STATUS']].some(v=>v&&String(v).toLowerCase().includes(q));
     return matchQ && (!st||r['FINAL STATUS']===st) && (!pm||r.PM===pm);
   });
   renderProgression(progFiltered);
@@ -421,8 +423,8 @@ function downloadExcel() {
 
 function downloadWdtExcel() {
   const data = wdtProgFiltered.length ? wdtProgFiltered : WDT_DATA;
-  const cols = ['Number','Date','Phone','Type','Name','Status','stage','Comments','PM','Responsive?','GC created','1st meet','2D','Quotation','2nd meet','Revised 2D','Revised Quotation','Site visit','1st Deposit','2nd Deposit'];
-  const headers = ['#','Date','Phone','Type','Name','Status','Current Stage','Comments','PM','Responsive?','GC Created','1st Meet','2D','1st Quote','2nd Meet','Revised 2D','Revised Quote','Site Visit','1st Deposit','2nd Deposit'];
+  const cols = ['Number','Date','Phone','Type','Name','Status','stage','Comments','PM','Responsive?','GC created','1st meet','2D','Quotation','2nd meet','Revised 2D','Revised Quotation','Site visit','1st Deposit','2nd Deposit','Status'];
+  const headers = ['#','Date','Phone','Type','Name','Status','Current Stage','Comments','PM','Responsive?','GC Created','1st Meet','2D','1st Quote','2nd Meet','Revised 2D','Revised Quote','Site Visit','1st Deposit','2nd Deposit','Final Status'];
 
   let csv = '\uFEFF' + headers.join(',') + '\n';
   data.forEach(r => {
@@ -720,9 +722,8 @@ const WDT_MASTER = [
 
 // Derive status from data
 function getWdtStatus(r) {
-  if(r.Status) return r.Status;
-  if(r['1st Deposit']) return 'SIGNED';
-  if(r['Responsive?']==='YES') return 'ACTIVE';
+  if(r.Status && r.Status !== '') return r.Status;
+  if(r['1st Deposit'] && r['1st Deposit'] !== '') return 'SIGNED';
   return 'ACTIVE';
 }
 
@@ -900,6 +901,7 @@ function wdtCard(r, cls) {
 
 // ── WDT PROGRESSION ──
 function initWdtProgression() {
+  wdtProgFiltered = [...WDT_DATA];
   const pms = [...new Set(WDT_DATA.map(r=>r.PM).filter(Boolean))].sort();
   pms.forEach(pm => {
     const o=document.createElement('option'); o.value=pm; o.textContent=pm;
@@ -915,7 +917,7 @@ function filterWdtProgression() {
   wdtProgFiltered = WDT_DATA.filter(r => {
     if(status && getWdtStatus(r)!==status) return false;
     if(pm && r.PM!==pm) return false;
-    if(q && ![r.Name,r.Phone,r.PM,r.Type,r.Status].some(v=>v&&String(v).toLowerCase().includes(q))) return false;
+    if(q && ![r.Name,String(r.Phone||''),r.PM,r.Type,r.Status,r.Comments].some(v=>v&&String(v).toLowerCase().includes(q))) return false;
     return true;
   });
   renderWdtProgression(wdtProgFiltered);
@@ -993,6 +995,7 @@ function renderWdtProgression(data) {
       <td>${stepCell(r,'Site visit')}</td>
       <td>${stepCell(r,'1st Deposit')}</td>
       <td>${stepCell(r,'2nd Deposit')}</td>
+      <td><span class="status-badge ${status}">${status === 'ACTIVE' ? 'Active' : status === 'SIGNED' ? 'Signed' : status === 'LAPSED' ? 'Lapsed' : status}</span></td>
     </tr>`;
   }).join('');
 }
