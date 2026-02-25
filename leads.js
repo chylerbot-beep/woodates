@@ -6,8 +6,6 @@
     'sb_publishable_tNMpLdZaqm0e-El_LP4kKg_fhfj-ARF'
   );
 
-  // XSS protection: esc() helper is defined below (line ~1404) and used throughout this file
-
   const authChecking = document.getElementById('auth-checking');
   const accessDenied = document.getElementById('access-denied');
 
@@ -30,7 +28,6 @@
       return;
     }
 
-    // Access granted — show the page
     authChecking.style.display = 'none';
     document.body.style.display = 'block';
   } catch(e) {
@@ -62,7 +59,6 @@ function cellVal(v) {
   return esc(v);
 }
 
-// Parse key collection quarter from comments string
 function parseKeyCollectionQuarter(comments) {
   if(!comments) return null;
   const m = comments.match(/Q([1-4])\s+(\d{4})/i);
@@ -70,20 +66,17 @@ function parseKeyCollectionQuarter(comments) {
   return { q: parseInt(m[1]), year: parseInt(m[2]) };
 }
 
-// Is it now 1 quarter before the given Q/year?
 function isReachOutNow(kc) {
   if(!kc) return false;
   const now = new Date();
   const nowQ = Math.floor(now.getMonth() / 3) + 1;
   const nowYear = now.getFullYear();
-  // One quarter before
   let targetQ = kc.q - 1;
   let targetYear = kc.year;
   if(targetQ === 0) { targetQ = 4; targetYear -= 1; }
   return nowQ === targetQ && nowYear === targetYear;
 }
 
-// ── PIPELINE FILTER ──
 let pipelineFiltered = [...CHYLER_DATA];
 
 function setPipelineFilter(status, el) {
@@ -136,28 +129,30 @@ function filterPipeline() {
   const type = document.getElementById('pipeline-type-filter').value;
   const filtered = CHYLER_DATA.filter(r => {
     const matchQ = !q || [r.Name, r.Phone+'', r.PM, r.Comments, r.Type].some(v=>v&&String(v).toLowerCase().includes(q));
-    return matchQ && (!pm||r.PM===pm) && (!type||r.Type===type);
+    const matchStatus = (currentPipelineFilter === 'ALL' || currentPipelineFilter === 'REACHOUT') ||
+                      (String(r['FINAL STATUS']||'').toUpperCase() === currentPipelineFilter.toUpperCase());
+    return matchQ && matchStatus && (!pm||r.PM===pm) && (!type||r.Type===type);
   });
   renderPipeline(filtered);
 }
 
 function renderPipeline(data) {
-  const active=data.filter(r=>r['FINAL STATUS']==='ACTIVE');
-  const signed=data.filter(r=>r['FINAL STATUS']==='SIGNED');
-  const lapsed=data.filter(r=>r['FINAL STATUS']==='LAPSED');
-  const keyco =data.filter(r=>r['FINAL STATUS']==='LONG KEY COLLECTION');
+  const active=data.filter(r=>String(r['FINAL STATUS']||'').toUpperCase()==='ACTIVE');
+  const signed=data.filter(r=>String(r['FINAL STATUS']||'').toUpperCase()==='SIGNED');
+  const lapsed=data.filter(r=>String(r['FINAL STATUS']||'').toUpperCase()==='LAPSED');
+  const keyco =data.filter(r=>String(r['FINAL STATUS']||'').toUpperCase()==='LONG KEY COLLECTION');
 
-  // Reach out: Long Key Collection customers whose key collection is next quarter
   const reachout = keyco.filter(r => {
     const kc = parseKeyCollectionQuarter(r.Comments);
     return isReachOutNow(kc);
   });
 
-  document.getElementById('pill-count-all').textContent    = data.length;
-  document.getElementById('pill-count-active').textContent = active.length;
-  document.getElementById('pill-count-signed').textContent = signed.length;
-  document.getElementById('pill-count-lapsed').textContent = lapsed.length;
-  document.getElementById('pill-count-keyco').textContent  = keyco.length;
+  document.getElementById('pill-count-all').textContent    = CHYLER_DATA.length;
+  document.getElementById('pill-count-active').textContent = CHYLER_DATA.filter(r=>String(r['FINAL STATUS']||'').toUpperCase()==='ACTIVE').length;
+  document.getElementById('pill-count-signed').textContent = CHYLER_DATA.filter(r=>String(r['FINAL STATUS']||'').toUpperCase()==='SIGNED').length;
+  document.getElementById('pill-count-lapsed').textContent = CHYLER_DATA.filter(r=>String(r['FINAL STATUS']||'').toUpperCase()==='LAPSED').length;
+  document.getElementById('pill-count-keyco').textContent  = CHYLER_DATA.filter(r=>String(r['FINAL STATUS']||'').toUpperCase()==='LONG KEY COLLECTION').length;
+
   document.getElementById('cnt-active').textContent = active.length;
   document.getElementById('cnt-keyco').textContent  = keyco.length;
   document.getElementById('cnt-signed-pipeline').textContent = signed.length;
@@ -182,18 +177,15 @@ function renderPipeline(data) {
 }
 
 function goToProgression(name) {
-  // Switch to Chyler Leads section first
   document.querySelectorAll('.main-nav-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.main-nav-tab')[0].classList.add('active');
   document.getElementById('sub-nav-chyler').style.display='flex';
   document.getElementById('sub-nav-woodates').style.display='none';
   document.getElementById('sub-nav-signed').style.display='none';
-  // Switch to progression tab
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('#sub-nav-chyler .sub-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-progression').classList.add('active');
   document.querySelectorAll('#sub-nav-chyler .sub-tab').forEach(t=>{ if(t.textContent.trim()==='Progression') t.classList.add('active'); });
-  // Scroll to row
   setTimeout(() => {
     const rows = document.querySelectorAll('#prog-tbody tr');
     for(const row of rows) {
@@ -209,7 +201,6 @@ function goToProgression(name) {
 }
 
 function activeCard(r) {
-  // Build mini step indicators (same style as Woodates cards)
   const steps = PIPELINE_STEPS.map((key, i) => {
     const v = r[key];
     let bg;
@@ -224,7 +215,7 @@ function activeCard(r) {
     <div class="card-meta">
       ${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}
       ${r.PM?`<span class="tag pm-tag">${esc(r.PM)}</span>`:''}
-      <span class="tag">${esc(r.stage)}</span>
+      <span class="tag stage-tag">${esc(r.stage)}</span>
     </div>
     <div style="display:flex;gap:0;align-items:center;margin:6px 0 4px;flex-wrap:wrap">${steps}</div>
     <div class="card-phone">${r.Phone}</div>
@@ -273,7 +264,7 @@ function lapsedCard(r) {
     <div class="card-name">${esc(r.Name)}</div>
     <div class="card-meta">
       ${r.Type?`<span class="tag type-tag">${esc(r.Type)}</span>`:''}
-      <span class="tag">${esc(r.stage)}</span>
+      <span class="tag stage-tag">${esc(r.stage)}</span>
     </div>
     <div class="card-phone">${r.Phone}</div>
     ${r.Comments?`<div class="card-comment">${esc(r.Comments)}</div>`:''}
@@ -285,7 +276,6 @@ function lapsedCard(r) {
 let progFiltered = [...CHYLER_DATA];
 
 function initProgression() {
-  progFiltered = [...CHYLER_DATA];
   const pmSel = document.getElementById('prog-pm-filter');
   const prevPm = pmSel.value;
   while(pmSel.options.length > 1) pmSel.remove(1);
@@ -304,7 +294,8 @@ function filterProgression() {
   const pm = document.getElementById('prog-pm-filter').value;
   progFiltered = CHYLER_DATA.filter(r => {
     const matchQ = !q || [r.Name, String(r.Phone||''), r.PM, r.Comments, r.Type, r['FINAL STATUS']].some(v=>v&&String(v).toLowerCase().includes(q));
-    return matchQ && (!st||r['FINAL STATUS']===st) && (!pm||r.PM===pm);
+    const matchSt = !st || String(r['FINAL STATUS'] || '').toUpperCase() === String(st).toUpperCase();
+    return matchQ && matchSt && (!pm||r.PM===pm);
   });
   renderProgression(progFiltered);
 }
@@ -329,11 +320,17 @@ function chylerCellChange(el, field, rowId) {
   supabaseUpdateCell('chyler_leads', rowId, field, val, CHYLER_COL_MAP);
 }
 
-// Fields that get dropdowns in edit mode (milestone columns)
+function chylerTextChange(el, rowId, field) {
+  const val = el.textContent.trim();
+  const row = CHYLER_DATA.find(r => r.id === rowId);
+  if (row) row[field] = val;
+  supabaseUpdateCell('chyler_leads', rowId, field, val, CHYLER_COL_MAP);
+}
+
 const CHYLER_STEP_FIELDS = ['Responsive?','GC created','1st meet','2D','Quotation','2nd meet','Revised 2D','Revised Quotation','Site visit','1st Deposit','2nd Deposit'];
 
 function renderProgression(data) {
-  const blur = editMode ? `onblur="supabaseUpdateCell('chyler_leads',+this.closest('tr').dataset.id,this.dataset.field,this.textContent.trim(),CHYLER_COL_MAP)"` : '';
+  const blur = editMode ? `onblur="chylerTextChange(this, +this.closest('tr').dataset.id, this.dataset.field)"` : '';
 
   function stepCell(r, field) {
     const v = r[field];
@@ -342,10 +339,15 @@ function renderProgression(data) {
   }
 
   document.getElementById('prog-tbody').innerHTML = data.map(r => {
-    const st=r['FINAL STATUS'];
-    const stClass=st==='LONG KEY COLLECTION'?'LONG':st;
-    const stLabel=st==='LONG KEY COLLECTION'?'Key Collection':st;
-    const editable = editMode ? 'contenteditable="true"' : '';
+    const rawSt = String(r['FINAL STATUS'] || '');
+    const st = rawSt.toUpperCase();
+    const stClass = st === 'LONG KEY COLLECTION' ? 'LONG' : st;
+    let stLabel = rawSt || '—';
+    if (st === 'LONG KEY COLLECTION') stLabel = 'Key Collection';
+    else if (st === 'ACTIVE') stLabel = 'Active';
+    else if (st === 'SIGNED') stLabel = 'Signed';
+    else if (st === 'LAPSED') stLabel = 'Lapsed';
+
     return `<tr data-id="${r.id||''}">
       <td style="color:var(--muted);font-size:0.78rem">${esc(r.Number)}</td>
       <td ${editMode?`contenteditable="true" data-field="Date" ${blur}`:''} style="color:var(--muted);font-size:0.78rem;white-space:nowrap">${esc(r.Date)}</td>
@@ -372,7 +374,6 @@ function renderProgression(data) {
   }).join('');
 }
 
-// ── EDIT MODE ──
 function toggleEditMode() {
   editMode = !editMode;
   const btn = document.getElementById('edit-toggle-btn');
@@ -388,7 +389,6 @@ function toggleEditMode() {
     btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit`;
     banner.classList.remove('visible');
     wrap.classList.remove('edit-mode');
-    // Auto-save all edited cells
     const cells = document.querySelectorAll('#prog-table-wrap td[contenteditable="true"][data-field]');
     if(cells.length) {
       showSyncStatus('Saving…', 'saving');
@@ -397,21 +397,23 @@ function toggleEditMode() {
         const rowId = +td.closest('tr')?.dataset.id;
         const field = td.dataset.field;
         const value = td.textContent.trim();
-        if(rowId && field) saves.push(supabaseUpdateCell('chyler_leads', rowId, field, value, CHYLER_COL_MAP));
+        if(rowId && field) {
+          const row = CHYLER_DATA.find(r => r.id === rowId);
+          if (row) row[field] = value;
+          saves.push(supabaseUpdateCell('chyler_leads', rowId, field, value, CHYLER_COL_MAP));
+        }
       });
       Promise.all(saves).then(() => showSyncStatus('All changes saved ✓', 'success'));
     }
   }
-  renderProgression(progFiltered.length ? progFiltered : CHYLER_DATA);
+  renderProgression(progFiltered);
 }
 
-// ── EXCEL DOWNLOAD ──
 function downloadExcel() {
-  const data = progFiltered.length ? progFiltered : CHYLER_DATA;
+  const data = progFiltered;
   const cols = ['Number','Date','Source','Phone','Type','Name','stage','Responsive?','GC created','PM','1st meet','2D','Quotation','2nd meet','Revised 2D','Revised Quotation','Site visit','Comments','1st Deposit','2nd Deposit','FINAL STATUS'];
   const headers = ['A · #','B · Date','C · Source','D · Phone','E · Type','F · Name','Current Status','G · Responsive?','H · GC Created','I · PM','J · 1st Meet','K · 2D','L · Quotation','M · 2nd Meet','N · Revised 2D','O · Revised Quot.','P · Site Visit','Q · Comments','R · 1st Deposit','S · 2nd Deposit','T · Final Status'];
 
-  // Build CSV with BOM for Excel
   let csv = '\uFEFF' + headers.join(',') + '\n';
   data.forEach(r => {
     const row = cols.map(c => {
@@ -434,7 +436,7 @@ function downloadExcel() {
 }
 
 function downloadWdtExcel() {
-  const data = wdtProgFiltered.length ? wdtProgFiltered : WDT_DATA;
+  const data = wdtProgFiltered;
   const cols = ['Number','Date','Phone','Type','Name','Status','stage','Comments','PM','Responsive?','GC created','1st meet','2D','Quotation','2nd meet','Revised 2D','Revised Quotation','Site visit','1st Deposit','2nd Deposit','Status'];
   const headers = ['#','Date','Phone','Type','Name','Status','Current Stage','Comments','PM','Responsive?','GC Created','1st Meet','2D','1st Quote','2nd Meet','Revised 2D','Revised Quote','Site Visit','1st Deposit','2nd Deposit','Final Status'];
 
@@ -612,25 +614,20 @@ function renderMaster(data) {
 
 // ── NAV ──
 function switchMainNav(section, el) {
-  // Update main nav active state
   document.querySelectorAll('.main-nav-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
 
-  // Show/hide sub navs
   document.getElementById('sub-nav-chyler').style.display = section==='chyler' ? 'flex' : 'none';
   document.getElementById('sub-nav-woodates').style.display = section==='woodates' ? 'flex' : 'none';
   document.getElementById('sub-nav-signed').style.display = section==='signed' ? 'flex' : 'none';
 
-  // Show the right page
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   if(section==='chyler') {
-    // Restore whichever chyler sub-tab was active
     const activeChylerTab = document.querySelector('#sub-nav-chyler .sub-tab.active');
     const tabName = activeChylerTab ? activeChylerTab.getAttribute('data-tab') || 'pipeline' : 'pipeline';
     document.getElementById('page-'+tabName).classList.add('active');
   } else if(section==='woodates') {
     document.getElementById('page-woodates').classList.add('active');
-    // Restore active woodates sub-tab
     const activeWdtTab = document.querySelector('#sub-nav-woodates .sub-tab.active');
     if(activeWdtTab) switchWdtView(activeWdtTab.getAttribute('data-view')||'pipeline', activeWdtTab);
   } else if(section==='signed') {
@@ -697,19 +694,18 @@ function saveNewRow() {
   CHYLER_DATA.push(newRow);
   MASTER_DATA.push({ name, phone: document.getElementById('new-phone').value||'', type: document.getElementById('new-type').value||'' });
   closeNewRowModal();
-  renderProgression(progFiltered.length ? progFiltered : CHYLER_DATA);
-  renderPipeline(CHYLER_DATA);
-  renderMaster(masterFiltered);
-  // Save to Supabase
+
+  filterProgression();
+  filterPipeline();
+  filterMaster();
+
   supabaseInsertChyler(newRow).then(id => { if(id) newRow.id = id; });
-  // Flash the new row
   setTimeout(()=>{
     const rows = document.querySelectorAll('#prog-tbody tr');
     const last = rows[rows.length-1];
     if(last){ last.style.background='#FFF8EE'; last.scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(()=>{last.style.background='';},2000); }
   },80);
 }
-// Close modal on overlay click
 document.getElementById('new-row-modal').addEventListener('click', function(e){ if(e.target===this) closeNewRowModal(); });
 
 // ══════════════════════════════════════
@@ -734,14 +730,12 @@ const WDT_MASTER = [
   {Phone:'90110159',Name:'Erlie',Type:'Condo'},
 ];
 
-// Derive status from data
 function getWdtStatus(r) {
-  if(r.Status && r.Status !== '') return r.Status;
+  if(r.Status && r.Status !== '') return String(r.Status).toUpperCase();
   if(r['1st Deposit'] && r['1st Deposit'] !== '') return 'SIGNED';
   return 'ACTIVE';
 }
 
-// Stage steps in order: Responsive → GC Created → 1st Meet → 2D → 1st Quote → 2nd Meet → Revised 2D → Revised Quote → Site Visit → 1st Deposit → 2nd Deposit
 const WDT_STEPS = [
   {key:'Responsive?',    label:'Responsive'},
   {key:'GC created',     label:'GC Created'},
@@ -756,9 +750,7 @@ const WDT_STEPS = [
   {key:'2nd Deposit',    label:'2nd Deposit'},
 ];
 
-// Derive stage
 function getWdtStage(r) {
-  // Walk backwards to find highest completed step
   for(let i = WDT_STEPS.length-1; i >= 0; i--) {
     const v = r[WDT_STEPS[i].key];
     if(v && v!=='NO' && v!=='NA') return WDT_STEPS[i].label + (v==='PENDING'||v==='PLANNED'?' (Pending)':'');
@@ -781,7 +773,6 @@ function switchWdtView(view, el) {
   document.getElementById('wdt-view-master').style.display = view==='master'?'block':'none';
 }
 
-// ── WDT PIPELINE ──
 function initWdtPipeline() {
   const pmSel = document.getElementById('wdt-pipeline-pm-filter');
   const prevPm = pmSel.value;
@@ -817,7 +808,7 @@ function filterWdtPipeline() {
   const type = document.getElementById('wdt-pipeline-type-filter').value;
   let data = WDT_DATA.filter(r => {
     const status = getWdtStatus(r);
-    if(wdtCurrentFilter!=='ALL' && status!==wdtCurrentFilter) return false;
+    if(wdtCurrentFilter!=='ALL' && String(status).toUpperCase()!==wdtCurrentFilter.toUpperCase()) return false;
     if(pm && r.PM!==pm) return false;
     if(type && r.Type!==type) return false;
     if(q && ![r.Name,r.Phone,r.PM,r.Type].some(v=>v&&String(v).toLowerCase().includes(q))) return false;
@@ -840,14 +831,13 @@ function renderWdtPipeline(data) {
   document.getElementById('wdt-cnt-signed').textContent = signed.length;
   document.getElementById('wdt-cnt-lapsed').textContent = lapsed.length;
 
-  // Build kanban for active using WDT_STEPS labels
   const stageLabels = ['New Lead', ...WDT_STEPS.map(s=>s.label)];
   const byStage = {};
   stageLabels.forEach(s=>byStage[s]=[]);
-  active.forEach(r=>{ 
-    const s = getWdtStage(r).replace(' (Pending)',''); 
+  active.forEach(r=>{
+    const s = getWdtStage(r).replace(' (Pending)','');
     const bucket = byStage[s] || byStage['New Lead'];
-    bucket.push(r); 
+    bucket.push(r);
   });
   document.getElementById('wdt-kanban-active').innerHTML = stageLabels.filter(s=>byStage[s]&&byStage[s].length).map(s=>`
     <div class="stage-col">
@@ -864,7 +854,6 @@ function renderWdtPipeline(data) {
 }
 
 function goToWdtProgression(name) {
-  // Switch to Woodates Leads section
   document.querySelectorAll('.main-nav-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.main-nav-tab')[1].classList.add('active');
   document.getElementById('sub-nav-chyler').style.display='none';
@@ -872,12 +861,10 @@ function goToWdtProgression(name) {
   document.getElementById('sub-nav-signed').style.display='none';
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-woodates').classList.add('active');
-  // Switch to progression sub-tab
   const tabs = document.querySelectorAll('#sub-nav-woodates .sub-tab');
   tabs.forEach(t=>t.classList.remove('active'));
   tabs.forEach(t=>{ if(t.getAttribute('data-view')==='progression') t.classList.add('active'); });
   switchWdtView('progression', document.querySelector('#sub-nav-woodates .sub-tab[data-view="progression"]'));
-  // Scroll to the matching row
   setTimeout(() => {
     const rows = document.querySelectorAll('#wdt-prog-tbody tr');
     for(const row of rows) {
@@ -897,7 +884,6 @@ function wdtCard(r, cls) {
   const cleanStage = stage.replace(' (Pending)','');
   const clickable = cls === 'active-card';
 
-  // Build mini step indicators
   const steps = WDT_STEPS.map((s) => {
     const v = r[s.key];
     let bg;
@@ -921,9 +907,7 @@ function wdtCard(r, cls) {
   </div>`;
 }
 
-// ── WDT PROGRESSION ──
 function initWdtProgression() {
-  wdtProgFiltered = [...WDT_DATA];
   const pmSel = document.getElementById('wdt-prog-pm-filter');
   const prevPm = pmSel.value;
   while(pmSel.options.length > 1) pmSel.remove(1);
@@ -941,7 +925,8 @@ function filterWdtProgression() {
   const status = document.getElementById('wdt-prog-status-filter').value;
   const pm = document.getElementById('wdt-prog-pm-filter').value;
   wdtProgFiltered = WDT_DATA.filter(r => {
-    if(status && getWdtStatus(r)!==status) return false;
+    const matchSt = !status || String(getWdtStatus(r)||'').toUpperCase() === String(status).toUpperCase();
+    if(!matchSt) return false;
     if(pm && r.PM!==pm) return false;
     if(q && ![r.Name,String(r.Phone||''),r.PM,r.Type,r.Status,r.Comments].some(v=>v&&String(v).toLowerCase().includes(q))) return false;
     return true;
@@ -952,7 +937,7 @@ function filterWdtProgression() {
 function wdtDropdown(field, value, rowId) {
   const opts = ['YES','NO','PENDING','PLANNED','NA'];
   const selected = (v) => v===value ? 'selected' : '';
-  return `<select class="wdt-cell-select" 
+  return `<select class="wdt-cell-select"
     onchange="wdtCellChange(this,'${field}',${rowId})"
     style="border:1px solid var(--border);border-radius:5px;padding:4px 6px;
       font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--white);
@@ -964,16 +949,21 @@ function wdtDropdown(field, value, rowId) {
 
 function wdtCellChange(el, field, rowId) {
   const val = el.value || null;
-  // Update local data
   const row = WDT_DATA.find(r=>r.id===rowId);
   if(row) row[field] = val;
-  // Sync to Supabase
+  supabaseUpdateCell('woodates_leads', rowId, field, val, WDT_COL_MAP);
+}
+
+function wdtTextChange(el, rowId, field) {
+  const val = el.textContent.trim();
+  const row = WDT_DATA.find(r => r.id === rowId);
+  if (row) row[field] = val;
   supabaseUpdateCell('woodates_leads', rowId, field, val, WDT_COL_MAP);
 }
 
 function renderWdtProgression(data) {
   const isEdit = wdtEditMode;
-  const blur = isEdit ? `onblur="supabaseUpdateCell('woodates_leads',+this.closest('tr').dataset.id,this.dataset.field,this.textContent.trim(),WDT_COL_MAP)"` : '';
+  const blur = isEdit ? `onblur="wdtTextChange(this, +this.closest('tr').dataset.id, this.dataset.field)"` : '';
 
   function stepCell(r, field) {
     const v = r[field];
@@ -987,7 +977,6 @@ function renderWdtProgression(data) {
     const cleanStage = stage.replace(' (Pending)','');
     const isPending = stage.includes('Pending');
 
-    // Mini step dots for Current Stage cell
     const stepDots = WDT_STEPS.map(s => {
       const v = r[s.key];
       if(!v||v==='NO'||v==='NA') return `<span title="${s.label}" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--border);margin:0 1px"></span>`;
@@ -1036,7 +1025,6 @@ function toggleWdtEditMode() {
     btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editing On`;
   } else {
     btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit`;
-    // Auto-save all edited cells
     const cells = document.querySelectorAll('#wdt-prog-tbody td[contenteditable="true"][data-field]');
     if(cells.length) {
       showSyncStatus('Saving…', 'saving');
@@ -1045,15 +1033,18 @@ function toggleWdtEditMode() {
         const rowId = +td.closest('tr')?.dataset.id;
         const field = td.dataset.field;
         const value = td.textContent.trim();
-        if(rowId && field) saves.push(supabaseUpdateCell('woodates_leads', rowId, field, value, WDT_COL_MAP));
+        if(rowId && field) {
+          const row = WDT_DATA.find(r => r.id === rowId);
+          if(row) row[field] = value;
+          saves.push(supabaseUpdateCell('woodates_leads', rowId, field, value, WDT_COL_MAP));
+        }
       });
       Promise.all(saves).then(() => showSyncStatus('All changes saved ✓', 'success'));
     }
   }
-  renderWdtProgression(wdtProgFiltered.length ? wdtProgFiltered : WDT_DATA);
+  renderWdtProgression(wdtProgFiltered);
 }
 
-// ── WDT MASTER ──
 function initWdtMaster() {
   const types = [...new Set(WDT_MASTER.map(r=>r.Type).filter(Boolean))].sort();
   types.forEach(t=>{
@@ -1083,7 +1074,6 @@ function renderWdtMaster(data) {
     </tr>`).join('');
 }
 
-// ── WDT MODAL ──
 function openWdtModal() {
   document.getElementById('wdt-row-modal').classList.add('open');
   const now=new Date(); const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -1110,8 +1100,8 @@ function saveWdtRow() {
     Status:document.getElementById('wdt-new-status').value,
   });
   closeWdtModal();
-  renderWdtPipeline(WDT_DATA);
-  renderWdtProgression(WDT_DATA);
+  filterWdtPipeline();
+  filterWdtProgression();
   supabaseInsertWdt(WDT_DATA[WDT_DATA.length-1]).then(id => { if(id) WDT_DATA[WDT_DATA.length-1].id = id; });
 }
 document.getElementById('wdt-row-modal').addEventListener('click',function(e){if(e.target===this)closeWdtModal();});
@@ -1142,8 +1132,6 @@ function depositBadge(v) {
 
 function renderSigned() {
   const years = [...new Set(SIGNED_DATA.map(r=>r.Year))].sort();
-  
-  // Stats
   const total = SIGNED_DATA.length;
   const both = SIGNED_DATA.filter(r=>r['Deposit 1']&&r['Deposit 2']).length;
   const one = SIGNED_DATA.filter(r=>r['Deposit 1']&&!r['Deposit 2']).length;
@@ -1171,7 +1159,7 @@ function renderSigned() {
       const dep2Cell = signedEditMode
         ? `<td>${signedDepositDropdown(rowId,'Deposit 2',r['Deposit 2'])}</td>`
         : `<td>${depositBadge(r['Deposit 2'])}</td>`;
-      html += `<tr>
+      html += `<tr data-id="${r.id||''}">
         <td style="color:var(--muted);font-size:0.75rem">${idx++}</td>
         <td style="color:var(--muted);font-size:0.8rem">${r.Year}</td>
         ${nameCell}
@@ -1200,7 +1188,6 @@ function toggleSignedEditMode() {
     btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit`;
     banner.classList.remove('visible');
     if(wrap) wrap.classList.remove('edit-mode');
-    // Auto-save all edited name cells
     const cells = document.querySelectorAll('#signed-tbody td[contenteditable="true"]');
     if(cells.length) {
       showSyncStatus('Saving…', 'saving');
@@ -1208,7 +1195,11 @@ function toggleSignedEditMode() {
       cells.forEach(td => {
         const rowId = +td.closest('tr')?.dataset.id;
         const value = td.textContent.trim();
-        if(rowId && value) saves.push(_db.from('chyler_signed').update({name: value}).eq('id', rowId));
+        if(rowId && value) {
+          const row = SIGNED_DATA.find((r,i)=> (r.id || i) === rowId);
+          if (row) row.Name = value;
+          saves.push(_db.from('chyler_signed').update({name: value}).eq('id', rowId));
+        }
       });
       Promise.all(saves).then(() => showSyncStatus('All changes saved ✓', 'success'));
     }
@@ -1242,7 +1233,6 @@ function signedDepositChange(el, rowId, field) {
   const val = el.value || null;
   const row = SIGNED_DATA.find((r,i)=> (r.id || i) === rowId);
   if(row) row[field] = val;
-  // Sync to Supabase
   if(row && row.id) {
     const col = field === 'Deposit 1' ? 'deposit_1' : 'deposit_2';
     showSyncStatus('Saving…','saving');
@@ -1282,14 +1272,10 @@ function saveSignedRow() {
 }
 document.getElementById('signed-add-modal').addEventListener('click',function(e){if(e.target===this)closeSignedModal();});
 
-// ══════════════════════════════════════════════════════
-// SUPABASE SYNC LAYER
-// ══════════════════════════════════════════════════════
 const SUPA_URL = 'https://ilytehukqrkwpupdpkgo.supabase.co';
 const SUPA_KEY = 'sb_publishable_tNMpLdZaqm0e-El_LP4kKg_fhfj-ARF';
 const _db = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-// ── Sync status toast ─────────────────────────────────
 function showSyncStatus(msg, type='info') {
   let el = document.getElementById('sync-status');
   if(!el) {
@@ -1316,7 +1302,6 @@ function showSyncStatus(msg, type='info') {
   if(type!=='saving'){ clearTimeout(el._t); el._t=setTimeout(()=>{el.style.opacity='0';},3000); }
 }
 
-// ── Field maps ────────────────────────────────────────
 function chylerToDB(r) {
   return {
     date:r.Date, number:r.Number, source:r.Source, phone:String(r.Phone||''),
@@ -1366,12 +1351,10 @@ function dbToSigned(r) {
   return {id:r.id, Year:r.year, Name:r.name, 'Deposit 1':r.deposit_1, 'Deposit 2':r.deposit_2};
 }
 
-// ── Seed table if empty (first run only) ──────────────
 async function seedIfEmpty(table, hardcoded, toDBFn) {
   const {data, error} = await _db.from(table).select('id').limit(1);
   if(error) throw error;
   if(data && data.length > 0) return false;
-  // Insert in batches of 50 to stay under limits
   const rows = hardcoded.map(toDBFn);
   for(let i=0; i<rows.length; i+=50) {
     const {error:e} = await _db.from(table).insert(rows.slice(i,i+50));
@@ -1380,7 +1363,6 @@ async function seedIfEmpty(table, hardcoded, toDBFn) {
   return true;
 }
 
-// ── Load all from Supabase, fallback to local ─────────
 async function loadFromSupabase() {
   showSyncStatus('Syncing with Supabase…', 'saving');
   try {
@@ -1406,7 +1388,6 @@ async function loadFromSupabase() {
   }
 }
 
-// ── Insert helpers ────────────────────────────────────
 async function supabaseInsertChyler(row) {
   const {data, error} = await _db.from('chyler_leads').insert([chylerToDB(row)]).select().single();
   if(error) { showSyncStatus('Save failed ✗', 'error'); return null; }
@@ -1426,7 +1407,6 @@ async function supabaseInsertSigned(row) {
   return data.id;
 }
 
-// ── Auto-save on cell blur ────────────────────────────
 const CHYLER_COL_MAP = {
   'Date':'date','Source':'source','Phone':'phone','Type':'type','Name':'name',
   'Responsive?':'responsive','GC created':'gc_created','PM':'pm',
@@ -1454,7 +1434,6 @@ async function supabaseUpdateCell(table, rowId, fieldName, value, colMap) {
   else { showSyncStatus('Saved ✓', 'success'); }
 }
 
-// ── Boot ──────────────────────────────────────────────
 (async function boot() {
   await loadFromSupabase();
   initPipeline();
@@ -1467,7 +1446,6 @@ async function supabaseUpdateCell(table, rowId, fieldName, value, colMap) {
   initAllPmPickers();
 })();
 
-// ── PM MULTI-PICKER (up to 2) ──────────────────────────────
 const ALL_PMS = ['QUEENIE','XUEQI','PENGFEI','SHAN','BOSS CHONG','DANIEL','SHELA'];
 
 function initPmPicker(pickerId, displayId, listId, hiddenId) {
@@ -1541,50 +1519,47 @@ function initAllPmPickers() {
   initPmPicker('wdt', 'wdt-new-pm-display', 'wdt-new-pm-list', 'wdt-new-pm-value');
 }
 
-    // Event delegation - replaces all onclick attributes
-    document.addEventListener('click', function(e) {
-        // Handle PM chip removal
-        if(e.target.classList.contains('chip-remove')) {
-          const pm = e.target.dataset.pm;
-          const pickerId = e.target.dataset.pickerid;
-          const picker = window._pmPickers && window._pmPickers[pickerId];
-          if(picker) {
-            const cur = picker.getValue().split(',').map(s=>s.trim()).filter(Boolean);
-            picker.setValue(cur.filter(p=>p!==pm).join(','));
-          }
-          e.stopPropagation();
-          return;
-        }
-        // Close PM dropdowns on outside click
-        if(!e.target.closest('.pm-picker')) {
-          document.querySelectorAll('.pm-dropdown-list.open').forEach(l => l.classList.remove('open'));
-          document.querySelectorAll('.pm-selected-display.open').forEach(d => d.classList.remove('open'));
-        }
-        const btn = e.target.closest('[data-action]');
-        if (!btn) return;
-        const action = btn.dataset.action;
-        const { nav, tab, view, filter, target, step, name } = btn.dataset;
-        if (action === 'switchMainNav') switchMainNav(nav, btn);
-        else if (action === 'switchSubTab') switchSubTab(tab, btn);
-        else if (action === 'switchWdtView') switchWdtView(view, btn);
-        else if (action === 'setPipelineFilter') setPipelineFilter(filter, btn);
-        else if (action === 'setWdtPipelineFilter') setWdtPipelineFilter(filter, btn);
-        else if (action === 'toggleSection') toggleSection(target, btn);
-        else if (action === 'openNewRowModal') openNewRowModal();
-        else if (action === 'toggleEditMode') toggleEditMode();
-        else if (action === 'downloadExcel') downloadExcel();
-        else if (action === 'openWdtModal') openWdtModal();
-        else if (action === 'toggleWdtEditMode') toggleWdtEditMode();
-        else if (action === 'downloadWdtExcel') downloadWdtExcel();
-        else if (action === 'toggleSignedEditMode') toggleSignedEditMode();
-        else if (action === 'downloadSignedExcel') downloadSignedExcel();
-        else if (action === 'openSignedModal') openSignedModal();
-        else if (action === 'closeWdtModal') closeWdtModal();
-        else if (action === 'saveWdtRow') saveWdtRow();
-        else if (action === 'closeSignedModal') closeSignedModal();
-        else if (action === 'saveSignedRow') saveSignedRow();
-        else if (action === 'closeNewRowModal') closeNewRowModal();
-        else if (action === 'saveNewRow') saveNewRow();
-        else if (action === 'goToProgression') goToProgression(name);
-        else if (action === 'goToWdtProgression') goToWdtProgression(name);
-    });
+document.addEventListener('click', function(e) {
+    if(e.target.classList.contains('chip-remove')) {
+      const pm = e.target.dataset.pm;
+      const pickerId = e.target.dataset.pickerid;
+      const picker = window._pmPickers && window._pmPickers[pickerId];
+      if(picker) {
+        const cur = picker.getValue().split(',').map(s=>s.trim()).filter(Boolean);
+        picker.setValue(cur.filter(p=>p!==pm).join(','));
+      }
+      e.stopPropagation();
+      return;
+    }
+    if(!e.target.closest('.pm-picker')) {
+      document.querySelectorAll('.pm-dropdown-list.open').forEach(l => l.classList.remove('open'));
+      document.querySelectorAll('.pm-selected-display.open').forEach(d => d.classList.remove('open'));
+    }
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    const { nav, tab, view, filter, target, step, name } = btn.dataset;
+    if (action === 'switchMainNav') switchMainNav(nav, btn);
+    else if (action === 'switchSubTab') switchSubTab(tab, btn);
+    else if (action === 'switchWdtView') switchWdtView(view, btn);
+    else if (action === 'setPipelineFilter') setPipelineFilter(filter, btn);
+    else if (action === 'setWdtPipelineFilter') setWdtPipelineFilter(filter, btn);
+    else if (action === 'toggleSection') toggleSection(target, btn);
+    else if (action === 'openNewRowModal') openNewRowModal();
+    else if (action === 'toggleEditMode') toggleEditMode();
+    else if (action === 'downloadExcel') downloadExcel();
+    else if (action === 'openWdtModal') openWdtModal();
+    else if (action === 'toggleWdtEditMode') toggleWdtEditMode();
+    else if (action === 'downloadWdtExcel') downloadWdtExcel();
+    else if (action === 'toggleSignedEditMode') toggleSignedEditMode();
+    else if (action === 'downloadSignedExcel') downloadSignedExcel();
+    else if (action === 'openSignedModal') openSignedModal();
+    else if (action === 'closeWdtModal') closeWdtModal();
+    else if (action === 'saveWdtRow') saveWdtRow();
+    else if (action === 'closeSignedModal') closeSignedModal();
+    else if (action === 'saveSignedRow') saveSignedRow();
+    else if (action === 'closeNewRowModal') closeNewRowModal();
+    else if (action === 'saveNewRow') saveNewRow();
+    else if (action === 'goToProgression') goToProgression(name);
+    else if (action === 'goToWdtProgression') goToWdtProgression(name);
+});
