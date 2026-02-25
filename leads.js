@@ -284,18 +284,22 @@ function initProgression() {
     const o=document.createElement('option'); o.value=pm; o.textContent=pm;
     pmSel.appendChild(o);
   });
-  pmSel.value = prevPm;
+  // Only restore previous PM selection if it still exists in current data
+  pmSel.value = pms.includes(prevPm) ? prevPm : '';
   filterProgression();
 }
 
 function filterProgression() {
-  const q = document.getElementById('prog-search').value.toLowerCase();
-  const st = document.getElementById('prog-status-filter').value;
-  const pm = document.getElementById('prog-pm-filter').value;
+  const q = (document.getElementById('prog-search').value || '').toLowerCase();
+  const st = (document.getElementById('prog-status-filter').value || '').toUpperCase().trim();
+  const pm = (document.getElementById('prog-pm-filter').value || '').trim();
   progFiltered = CHYLER_DATA.filter(r => {
     const matchQ = !q || [r.Name, String(r.Phone||''), r.PM, r.Comments, r.Type, r['FINAL STATUS']].some(v=>v&&String(v).toLowerCase().includes(q));
-    const matchSt = !st || String(r['FINAL STATUS'] || '').toUpperCase() === String(st).toUpperCase();
-    return matchQ && matchSt && (!pm||r.PM===pm);
+    const rowStatus = String(r['FINAL STATUS'] || '').toUpperCase().trim();
+    const matchSt = !st || rowStatus === st;
+    const rowPM = String(r.PM || '').trim();
+    const matchPm = !pm || rowPM === pm;
+    return matchQ && matchSt && matchPm;
   });
   renderProgression(progFiltered);
 }
@@ -641,6 +645,9 @@ function switchSubTab(tab, el) {
   el.setAttribute('data-tab', tab);
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+tab).classList.add('active');
+  if(tab === 'progression') { initProgression(); }
+  else if(tab === 'pipeline') { filterPipeline(); }
+  else if(tab === 'master') { filterMaster(); }
 }
 
 function toggleSection(id, btn) {
