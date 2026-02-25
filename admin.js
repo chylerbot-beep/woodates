@@ -11,6 +11,27 @@ const { createClient } = supabase;
 
         const projectsBody = document.getElementById('projectsBody');
 
+        async function fetchProfilesMap(userIds) {
+            const ids = [...new Set((userIds || []).filter(Boolean))];
+            if (!ids.length) return {};
+
+            const { data, error } = await _supabase
+                .from('profiles')
+                .select('id, full_name')
+                .in('id', ids);
+
+            if (error) throw error;
+
+            return (data || []).reduce((acc, p) => {
+                acc[p.id] = p.full_name || 'Unknown';
+                return acc;
+            }, {});
+        }
+
+        function resolveDesignerName(row, profilesById) {
+            return profilesById?.[row.user_id] || row.profiles?.full_name || 'Unknown';
+        }
+
         async function init() {
             try {
                 const { data: { session } } = await _supabase.auth.getSession();
@@ -44,7 +65,7 @@ const { createClient } = supabase;
             try {
                 const { data: projects, error } = await _supabase
                     .from('projects')
-                    .select('*, profiles(full_name)')
+                    .select('*')
                     .order('updated_at', { ascending: false });
 
                 const cards = document.getElementById('projectsCards');
@@ -57,10 +78,12 @@ const { createClient } = supabase;
                     return;
                 }
 
+            const profilesById = await fetchProfilesMap(projects.map(p => p.user_id));
+
             projectsBody.innerHTML = projects.map(p => {
                 const date = new Date(p.updated_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
                 const status = p.status || 'in_progress';
-                const designerName = p.profiles ? p.profiles.full_name : 'Unknown';
+                const designerName = resolveDesignerName(p, profilesById);
                 return `
                     <tr>
                         <td class="designer-name">${esc(designerName)}</td>
@@ -79,7 +102,7 @@ const { createClient } = supabase;
             cards.innerHTML = '<div class="card-list">' + projects.map(p => {
                 const date = new Date(p.updated_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
                 const status = p.status || 'in_progress';
-                const designerName = p.profiles ? p.profiles.full_name : 'Unknown';
+                const designerName = resolveDesignerName(p, profilesById);
                 return `
                     <div class="m-card">
                         <div class="m-card-header">
@@ -121,8 +144,7 @@ const { createClient } = supabase;
             try {
             const { data: quotes, error } = await _supabase
                 .from('quotes')
-                .select('*, profiles(full_name)')
-                .eq('status', 'completed')
+                .select('*')
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -133,11 +155,14 @@ const { createClient } = supabase;
                 return;
             }
 
+            const profilesById = await fetchProfilesMap(quotes.map(q => q.user_id));
+
             body.innerHTML = quotes.map(q => {
                 const date = new Date(q.created_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
-                const designer = q.profiles?.full_name || 'Unknown';
-                const total = q.total_amount != null
-                    ? '$' + Number(q.total_amount).toLocaleString('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                const designer = resolveDesignerName(q, profilesById);
+                const quoteTotal = q.total ?? q.total_amount;
+                const total = quoteTotal != null
+                    ? '$' + Number(quoteTotal).toLocaleString('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                     : '—';
                 return `
                     <tr>
@@ -154,9 +179,10 @@ const { createClient } = supabase;
 
             cards.innerHTML = '<div class="card-list">' + quotes.map(q => {
                 const date = new Date(q.created_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
-                const designer = q.profiles?.full_name || 'Unknown';
-                const total = q.total_amount != null
-                    ? '$' + Number(q.total_amount).toLocaleString('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                const designer = resolveDesignerName(q, profilesById);
+                const quoteTotal = q.total ?? q.total_amount;
+                const total = quoteTotal != null
+                    ? '$' + Number(quoteTotal).toLocaleString('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                     : '—';
                 return `
                     <div class="m-card">
@@ -203,7 +229,7 @@ const { createClient } = supabase;
             try {
             const { data: requests, error } = await _supabase
                 .from('ai_quote_requests')
-                .select('*, profiles(full_name)')
+                .select('*')
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -214,10 +240,12 @@ const { createClient } = supabase;
                 return;
             }
 
+            const profilesById = await fetchProfilesMap(requests.map(r => r.user_id));
+
             body.innerHTML = requests.map(r => {
                 const date = new Date(r.created_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
                 const status = r.status || 'pending';
-                const designer = r.profiles?.full_name || 'Unknown';
+                const designer = resolveDesignerName(r, profilesById);
                 const floorPlanCell = r.floor_plan_url
                     ? `<a href="${esc(r.floor_plan_url)}" target="_blank" class="btn-dl" style="font-size:0.75rem;padding:4px 10px;">⬇ Download</a>`
                     : '<span style="color:#9E9590;font-size:0.85rem;">—</span>';
@@ -240,7 +268,7 @@ const { createClient } = supabase;
             cards.innerHTML = '<div class="card-list">' + requests.map(r => {
                 const date = new Date(r.created_at).toLocaleDateString('en-SG', { day: '2-digit', month: 'short', year: 'numeric' });
                 const status = r.status || 'pending';
-                const designer = r.profiles?.full_name || 'Unknown';
+                const designer = resolveDesignerName(r, profilesById);
                 return `
                     <div class="m-card">
                         <div class="m-card-header">
