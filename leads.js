@@ -1314,6 +1314,7 @@ function chylerToDB(r) {
   };
 }
 function dbToChyler(r) {
+  const fs = r.final_status || r["final_status"] || "";
   return {
     id:r.id, Date:r.date, Number:r.number, Source:r.source, Phone:r.phone,
     Type:r.type, Name:r.name, 'Responsive?':r.responsive, 'GC created':r.gc_created,
@@ -1321,7 +1322,7 @@ function dbToChyler(r) {
     '2nd meet':r.second_meet, 'Revised 2D':r.revised_2d, 'Revised Quotation':r.revised_quot,
     'Site visit':r.site_visit, Comments:r.comments,
     '1st Deposit':r.first_deposit, '2nd Deposit':r.second_deposit,
-    'FINAL STATUS':r.final_status, stage:r.stage,
+    'FINAL STATUS': fs ? fs.toUpperCase().trim() : null, stage:r.stage,
   };
 }
 function wdtToDB(r) {
@@ -1380,7 +1381,14 @@ async function loadFromSupabase() {
     if(cl.data?.length) { CHYLER_DATA.length=0; cl.data.forEach(r=>CHYLER_DATA.push(dbToChyler(r))); }
     if(wl.data?.length) { WDT_DATA.length=0;    wl.data.forEach(r=>WDT_DATA.push(dbToWdt(r))); }
     if(cs.data?.length) { SIGNED_DATA.length=0;  cs.data.forEach(r=>SIGNED_DATA.push(dbToSigned(r))); }
-    showSyncStatus('Synced ✓', 'success');
+    showSyncStatus("Synced ✓", "success");
+    // DEBUG: log first few raw Supabase rows to console
+    if(cl.data?.length) {
+      console.log("[DEBUG] First 3 raw Supabase rows:", JSON.stringify(cl.data.slice(0,3), null, 2));
+      console.log("[DEBUG] First 3 mapped CHYLER_DATA rows:", JSON.stringify(CHYLER_DATA.slice(0,3), null, 2));
+      const statuses = [...new Set(CHYLER_DATA.map(r=>r["FINAL STATUS"]))];
+      console.log("[DEBUG] All unique FINAL STATUS values:", JSON.stringify(statuses));
+    }
     return true;
   } catch(e) {
     showSyncStatus('Offline — using local data', 'error');
