@@ -205,11 +205,15 @@
 
         .user-info {
             text-align: right;
+            min-width: 0;
         }
 
         .user-name {
             font-weight: 700;
             font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .logout-btn {
@@ -440,6 +444,7 @@
         @media (max-width: 768px) {
             header {
                 padding: 14px 20px;
+                gap: 12px;
             }
 
             .brand h1 {
@@ -449,6 +454,15 @@
             .brand p {
                 font-size: 0.65rem;
                 letter-spacing: 0.1em;
+            }
+
+            .user-nav {
+                min-width: 0;
+                gap: 10px;
+            }
+
+            .user-info {
+                max-width: 130px;
             }
 
             .user-name {
@@ -561,7 +575,9 @@
             header { padding: 12px 14px; }
             .brand h1 { font-size: 1rem; }
             .user-nav { gap: 8px; }
+            .user-info { max-width: 96px; }
             .user-name { font-size: 0.78rem; }
+            #userRole { display: none; }
             .logout-btn { padding: 5px 10px; font-size: 0.72rem; }
             main { padding: 16px 12px; }
             .login-card { padding: 28px 20px; }
